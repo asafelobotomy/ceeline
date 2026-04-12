@@ -10,6 +10,7 @@ import toolSummaryPayloadV1Schema from "../schema/tool-summary-payload-1.0.schem
 export * from "./language.js";
 export * from "./dict-parser.js";
 export * from "./dialect.js";
+export * from "./lexicon.js";
 
 export const CEELINE_VERSION = "1.0" as const;
 

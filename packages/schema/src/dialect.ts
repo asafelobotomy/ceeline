@@ -20,6 +20,7 @@
  */
 
 import type { CeelineMorphology } from "./language.js";
+import type { PersonalLexicon } from "./lexicon.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -216,6 +217,81 @@ export class DialectStore {
     return [...this.usage.entries()]
       .map(([code, count]) => ({ code, count }))
       .sort((a, b) => b.count - a.count);
+  }
+
+  // -----------------------------------------------------------------------
+  // Personal Lexicon support
+  // -----------------------------------------------------------------------
+
+  /** Personal lexicons keyed by "owner\0id". */
+  private readonly lexicons = new Map<string, PersonalLexicon>();
+
+  /** Define or update a personal lexicon. Version must increase. */
+  defineLexicon(lexicon: PersonalLexicon): void {
+    const key = `${lexicon.owner}\0${lexicon.dialect.id}`;
+    const existing = this.lexicons.get(key);
+    if (existing && lexicon.dialect.version <= existing.dialect.version) {
+      throw new Error(
+        `Lexicon "${lexicon.dialect.id}" (owner=${lexicon.owner}) v${lexicon.dialect.version} ` +
+        `cannot replace v${existing.dialect.version}: version must increase`
+      );
+    }
+    this.lexicons.set(key, lexicon);
+  }
+
+  /** Retrieve a personal lexicon by owner + dialect ID. */
+  getLexicon(owner: string, id: string): PersonalLexicon | undefined {
+    return this.lexicons.get(`${owner}\0${id}`);
+  }
+
+  /** List all personal lexicons, optionally filtered by owner. */
+  listLexicons(owner?: string): PersonalLexicon[] {
+    const all = [...this.lexicons.values()];
+    return owner ? all.filter(l => l.owner === owner) : all;
+  }
+
+  /**
+   * Activate shared dialects and personal lexicons into a morphology
+   * with correct precedence.
+   *
+   * Application order (later wins on same stem code):
+   *   1. Shared dialects (via dialect= header)
+   *   2. Personal lexicons (via lexicon= header)
+   *
+   * Domain tables and session vocab are handled separately by the parser.
+   */
+  activateWithLexicon(
+    dialectIds: readonly string[],
+    lexiconIds: readonly string[],
+    owner: string,
+    morphology: CeelineMorphology
+  ): { dialects: string[]; lexicons: string[] } {
+    const activatedDialects = this.activate(dialectIds, morphology);
+
+    const activatedLexicons: string[] = [];
+    for (const id of lexiconIds) {
+      const lex = this.getLexicon(owner, id);
+      if (!lex) continue;
+      // Resolve lexicon's underlying dialect chain
+      const chain = this.resolveChain(lex.dialect.id);
+      if (chain.length === 0) {
+        // Dialect not in main store — apply directly
+        applyDialect(lex.dialect, morphology);
+      } else {
+        for (const d of chain) {
+          applyDialect(d, morphology);
+        }
+        // Apply lexicon's own stems on top so they take precedence over the chain
+        applyDialect(lex.dialect, morphology);
+      }
+      // Track usage
+      for (const code of lex.dialect.stems.keys()) {
+        this.usage.set(code, (this.usage.get(code) ?? 0) + 1);
+      }
+      activatedLexicons.push(id);
+    }
+
+    return { dialects: activatedDialects, lexicons: activatedLexicons };
   }
 
   /**

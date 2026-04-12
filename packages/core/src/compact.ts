@@ -60,6 +60,11 @@ import {
   parseDialectStem,
   parseDialectFromClauses,
   defineDialect,
+  type PersonalLexicon,
+  type PersonalStemDef,
+  definePersonalLexicon,
+  parsePersonalStem,
+  parsePersonalLexiconFromClauses,
 } from "@ceeline/schema";
 import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
@@ -103,7 +108,7 @@ function shouldEmitTokens(density: CompactDensity): boolean {
 // Renderer
 // =========================================================================
 
-function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domains?: readonly string[], dialects?: readonly string[]): string {
+function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domains?: readonly string[], dialects?: readonly string[], lexicons?: readonly string[]): string {
   const parts = [
     "@cl1",
     `s=${COMPACT_SURFACE_CODES[envelope.surface]}`,
@@ -125,6 +130,13 @@ function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domain
     const safe = dialects.filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
     if (safe.length > 0) {
       parts.push(`dialect=${safe.join("+")}`);
+    }
+  }
+
+  if (lexicons && lexicons.length > 0) {
+    const safe = lexicons.filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+    if (safe.length > 0) {
+      parts.push(`lexicon=${safe.join("+")}`);
     }
   }
 
@@ -315,6 +327,8 @@ export interface CompactRenderOptions {
   domains?: readonly string[];
   /** Dialect IDs to reference in the header (e.g. ["audit.sec-review"]). */
   dialects?: readonly string[];
+  /** Personal lexicon IDs to reference in the header (e.g. ["my.sec-terms"]). */
+  lexicons?: readonly string[];
 }
 
 export function renderCeelineCompact(
@@ -328,7 +342,7 @@ export function renderCeelineCompact(
   }
 
   const segments = [
-    renderHeader(envelope, density, options?.domains, options?.dialects),
+    renderHeader(envelope, density, options?.domains, options?.dialects, options?.lexicons),
     ...renderCommonPayload(envelope.payload, density),
     ...renderSurfacePayload(envelope),
     ...renderPreserve(envelope, density),
@@ -447,6 +461,12 @@ export interface CompactParseResult {
   dialectStems: DialectStemDef[];
   /** Dialect metadata fields (did, dver, dname, dbase) if present. */
   dialectMeta: Record<string, string>;
+  /** Active personal lexicon IDs from lexicon= header. */
+  lexicons: string[];
+  /** Personal lexicon owner from lowner= body clause. */
+  lexiconOwner?: string;
+  /** Inline personal stem definitions (stem= clauses with @relation). */
+  lexiconStems: PersonalStemDef[];
   /** Resolved symbol expressions found in clause values, keyed by clause key. */
   symbolExprs: Record<string, SymbolExpr>;
   /** Any clause keys the parser did not recognize (preserved, not dropped). */
@@ -683,6 +703,8 @@ function parseCeelineCompactInner(
     dialects: [],
     dialectStems: [],
     dialectMeta: {},
+    lexicons: [],
+    lexiconStems: [],
     symbolExprs: {},
     unknown: {}
   };
@@ -718,6 +740,12 @@ function parseCeelineCompactInner(
         result.dialects = dialectIds;
         // Dialect activation is handled by the caller via DialectStore.
         // The parser records the IDs; it does not store or resolve dialect contents.
+        break;
+      }
+      case "lexicon": {
+        const lexiconIds = hv.split("+").filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+        result.lexicons = lexiconIds;
+        // Lexicon activation is handled by the caller via DialectStore.activateWithLexicon().
         break;
       }
       default:
@@ -756,19 +784,32 @@ function parseCeelineCompactInner(
       continue;
     }
 
-    // Dialect stem definition: stem=code:meaning/FLAGS
+    // Dialect stem definition: stem=code:meaning/FLAGS or stem=code:meaning/FLAGS@relation
     if (ck === "stem") {
-      const stemDef = parseDialectStem(cv);
-      if (stemDef) {
-        result.dialectStems.push(stemDef);
+      const personalStem = parsePersonalStem(cv);
+      if (personalStem) {
+        if (personalStem.relation) {
+          // Has @relation suffix — route to lexicon stems
+          result.lexiconStems.push(personalStem);
+        } else {
+          // Plain dialect stem
+          result.dialectStems.push(personalStem);
+        }
         // Register into live morphology so subsequent affixed codes resolve
         if (morphology) {
-          const flags = stemDef.flags ?? "NRPTDQOXAMVC";
-          morphology.domainStems.set(stemDef.code, new Set(flags.split("")));
+          const flags = personalStem.flags ?? "NRPTDQOXAMVC";
+          morphology.domainStems.set(personalStem.code, new Set(flags.split("")));
         }
       } else {
         issues.push({ path: "body.stem", code: "invalid_stem", message: `stem clause must be code:meaning/FLAGS, got: ${cv}` });
       }
+      continue;
+    }
+
+    // Personal lexicon owner: lowner=<identity>
+    if (ck === "lowner") {
+      result.lexiconOwner = decodeAtom(cv);
+      result.dialectMeta[ck] = decodeAtom(cv);
       continue;
     }
 
@@ -933,4 +974,47 @@ export function extractDialect(
     store.define(dialect);
   }
   return dialect;
+}
+
+// =========================================================================
+// Personal lexicon extraction — pull a lexicon from a parsed result
+// =========================================================================
+
+/**
+ * Extract a personal lexicon definition from a parsed compact text result.
+ *
+ * When an LLM emits a lexicon.define or lexicon.evolve message with
+ * `lowner=` metadata and `stem=` clauses with `@relation` suffixes,
+ * this function assembles them into a `PersonalLexicon` and optionally
+ * stores it in a `DialectStore`.
+ *
+ * Falls back to dialect stems if no lexicon-specific stems are present
+ * (for lexicons defined with plain stems).
+ *
+ * Returns null if the parse result doesn't contain lexicon metadata.
+ */
+export function extractPersonalLexicon(
+  result: CompactParseResult,
+  store?: DialectStore
+): PersonalLexicon | null {
+  if (!result.lexiconOwner || !result.dialectMeta["did"] || !result.dialectMeta["dname"]) {
+    return null;
+  }
+
+  // Use lexiconStems if present, otherwise fall back to dialectStems
+  const stems: PersonalStemDef[] =
+    result.lexiconStems.length > 0 ? result.lexiconStems : result.dialectStems;
+
+  const def = parsePersonalLexiconFromClauses(
+    { ...result.dialectMeta, lowner: result.lexiconOwner, sum: result.summary || result.dialectMeta["sum"] || "" },
+    stems
+  );
+  /* v8 ignore next 2 -- structurally unreachable: extractPersonalLexicon guards the same condition */
+  if (!def) return null;
+
+  const lexicon = definePersonalLexicon(def);
+  if (store) {
+    store.defineLexicon(lexicon);
+  }
+  return lexicon;
 }
