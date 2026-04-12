@@ -72,6 +72,17 @@ describe("Layer 1: single symbol atoms", () => {
     expect(isSymbol("✔")).toBe(true);
   });
 
+  it("resolves check marks as atom kind", () => {
+    const expr1 = resolveSymbolExpr("✓");
+    expect(expr1).not.toBeNull();
+    expect(expr1!.kind).toBe("atom");
+    expect(expr1!.baseMeaning).toBe("ok");
+    const expr2 = resolveSymbolExpr("✔");
+    expect(expr2).not.toBeNull();
+    expect(expr2!.kind).toBe("atom");
+    expect(expr2!.baseMeaning).toBe("confirmed");
+  });
+
   it("reverse lookup round-trips", () => {
     for (const [sym, meaning] of Object.entries(SYMBOL_CODES)) {
       expect(REVERSE_SYMBOL_CODES[meaning]).toBe(sym);
@@ -341,5 +352,91 @@ describe("compact parser: symbol expressions", () => {
     expect(parsed.value.surfaceFields).toHaveProperty("role");
     expect(parsed.value.symbolExprs).toHaveProperty("st");
     expect(parsed.value.facts).toContain("check_auth");
+  });
+});
+
+// =========================================================================
+// Symbol expression edge cases (coverage gaps)
+// =========================================================================
+
+describe("symbol expression edge cases", () => {
+  it("returns null for empty string", () => {
+    expect(resolveSymbolExpr("")).toBeNull();
+  });
+
+  it("returns null for non-symbol string", () => {
+    expect(resolveSymbolExpr("hello")).toBeNull();
+  });
+
+  it("resolves block + math as quality expression (█≤)", () => {
+    const expr = resolveSymbolExpr("█≤");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("quality");
+    expect(expr!.baseMeaning).toContain("conf_full");
+    expect(expr!.baseMeaning).toContain("at_most");
+  });
+
+  it("resolves block + check as quality expression (▒✓)", () => {
+    const expr = resolveSymbolExpr("▒✓");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("quality");
+    expect(expr!.baseMeaning).toContain("conf_med");
+  });
+
+  it("resolves math-led + greek as operator (≤δ)", () => {
+    const expr = resolveSymbolExpr("≤δ");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("operator");
+    expect(expr!.baseMeaning).toContain("at_most");
+    expect(expr!.baseMeaning).toContain("delta");
+  });
+
+  it("resolves quantifier-led operator (∀σ)", () => {
+    const expr = resolveSymbolExpr("∀σ");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("operator");
+    expect(expr!.baseMeaning).toContain("for_all");
+    expect(expr!.baseMeaning).toContain("standard");
+  });
+
+  it("resolves greek + math + greek comparison (ε≤σ)", () => {
+    const expr = resolveSymbolExpr("ε≤σ");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("operator");
+    expect(expr!.baseMeaning).toContain("epsilon");
+    expect(expr!.baseMeaning).toContain("at_most");
+    expect(expr!.baseMeaning).toContain("standard");
+  });
+
+  it("resolves greek pair as operator (Σδ)", () => {
+    const expr = resolveSymbolExpr("Σδ");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("operator");
+    expect(expr!.baseMeaning).toContain("sum");
+    expect(expr!.baseMeaning).toContain("delta");
+  });
+
+  it("resolves arrow-led flow with multiple symbols (→●▲)", () => {
+    const expr = resolveSymbolExpr("→●▲");
+    expect(expr).not.toBeNull();
+    expect(expr!.kind).toBe("flow");
+  });
+
+  it("returns null for block + 3 chars (no pattern match)", () => {
+    // Block followed by three more symbols exceeds known patterns
+    const expr = resolveSymbolExpr("█αβγ");
+    expect(expr).toBeNull();
+  });
+
+  it("returns null for arrow + non-symbol char (flow with non-symbol)", () => {
+    // → followed by ASCII 'a' — not all chars are symbols
+    const expr = resolveSymbolExpr("→a");
+    expect(expr).toBeNull();
+  });
+
+  it("returns null for greek + unknown combo length > 3", () => {
+    // Greek followed by many symbols — no pattern match
+    const expr = resolveSymbolExpr("δ●■□");
+    expect(expr).toBeNull();
   });
 });

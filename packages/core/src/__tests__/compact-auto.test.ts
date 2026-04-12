@@ -91,4 +91,17 @@ describe("renderCeelineCompactAuto", () => {
       expect(result.value).toMatch(/#n=\d+$/);
     }
   });
+
+  // ─── Non-token error bail ──────────────────────────────────────────
+
+  it("bails immediately on non-token error", () => {
+    // Use an unknown surface to trigger a non-token error
+    const env = withOverrides(makeHandoff(), "surface", "bogus");
+    const envWithBudget = withOverrides(env, "constraints.max_render_tokens", 10000);
+    const result = renderCeelineCompactAuto(envWithBudget);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.issues[0].code).toBe("unknown_surface");
+    }
+  });
 });

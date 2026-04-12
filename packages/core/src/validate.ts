@@ -103,6 +103,7 @@ function validateConstraints(value: unknown, channel: unknown): ValidationIssue[
   if (!constraints.audience || !AUDIENCES.includes(constraints.audience)) {
     issues.push(issue("invalid_constraint_audience", "Constraint audience is invalid.", "constraints.audience"));
   }
+  /* v8 ignore next -- ?? is unreachable: !Number.isInteger short-circuits when undefined */
   if (!Number.isInteger(constraints.max_render_tokens) || (constraints.max_render_tokens ?? -1) < 0) {
     issues.push(issue("invalid_max_render_tokens", "max_render_tokens must be an integer greater than or equal to 0.", "constraints.max_render_tokens"));
   }
@@ -326,6 +327,7 @@ function validateSurfacePayload(surface: CeelineSurface | undefined, payload: un
       return validatePromptContextPayload(commonPayload);
     case "history":
       return validateHistoryPayload(commonPayload);
+    /* v8 ignore next 2 — all 8 surfaces handled above */
     default:
       return [];
   }

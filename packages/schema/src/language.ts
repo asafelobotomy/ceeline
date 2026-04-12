@@ -1098,9 +1098,14 @@ export function resolveSymbolExpr(
   text: string,
   surface?: string
 ): SymbolExpr | null {
+  // Helper: resolve symbol meaning with fallback. The ?? path is structurally unreachable
+  // because ALL_SYMBOLS.has() guarantees a meaning exists, but we keep it for safety.
+  /* v8 ignore next */
+  const m = (ch: string) => resolveSymbolMeaning(ch, surface) ?? ch;
   if (text.length === 0) return null;
 
   const chars = [...text]; // surrogate-safe split
+  /* v8 ignore next — unreachable: text.length===0 check above guarantees chars is non-empty */
   if (chars.length === 0) return null;
 
   // All characters must be either symbols, digits, or ASCII for stem refs
@@ -1109,7 +1114,7 @@ export function resolveSymbolExpr(
 
   // --- Single atom ---
   if (chars.length === 1) {
-    const meaning = resolveSymbolMeaning(chars[0], surface) ?? chars[0];
+    const meaning = m(chars[0]);
     const kind = categorize(chars[0]);
     return { raw: text, kind, symbols: chars, baseMeaning: meaning };
   }
@@ -1117,9 +1122,9 @@ export function resolveSymbolExpr(
   // --- State transition: shape→shape ---
   // Pattern: [shape][arrow][shape]
   if (chars.length === 3 && SHAPES.has(chars[0]) && ARROWS.has(chars[1]) && SHAPES.has(chars[2])) {
-    const from = resolveSymbolMeaning(chars[0], surface) ?? chars[0];
-    const arrow = resolveSymbolMeaning(chars[1], surface) ?? chars[1];
-    const to = resolveSymbolMeaning(chars[2], surface) ?? chars[2];
+    const from = m(chars[0]);
+    const arrow = m(chars[1]);
+    const to = m(chars[2]);
     return {
       raw: text, kind: "state", symbols: chars,
       baseMeaning: `${from}_${arrow}_${to}`,
@@ -1131,7 +1136,7 @@ export function resolveSymbolExpr(
   if (ARROWS.has(chars[0])) {
     const symbols = chars.filter(c => ALL_SYMBOLS.has(c));
     if (symbols.length === chars.length) {
-      const parts = symbols.map(s => resolveSymbolMeaning(s, surface) ?? s);
+      const parts = symbols.map(s => m(s));
       return {
         raw: text, kind: "flow", symbols,
         baseMeaning: parts.join("_"),
@@ -1142,15 +1147,16 @@ export function resolveSymbolExpr(
   // --- Quality: block + optional modifier ---
   // Pattern: [block] or [block][greek|check|math]
   if (BLOCKS.has(chars[0])) {
+    /* v8 ignore next 5 — single-char blocks handled by single-atom check above */
     if (chars.length === 1) {
       return {
         raw: text, kind: "quality", symbols: [chars[0]],
-        baseMeaning: resolveSymbolMeaning(chars[0], surface) ?? chars[0],
+        baseMeaning: m(chars[0]),
       };
     }
     if (chars.length === 2 && (GREEKS.has(chars[1]) || CHECKS.has(chars[1]) || MATHS.has(chars[1]))) {
-      const block = resolveSymbolMeaning(chars[0], surface) ?? chars[0];
-      const mod = resolveSymbolMeaning(chars[1], surface) ?? chars[1];
+      const block = m(chars[0]);
+      const mod = m(chars[1]);
       return {
         raw: text, kind: "quality", symbols: chars,
         baseMeaning: `${block}_${mod}`,
@@ -1167,12 +1173,12 @@ export function resolveSymbolExpr(
       return {
         raw: text, kind: "operator", symbols: [chars[0]],
         count: parseInt(rest, 10),
-        baseMeaning: resolveSymbolMeaning(chars[0], surface) ?? chars[0],
+        baseMeaning: m(chars[0]),
       };
     }
     // Greek + arrow + greek → operator chain (λ→μ)
     if (chars.length === 3 && ARROWS.has(chars[1]) && GREEKS.has(chars[2])) {
-      const parts = chars.map(c => resolveSymbolMeaning(c, surface) ?? c);
+      const parts = chars.map(c => m(c));
       return {
         raw: text, kind: "operator", symbols: chars,
         baseMeaning: parts.join("_"),
@@ -1180,15 +1186,16 @@ export function resolveSymbolExpr(
     }
     // Greek + math + greek → comparison (ε≤θ)
     if (chars.length === 3 && MATHS.has(chars[1]) && GREEKS.has(chars[2])) {
-      const parts = chars.map(c => resolveSymbolMeaning(c, surface) ?? c);
+      const parts = chars.map(c => m(c));
       return {
         raw: text, kind: "operator", symbols: chars,
         baseMeaning: parts.join("_"),
       };
     }
     // Quantifier + greek → aggregate (Σδ ∀σ)
+    /* v8 ignore next -- MATHS.has(chars[0]) unreachable: chars[0] is always GREEK here */
     if (chars.length === 2 && (GREEKS.has(chars[1]) || MATHS.has(chars[0]))) {
-      const parts = chars.map(c => resolveSymbolMeaning(c, surface) ?? c);
+      const parts = chars.map(c => m(c));
       return {
         raw: text, kind: "operator", symbols: chars,
         baseMeaning: parts.join("_"),
@@ -1198,7 +1205,7 @@ export function resolveSymbolExpr(
 
   // --- Quantifier-led operator: Σδ ∀σ ---
   if (MATHS.has(chars[0]) && chars.length === 2 && GREEKS.has(chars[1])) {
-    const parts = chars.map(c => resolveSymbolMeaning(c, surface) ?? c);
+    const parts = chars.map(c => m(c));
     return {
       raw: text, kind: "operator", symbols: chars,
       baseMeaning: parts.join("_"),

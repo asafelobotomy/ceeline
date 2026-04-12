@@ -248,6 +248,7 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
       if (anc) lines.push(`${K.anchor}=${encodeAtom(anc)}`);
       return lines;
     }
+    /* v8 ignore next 2 — all 8 surfaces handled above */
     default:
       return [];
   }
@@ -798,7 +799,7 @@ function parseCeelineCompactInner(
 
     // Symbol expression resolution: key or value starts with a symbol char
     // Key-as-symbol: the clause key itself is a symbol expression (e.g. ○→●=1)
-    if (isSymbol([...ck][0] ?? "")) {
+    if (isSymbol(/* v8 ignore next */ [...ck][0] ?? "")) {
       const expr = resolveSymbolExpr(ck, result.surface);
       if (expr) {
         result.symbolExprs[ck] = expr;
@@ -807,7 +808,7 @@ function parseCeelineCompactInner(
       }
     }
     // Value-as-symbol: the value is a symbol expression (e.g. st=○→●)
-    if (cv.length > 0 && isSymbol([...cv][0] ?? "")) {
+    if (cv.length > 0 && isSymbol(/* v8 ignore next */ [...cv][0] ?? "")) {
       const expr = resolveSymbolExpr(cv, result.surface);
       if (expr) {
         result.symbolExprs[ck] = expr;
@@ -827,7 +828,7 @@ function parseCeelineCompactInner(
   for (const [key, val] of Object.entries(result.surfaceFields)) {
     if (result.symbolExprs[key]) continue; // already resolved
     const sv = typeof val === "string" ? val : "";
-    if (sv.length > 0 && isSymbol([...sv][0] ?? "")) {
+    if (sv.length > 0 && isSymbol(/* v8 ignore next */ [...sv][0] ?? "")) {
       const expr = resolveSymbolExpr(sv, result.surface);
       if (expr) result.symbolExprs[key] = expr;
     }

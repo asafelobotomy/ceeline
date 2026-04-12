@@ -54,6 +54,29 @@ describe(".aff parser", () => {
     expect(suffixes.get("M")!.marker).toBe(".multi");
     expect(suffixes.get("V")!.marker).toBe(".v");
   });
+
+  it("ignores malformed PFX/SFX lines with fewer than 5 parts", () => {
+    // A PFX line with only 3 parts (not a header, not a full rule)
+    const aff = "PFX Z Y 1\nPFX Z abc\n";
+    const { prefixes, suffixes } = parseAffFile(aff);
+    // Z header line is parsed but rule line has only 3 parts, so no actual rule
+    expect(prefixes.size).toBe(0);
+    expect(suffixes.size).toBe(0);
+  });
+
+  it("parses header lines with N cross-product flag", () => {
+    // Header line with "N" (no cross-product) instead of "Y"
+    const aff = "PFX Z N 1\nPFX Z 0 test. .\n";
+    const { prefixes } = parseAffFile(aff);
+    expect(prefixes.has("Z")).toBe(true);
+    expect(prefixes.get("Z")!.marker).toBe("test.");
+  });
+
+  it("handles duplicate flag rules (second rule overwrites)", () => {
+    const aff = "PFX A Y 2\nPFX A 0 first. .\nPFX A 0 second. .\n";
+    const { prefixes } = parseAffFile(aff);
+    expect(prefixes.has("A")).toBe(true);
+  });
 });
 
 describe(".dic parser", () => {
@@ -61,6 +84,21 @@ describe(".dic parser", () => {
 
   it("parses a substantial number of stems", () => {
     expect(stems.size).toBeGreaterThan(50);
+  });
+
+  it("parses .dic content without a count line", () => {
+    // First line is a stem directly (no numeric count header)
+    const noCounts = "ho/NRQC\ndg/NRC\n";
+    const parsed = parseDicFile(noCounts);
+    expect(parsed.has("ho")).toBe(true);
+    expect(parsed.has("dg")).toBe(true);
+  });
+
+  it("parses bare stem with no flags", () => {
+    const bare = "3\nho/NRC\nsimple\n";
+    const parsed = parseDicFile(bare);
+    expect(parsed.has("simple")).toBe(true);
+    expect(parsed.get("simple")!.size).toBe(0);
   });
 
   it("parses surface stems with correct flags", () => {

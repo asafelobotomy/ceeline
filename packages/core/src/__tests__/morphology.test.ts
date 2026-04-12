@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   createDefaultMorphology,
+  createDefaultRegistry,
+  extendRegistry,
   resolveAffix,
   isValidMorphologicalCode,
   registerSessionStem,
@@ -370,5 +372,96 @@ describe("Domain stem tables", () => {
         expect(headerKeywords).not.toContain(id);
       }
     });
+  });
+});
+
+// ─── CompactCodeRegistry ───────────────────────────────────────────────
+
+describe("CompactCodeRegistry", () => {
+  it("createDefaultRegistry returns a valid registry", () => {
+    const reg = createDefaultRegistry();
+    expect(reg.dialectVersion).toBe(1);
+    expect(reg.surfaces.forward).toBeDefined();
+    expect(reg.surfaces.reverse).toBeDefined();
+    expect(reg.channels.forward).toBeDefined();
+    expect(reg.modes.forward).toBeDefined();
+    expect(reg.audiences.forward).toBeDefined();
+    expect(reg.fallbacks.forward).toBeDefined();
+    expect(reg.renderStyles.forward).toBeDefined();
+    expect(reg.sanitizers.forward).toBeDefined();
+    expect(reg.preserveClasses.forward).toBeDefined();
+    expect(reg.lineKeys.forward).toBeDefined();
+    expect(reg.surfacePayloadCodes).toBeDefined();
+    // Check reverse maps are populated
+    expect(Object.keys(reg.surfaces.reverse).length).toBeGreaterThan(0);
+  });
+
+  it("createDefaultRegistry includes all surface payload codes", () => {
+    const reg = createDefaultRegistry();
+    expect(reg.surfacePayloadCodes).toHaveProperty("handoff_role");
+    expect(reg.surfacePayloadCodes).toHaveProperty("digest_window");
+    expect(reg.surfacePayloadCodes).toHaveProperty("memory_kind");
+    expect(reg.surfacePayloadCodes).toHaveProperty("reflection_type");
+    expect(reg.surfacePayloadCodes).toHaveProperty("tool_outcome");
+    expect(reg.surfacePayloadCodes).toHaveProperty("routing_strategy");
+    expect(reg.surfacePayloadCodes).toHaveProperty("prompt_context_phase");
+    expect(reg.surfacePayloadCodes).toHaveProperty("history_span");
+  });
+
+  it("extendRegistry adds new surfaces without mutating base", () => {
+    const base = createDefaultRegistry();
+    const extended = extendRegistry(base, {
+      surfaces: { "custom_surface": "cs" }
+    });
+    expect(extended.surfaces.forward).toHaveProperty("custom_surface", "cs");
+    expect(extended.surfaces.reverse).toHaveProperty("cs", "custom_surface");
+    // Base should NOT be mutated
+    expect(base.surfaces.forward).not.toHaveProperty("custom_surface");
+  });
+
+  it("extendRegistry merges all code map fields", () => {
+    const base = createDefaultRegistry();
+    const extended = extendRegistry(base, {
+      channels: { "custom_channel": "cc" },
+      modes: { "custom_mode": "cm" },
+      audiences: { "custom_audience": "ca" },
+      fallbacks: { "custom_fallback": "cf" },
+      renderStyles: { "custom_render": "cr" },
+      sanitizers: { "custom_sanitizer": "cx" },
+      preserveClasses: { "custom_class": "ck" },
+      lineKeys: { "custom_key": "ckey" },
+    });
+    expect(extended.channels.forward).toHaveProperty("custom_channel", "cc");
+    expect(extended.modes.forward).toHaveProperty("custom_mode", "cm");
+    expect(extended.audiences.forward).toHaveProperty("custom_audience", "ca");
+    expect(extended.fallbacks.forward).toHaveProperty("custom_fallback", "cf");
+    expect(extended.renderStyles.forward).toHaveProperty("custom_render", "cr");
+    expect(extended.sanitizers.forward).toHaveProperty("custom_sanitizer", "cx");
+    expect(extended.preserveClasses.forward).toHaveProperty("custom_class", "ck");
+    expect(extended.lineKeys.forward).toHaveProperty("custom_key", "ckey");
+  });
+
+  it("extendRegistry merges surfacePayloadCodes (new key)", () => {
+    const base = createDefaultRegistry();
+    const extended = extendRegistry(base, {
+      surfacePayloadCodes: {
+        custom_field: { "val_one": "v1", "val_two": "v2" }
+      }
+    });
+    expect(extended.surfacePayloadCodes).toHaveProperty("custom_field");
+    expect(extended.surfacePayloadCodes.custom_field.forward).toEqual({ val_one: "v1", val_two: "v2" });
+    expect(extended.surfacePayloadCodes.custom_field.reverse).toEqual({ v1: "val_one", v2: "val_two" });
+  });
+
+  it("extendRegistry merges surfacePayloadCodes (existing key)", () => {
+    const base = createDefaultRegistry();
+    const extended = extendRegistry(base, {
+      surfacePayloadCodes: {
+        handoff_role: { "custom_role": "xr" }
+      }
+    });
+    // Should retain existing roles and add new one
+    expect(extended.surfacePayloadCodes.handoff_role.forward).toHaveProperty("custom_role", "xr");
+    expect(extended.surfacePayloadCodes.handoff_role.forward).toHaveProperty("planner");
   });
 });
