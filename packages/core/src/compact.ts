@@ -55,6 +55,11 @@ import {
   resolveSymbolExpr,
   isSymbol,
   type SymbolExpr,
+  type DialectStore,
+  type DialectStemDef,
+  parseDialectStem,
+  parseDialectFromClauses,
+  defineDialect,
 } from "@ceeline/schema";
 import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
@@ -98,7 +103,7 @@ function shouldEmitTokens(density: CompactDensity): boolean {
 // Renderer
 // =========================================================================
 
-function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domains?: readonly string[]): string {
+function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domains?: readonly string[], dialects?: readonly string[]): string {
   const parts = [
     "@cl1",
     `s=${COMPACT_SURFACE_CODES[envelope.surface]}`,
@@ -113,6 +118,13 @@ function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domain
     const safe = domains.filter(id => /^[a-z0-9]+$/.test(id));
     if (safe.length > 0) {
       parts.push(`dom=${safe.join("+")}`);
+    }
+  }
+
+  if (dialects && dialects.length > 0) {
+    const safe = dialects.filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+    if (safe.length > 0) {
+      parts.push(`dialect=${safe.join("+")}`);
     }
   }
 
@@ -301,6 +313,8 @@ function renderDiagnostics(envelope: CeelineEnvelope): string[] {
 export interface CompactRenderOptions {
   /** Domain IDs to activate in the header (e.g. ["sec", "perf"]). */
   domains?: readonly string[];
+  /** Dialect IDs to reference in the header (e.g. ["audit.sec-review"]). */
+  dialects?: readonly string[];
 }
 
 export function renderCeelineCompact(
@@ -314,7 +328,7 @@ export function renderCeelineCompact(
   }
 
   const segments = [
-    renderHeader(envelope, density, options?.domains),
+    renderHeader(envelope, density, options?.domains, options?.dialects),
     ...renderCommonPayload(envelope.payload, density),
     ...renderSurfacePayload(envelope),
     ...renderPreserve(envelope, density),
@@ -427,6 +441,12 @@ export interface CompactParseResult {
   sessionVocab: Record<string, string>;
   /** Active domain IDs from dom= header. */
   domains: string[];
+  /** Active dialect IDs from dialect= header. */
+  dialects: string[];
+  /** Inline dialect stem definitions from stem= clauses. */
+  dialectStems: DialectStemDef[];
+  /** Dialect metadata fields (did, dver, dname, dbase) if present. */
+  dialectMeta: Record<string, string>;
   /** Resolved symbol expressions found in clause values, keyed by clause key. */
   symbolExprs: Record<string, SymbolExpr>;
   /** Any clause keys the parser did not recognize (preserved, not dropped). */
@@ -660,6 +680,9 @@ function parseCeelineCompactInner(
     extensions: {},
     sessionVocab: {},
     domains: [],
+    dialects: [],
+    dialectStems: [],
+    dialectMeta: {},
     symbolExprs: {},
     unknown: {}
   };
@@ -688,6 +711,13 @@ function parseCeelineCompactInner(
         if (morphology) {
           activateDomains(ids, morphology);
         }
+        break;
+      }
+      case "dialect": {
+        const dialectIds = hv.split("+").filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+        result.dialects = dialectIds;
+        // Dialect activation is handled by the caller via DialectStore.
+        // The parser records the IDs; it does not store or resolve dialect contents.
         break;
       }
       default:
@@ -723,6 +753,28 @@ function parseCeelineCompactInner(
       } else {
         issues.push({ path: "body.vocab", code: "invalid_vocab", message: `vocab clause must be stem:definition, got: ${cv}` });
       }
+      continue;
+    }
+
+    // Dialect stem definition: stem=code:meaning/FLAGS
+    if (ck === "stem") {
+      const stemDef = parseDialectStem(cv);
+      if (stemDef) {
+        result.dialectStems.push(stemDef);
+        // Register into live morphology so subsequent affixed codes resolve
+        if (morphology) {
+          const flags = stemDef.flags ?? "NRPTDQOXAMVC";
+          morphology.domainStems.set(stemDef.code, new Set(flags.split("")));
+        }
+      } else {
+        issues.push({ path: "body.stem", code: "invalid_stem", message: `stem clause must be code:meaning/FLAGS, got: ${cv}` });
+      }
+      continue;
+    }
+
+    // Dialect metadata: did, dver, dname, dbase
+    if (ck === "did" || ck === "dver" || ck === "dname" || ck === "dbase") {
+      result.dialectMeta[ck] = decodeAtom(cv);
       continue;
     }
 
@@ -837,4 +889,48 @@ function parseCeelineCompactInner(
   // Issues are informational (warnings), not failures.  The parse succeeds
   // even with unknown keys — that's the forward-compatibility contract.
   return ok(result);
+}
+
+// =========================================================================
+// Dialect extraction — pull a dialect definition from a parsed result
+// =========================================================================
+
+/**
+ * Extract a dialect definition from a parsed compact text result.
+ *
+ * When an LLM emits a dialect.define or dialect.evolve message, the parser
+ * captures `did`, `dver`, `dname`, `dbase` metadata and `stem=` definitions.
+ * This function assembles them into a `DialectDefinition` and optionally
+ * stores it in a `DialectStore`.
+ *
+ * Returns null if the parse result doesn't contain dialect metadata.
+ *
+ * Usage:
+ * ```typescript
+ * const parsed = parseCeelineCompact(text, morphology);
+ * if (parsed.ok) {
+ *   const dialect = extractDialect(parsed.value, store);
+ *   //=> CeelineDialect | null
+ * }
+ * ```
+ */
+export function extractDialect(
+  result: CompactParseResult,
+  store?: DialectStore
+): ReturnType<typeof defineDialect> | null {
+  if (!result.dialectMeta["did"] || !result.dialectMeta["dname"]) {
+    return null;
+  }
+  const def = parseDialectFromClauses(
+    { ...result.dialectMeta, sum: result.summary || result.dialectMeta["sum"] || "" },
+    result.dialectStems
+  );
+  /* v8 ignore next 2 -- structurally unreachable: extractDialect guards the same condition */
+  if (!def) return null;
+
+  const dialect = defineDialect(def);
+  if (store) {
+    store.define(dialect);
+  }
+  return dialect;
 }

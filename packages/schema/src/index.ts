@@ -9,6 +9,7 @@ import routingPayloadV1Schema from "../schema/routing-payload-1.0.schema.json" w
 import toolSummaryPayloadV1Schema from "../schema/tool-summary-payload-1.0.schema.json" with { type: "json" };
 export * from "./language.js";
 export * from "./dict-parser.js";
+export * from "./dialect.js";
 
 export const CEELINE_VERSION = "1.0" as const;
 

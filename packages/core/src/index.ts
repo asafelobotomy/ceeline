@@ -15,7 +15,7 @@ import {
   type SourceInfo
 } from "@ceeline/schema";
 import { extractPreserveTokens, validatePreservation } from "./preserve.js";
-import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact, type CompactParseResult, type CompactRenderOptions } from "./compact.js";
+import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact, extractDialect, type CompactParseResult, type CompactRenderOptions } from "./compact.js";
 import { decodeCanonical, detectLeaks, renderInternal, renderUserFacing, sanitizeUserFacing, type DecodedEnvelope, type LeakFinding } from "./render.js";
 import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 import { validateEnvelope } from "./validate.js";
@@ -154,6 +154,7 @@ export function decodeEnvelope(envelope: CeelineEnvelope): DecodedEnvelope {
 export {
   decodeCanonical,
   detectLeaks,
+  extractDialect,
   extractPreserveTokens,
   parseCeelineCompact,
   renderCeelineCompact,
