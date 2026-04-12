@@ -130,6 +130,30 @@ describe("round-trip fidelity (render → parse)", () => {
     }
   });
 
+  it("round-trips dense prose around repeated protected tokens", () => {
+    const env = SURFACE_FACTORIES.handoff();
+    env.intent = "review.security";
+    env.payload.summary = "Review src/core/codec.ts for security validation.";
+    env.payload.facts = [
+      "Use src/core/codec.ts and src/core/codec.ts as the source reference.",
+      "The validation path must preserve src/core/codec.ts exactly.",
+    ];
+    env.payload.ask = "Return security findings for src/core/codec.ts.";
+    env.preserve = { tokens: ["src/core/codec.ts"], classes: ["file_path"] };
+
+    const rendered = renderCeelineCompact(env, "dense");
+    expect(rendered.ok).toBe(true);
+    if (!rendered.ok) return;
+
+    const parsed = parseCeelineCompact(rendered.value);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    expect(parsed.value.summary).toBe(env.payload.summary);
+    expect(parsed.value.facts).toEqual(env.payload.facts);
+    expect(parsed.value.ask).toBe(env.payload.ask);
+  });
+
   // ─── Extension round-trip ────────────────────────────────────────────
 
   it("round-trips extension clauses", () => {

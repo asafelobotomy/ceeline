@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderCeelineCompact } from "../compact";
-import { makeHandoff, makeDigest, makeRouting, makePromptContext, makeHistory, makeReflection, makeToolSummary, SURFACE_FACTORIES, withOverrides } from "./helpers.js";
+import { makeHandoff, makeDigest, makeMemory, makeRouting, makePromptContext, makeHistory, makeReflection, makeToolSummary, SURFACE_FACTORIES, withOverrides } from "./helpers.js";
 import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
 
 describe("renderCeelineCompact", () => {
@@ -284,6 +284,83 @@ describe("renderCeelineCompact", () => {
       expect(result.value).toContain("tn=");
       expect(result.value).toContain("out=");
       expect(result.value).toContain("ela=");
+    }
+  });
+
+  it("renders dense digest metrics with coded keys when shorter", () => {
+    const env = makeDigest({ metrics: { pendingChecks: 3, sessionMinutes: 47, tokenBudgetUsed: 1420 } });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("mi=pc:3,sm:47,tb:1420");
+      expect(result.value).not.toContain("met=pendingChecks:3,sessionMinutes:47,tokenBudgetUsed:1420");
+    }
+  });
+
+  it("renders dense routing selected as candidate index when shorter", () => {
+    const env = makeRouting({
+      candidates: ["security-specialist", "code-reviewer", "generalist"],
+      selected: "security-specialist",
+    });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("cand=security-specialist,code-reviewer,generalist");
+      expect(result.value).toContain("si=0");
+      expect(result.value).not.toContain("sel=security-specialist");
+    }
+  });
+
+  it("renders dense memory citations with inline references when shorter", () => {
+    const env = makeMemory({
+      facts: ["https://ceeline.dev/spec remains the reference URL."],
+      citations: ["https://ceeline.dev/spec", "docs/ceeline-language-spec-v1.md"],
+    });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("ci=@f0/24,docs/ceeline-language-spec-v1.md");
+      expect(result.value).not.toContain("cit=https://ceeline.dev/spec,docs/ceeline-language-spec-v1.md");
+    }
+  });
+
+  it("renders dense handoff scope codes when shorter", () => {
+    const env = makeHandoff({ scope: ["transport", "validation"] });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("sx=@t,@v");
+      expect(result.value).not.toContain("sc=transport,validation");
+    }
+  });
+
+  it("renders dense prompt_context source_ref with a code when shorter", () => {
+    const env = makePromptContext({ source_ref: "workspace-config" });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("sr=wc");
+      expect(result.value).not.toContain("src=workspace-config");
+    }
+  });
+
+  it("renders dense reflection revision with reversible prose contractions when shorter", () => {
+    const env = makeReflection({ revision: "Security validation configuration." });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain('rev="Sec val config."');
+      expect(result.value).toContain("rvc=1");
+    }
+  });
+
+  it("renders dense history anchor with a code when shorter", () => {
+    const env = makeHistory({ anchor: "bench-session-start" });
+    const result = renderCeelineCompact(env, "dense");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toContain("ac=bs");
+      expect(result.value).not.toContain("anc=bench-session-start");
     }
   });
 

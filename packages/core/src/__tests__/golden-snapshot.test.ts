@@ -43,7 +43,7 @@ describe("golden compact fixtures — parse round-trip", () => {
         // Core fields
         expect(p.surface).toBe(env.surface);
         expect(p.intent).toBe(env.intent);
-        expect(p.summary).toBe((env.payload as Record<string, unknown>).summary);
+          expect(p.summary).toBe((env.payload as Record<string, unknown>).summary);
 
         // Surface-specific: just verify they exist
         switch (surface as CeelineSurface) {

@@ -1,1 +1,1 @@
-@cl1 s=pc i=test.prompt_context ; sum="Test prompt_context summary." ; f="Fact one." ; ask="Test ask." ; ph=sy ; pri=10 ; src=workspace ; #n=135
+@cl1 s=pc i=test.prompt_context ; sum="~prompt_context summary." ; f="Fact one." ; ask="Test ask." ; ph=sy ; pri=10 ; sr=ws ; #n=123

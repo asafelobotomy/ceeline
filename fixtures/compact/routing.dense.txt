@@ -1,1 +1,1 @@
-@cl1 s=rt i=test.routing ; sum="Test routing summary." ; f="Fact one." ; ask="Test ask." ; str=dr ; cand=a,b ; sel=a ; #n=116
+@cl1 s=rt i=test.routing ; sum="~routing summary." ; f="Fact one." ; ask="Test ask." ; str=dr ; cand=a,b ; si=0 ; #n=111

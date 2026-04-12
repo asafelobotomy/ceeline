@@ -21,6 +21,7 @@ import { getEncoding } from "js-tiktoken";
 import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@ceeline/core";
 import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
 import { CORPUS } from "./corpus.js";
+import { measureBatchComparisons, measureExternalComparables, measureMixedBatchComparisons, type BatchComparison, type ComparableFormatMetrics } from "./comparables.js";
 import { stringify as yamlStringify } from "yaml";
 import { encode as msgpackEncode } from "@msgpack/msgpack";
 import { encode as cborEncode } from "cbor-x";
@@ -34,10 +35,16 @@ function countTokens(text: string, encoding: "cl100k" | "o200k"): number {
   return (encoding === "cl100k" ? cl100k : o200k).encode(text).length;
 }
 
+function benchmarkCaseLabel(envelope: CeelineEnvelope): string {
+  const match = envelope.envelope_id.match(/^cel:bench-(.+?)(?:-\d+)?$/);
+  return match?.[1] ?? envelope.surface;
+}
+
 // ── Types ───────────────────────────────────────────────────────────────
 
 interface EnvelopeMetrics {
   surface: string;
+  label: string;
   density: CompactDensity;
   jsonBytes: number;
   compactBytes: number;
@@ -95,6 +102,9 @@ interface BenchmarkReport {
   autoDensity: AutoDensityResult[];
   budgetFailures: BudgetFailure[];
   formatComparison: FormatComparison[];
+  batchComparison: BatchComparison[];
+  mixedBatchComparison: BatchComparison[];
+  reflectionVariants: ReflectionVariant[];
   percentileLatencies: PercentileLatency[];
   scaling: ScalingResult[];
   informationDensity: InformationDensity[];
@@ -102,6 +112,7 @@ interface BenchmarkReport {
 
 interface TrailerOverhead {
   surface: string;
+  label: string;
   density: CompactDensity;
   trailerBytes: number;
   trailerTokensCl100k: number;
@@ -112,6 +123,7 @@ interface TrailerOverhead {
 
 interface AutoDensityResult {
   surface: string;
+  label: string;
   selectedDensity: string;
   autoBytes: number;
   autoTokensCl100k: number;
@@ -122,6 +134,7 @@ interface AutoDensityResult {
 
 interface BudgetFailure {
   surface: string;
+  label: string;
   density: CompactDensity;
   budget: number;
   estimatedTokens: number;
@@ -129,6 +142,7 @@ interface BudgetFailure {
 
 interface FormatComparison {
   surface: string;
+  label: string;
   jsonBytes: number;
   jsonTokensCl100k: number;
   jsonTokensO200k: number;
@@ -142,6 +156,19 @@ interface FormatComparison {
   compactFullTokensO200k: number;
   compactDenseBytes: number;
   compactDenseTokensCl100k: number;
+  compactDenseTokensO200k: number;
+  comparables: ComparableFormatMetrics[];
+}
+
+interface ReflectionVariant {
+  label: string;
+  focus: "bytes" | "tokens";
+  compactFullBytes: number;
+  compactDenseBytes: number;
+  byteDelta: number;
+  compactFullTokensCl100k: number;
+  compactDenseTokensCl100k: number;
+  compactFullTokensO200k: number;
   compactDenseTokensO200k: number;
 }
 
@@ -171,6 +198,7 @@ interface ScalingResult {
 
 interface InformationDensity {
   surface: string;
+  label: string;
   density: CompactDensity;
   factCount: number;
   bytesPerFact: number;
@@ -189,7 +217,7 @@ function measureEnvelope(envelope: CeelineEnvelope, density: CompactDensity): En
   const renderResult = renderCeelineCompact(envelope, density);
   if (!renderResult.ok) {
     return {
-      surface: envelope.surface, density,
+      surface: envelope.surface, label: benchmarkCaseLabel(envelope), density,
       jsonBytes: 0, compactBytes: 0, byteRatio: 0, byteSaving: 0,
       jsonTokensCl100k: 0, compactTokensCl100k: 0, tokenRatioCl100k: 0, tokenSavingCl100k: 0,
       jsonTokensO200k: 0, compactTokensO200k: 0, tokenRatioO200k: 0, tokenSavingO200k: 0,
@@ -225,6 +253,7 @@ function measureEnvelope(envelope: CeelineEnvelope, density: CompactDensity): En
 
   return {
     surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
     density,
     jsonBytes,
     compactBytes,
@@ -312,6 +341,7 @@ function measureTrailerOverhead(envelope: CeelineEnvelope, density: CompactDensi
 
   return {
     surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
     density,
     trailerBytes,
     trailerTokensCl100k,
@@ -339,6 +369,7 @@ function measureAutoDensity(envelope: CeelineEnvelope): AutoDensityResult | null
 
   return {
     surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
     selectedDensity,
     autoBytes: Buffer.byteLength(autoResult.value, "utf-8"),
     autoTokensCl100k: countTokens(autoResult.value, "cl100k"),
@@ -361,6 +392,7 @@ function detectBudgetFailures(envelope: CeelineEnvelope): BudgetFailure[] {
       const match = result.issues[0].message.match(/~(\d+) tokens/);
       failures.push({
         surface: envelope.surface,
+        label: benchmarkCaseLabel(envelope),
         density,
         budget,
         estimatedTokens: match ? parseInt(match[1], 10) : 0
@@ -381,9 +413,11 @@ function measureFormatComparison(envelope: CeelineEnvelope): FormatComparison {
   const denseResult = renderCeelineCompact(envelope, "dense");
   const compactFull = fullResult.ok ? fullResult.value : "";
   const compactDense = denseResult.ok ? denseResult.value : "";
+  const comparables = measureExternalComparables(envelope, countTokens);
 
   return {
     surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
     jsonBytes: Buffer.byteLength(json, "utf-8"),
     jsonTokensCl100k: countTokens(json, "cl100k"),
     jsonTokensO200k: countTokens(json, "o200k"),
@@ -397,8 +431,25 @@ function measureFormatComparison(envelope: CeelineEnvelope): FormatComparison {
     compactFullTokensO200k: countTokens(compactFull, "o200k"),
     compactDenseBytes: Buffer.byteLength(compactDense, "utf-8"),
     compactDenseTokensCl100k: countTokens(compactDense, "cl100k"),
-    compactDenseTokensO200k: countTokens(compactDense, "o200k")
+    compactDenseTokensO200k: countTokens(compactDense, "o200k"),
+    comparables,
   };
+}
+
+function measureReflectionVariants(formatComparison: readonly FormatComparison[]): ReflectionVariant[] {
+  return formatComparison
+    .filter((entry) => entry.label.startsWith("reflection"))
+    .map((entry) => ({
+      label: entry.label,
+      focus: entry.label === "reflection-token" ? "tokens" : "bytes",
+      compactFullBytes: entry.compactFullBytes,
+      compactDenseBytes: entry.compactDenseBytes,
+      byteDelta: entry.compactDenseBytes - entry.compactFullBytes,
+      compactFullTokensCl100k: entry.compactFullTokensCl100k,
+      compactDenseTokensCl100k: entry.compactDenseTokensCl100k,
+      compactFullTokensO200k: entry.compactFullTokensO200k,
+      compactDenseTokensO200k: entry.compactDenseTokensO200k,
+    }));
 }
 
 // ── Percentile latency measurement ─────────────────────────────────────
@@ -548,6 +599,7 @@ function measureInformationDensity(envelope: CeelineEnvelope, density: CompactDe
 
   return {
     surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
     density,
     factCount,
     bytesPerFact: factCount > 0 ? round(compactBytes / factCount) : 0,
@@ -633,6 +685,11 @@ function run(): BenchmarkReport {
     formatComparison.push(measureFormatComparison(envelope));
   }
 
+  const reflectionVariants = measureReflectionVariants(formatComparison);
+
+  const batchComparison = measureBatchComparisons(CORPUS, countTokens);
+  const mixedBatchComparison = measureMixedBatchComparisons(CORPUS, countTokens);
+
   // 10. Percentile latencies
   const LATENCY_ITERATIONS = 1000;
   const percentileLatencies: PercentileLatency[] = [];
@@ -663,10 +720,138 @@ function run(): BenchmarkReport {
     autoDensity,
     budgetFailures,
     formatComparison,
+    batchComparison,
+    mixedBatchComparison,
+    reflectionVariants,
     percentileLatencies,
     scaling,
     informationDensity
   };
+}
+
+function findComparable(
+  comparables: readonly ComparableFormatMetrics[],
+  format: string,
+): ComparableFormatMetrics | undefined {
+  return comparables.find((entry) => entry.format === format);
+}
+
+function formatComparableCell(
+  comparables: readonly ComparableFormatMetrics[],
+  format: string,
+  field: "bytes" | "tokensCl100k" | "tokensO200k",
+): string {
+  const entry = findComparable(comparables, format);
+  if (!entry) return "n/a";
+  if (entry.error) return "ERR";
+  if (!entry.roundTripOk) return "RT!";
+  return `${entry[field]}`;
+}
+
+function formatComparablePercent(
+  comparables: readonly ComparableFormatMetrics[],
+  format: string,
+  baseline: number,
+  field: "bytes" | "tokensCl100k" | "tokensO200k",
+): string {
+  const entry = findComparable(comparables, format);
+  if (!entry || entry.error || baseline === 0) return "n/a";
+  return `${round((entry[field] / baseline) * 100)}%`;
+}
+
+function totalComparableMetric(
+  rows: readonly FormatComparison[],
+  format: string,
+  field: "bytes" | "tokensCl100k" | "tokensO200k",
+): number | null {
+  const matches = rows
+    .map((row) => findComparable(row.comparables, format))
+    .filter((entry): entry is ComparableFormatMetrics => Boolean(entry && !entry.error && entry.roundTripOk));
+  if (matches.length === 0) return null;
+  return matches.reduce((sum, entry) => sum + entry[field], 0);
+}
+
+function batchMetricCell(
+  comparison: BatchComparison,
+  format: string,
+  field: "bytes" | "tokensCl100k" | "tokensO200k",
+): string {
+  const entry = findComparable(comparison.formats, format);
+  if (!entry) return "n/a";
+  if (entry.error) return "ERR";
+  if (!entry.roundTripOk) return "RT!";
+  return `${round(entry[field] / comparison.recordCount)}`;
+}
+
+function losslessComparableEntries(
+  comparables: readonly ComparableFormatMetrics[],
+  format: string,
+): ComparableFormatMetrics | undefined {
+  const entry = findComparable(comparables, format);
+  return entry && !entry.error && entry.roundTripOk ? entry : undefined;
+}
+
+function summarizeLosslessOneShot(
+  rows: readonly FormatComparison[],
+): Array<{ format: string; cases: number; bytes: number; tokensCl100k: number; tokensO200k: number; }> {
+  const formats = ["pakt", "jtml", "zipson", "jsonschema-key-compression"] as const;
+
+  return formats.flatMap((format) => {
+    const entries = rows
+      .map((row) => losslessComparableEntries(row.comparables, format))
+      .filter((entry): entry is ComparableFormatMetrics => Boolean(entry));
+
+    if (entries.length !== rows.length) return [];
+
+    return [{
+      format,
+      cases: entries.length,
+      bytes: entries.reduce((sum, entry) => sum + entry.bytes, 0),
+      tokensCl100k: entries.reduce((sum, entry) => sum + entry.tokensCl100k, 0),
+      tokensO200k: entries.reduce((sum, entry) => sum + entry.tokensO200k, 0),
+    }];
+  });
+}
+
+function summarizeLosslessBatch(
+  rows: readonly BatchComparison[],
+): Array<{ format: string; groups: number; bytesPerRecord: number; tokensCl100kPerRecord: number; tokensO200kPerRecord: number; }> {
+  const formats = [
+    "json",
+    "ceeline-full",
+    "ceeline-dense",
+    "pakt",
+    "jtml",
+    "jtml-ref",
+    "zipson",
+    "jsonschema-key-compression",
+    "tonl",
+  ] as const;
+
+  return formats.flatMap((format) => {
+    const entries = rows
+      .map((row) => {
+        const entry = findComparable(row.formats, format);
+        return entry && !entry.error && entry.roundTripOk
+          ? { entry, row }
+          : undefined;
+      })
+      .filter((entry): entry is { entry: ComparableFormatMetrics; row: BatchComparison } => Boolean(entry));
+
+    if (entries.length !== rows.length) return [];
+
+    const bytesPerRecord = entries.reduce((sum, { entry, row }) => sum + entry.bytes / row.recordCount, 0) / entries.length;
+    const tokensCl100kPerRecord = entries.reduce((sum, { entry, row }) => sum + entry.tokensCl100k / row.recordCount, 0) / entries.length;
+    const tokensO200kPerRecord = entries.reduce((sum, { entry, row }) => sum + entry.tokensO200k / row.recordCount, 0) / entries.length;
+
+    return [{
+      format,
+      groups: entries.length,
+      bytesPerRecord: round(bytesPerRecord),
+      tokensCl100kPerRecord: round(tokensCl100kPerRecord),
+      tokensO200kPerRecord: round(tokensO200kPerRecord),
+    }];
+  });
 }
 
 // ── Formatting ──────────────────────────────────────────────────────────
@@ -710,7 +895,7 @@ function formatReport(report: BenchmarkReport): string {
   const o = report.overall;
   lines.push("  OVERALL SUMMARY");
   lines.push("  ───────────────");
-  lines.push(`  Envelopes measured:      ${o.count} (${CORPUS.length} surfaces × ${DENSITIES.length} densities)`);
+  lines.push(`  Envelopes measured:      ${o.count} (${CORPUS.length} corpus envelopes × ${DENSITIES.length} densities)`);
   lines.push(`  Round-trip fidelity:     ${o.roundTripPassRate}%`);
   lines.push("");
   lines.push(`  Byte compression:        ${o.avgByteRatio}:1 ratio  (${o.avgByteSaving}% saving)`);
@@ -751,7 +936,7 @@ function formatReport(report: BenchmarkReport): string {
 
   // Throughput table
   lines.push(formatTable(
-    "THROUGHPUT (1000 iterations × 8 envelopes per iteration)",
+    `THROUGHPUT (1000 iterations × ${CORPUS.length} envelopes per iteration)`,
     ["Operation", "Density", "Total ms", "Envelopes/ms", "ms/Envelope"],
     [
       ...DENSITIES.map(d => {
@@ -770,9 +955,9 @@ function formatReport(report: BenchmarkReport): string {
   const fullOnly = report.envelopes.filter(e => e.density === "full");
   lines.push(formatTable(
     "PER-ENVELOPE DETAIL (full density)",
-    ["Surface", "JSON B", "Compact B", "Byte Ratio", "cl100k J→C", "o200k J→C", "RT"],
+    ["Case", "JSON B", "Compact B", "Byte Ratio", "cl100k J→C", "o200k J→C", "RT"],
     fullOnly.map(e => [
-      e.surface,
+      e.label,
       `${e.jsonBytes}`,
       `${e.compactBytes}`,
       `${e.byteRatio}:1`,
@@ -782,6 +967,25 @@ function formatReport(report: BenchmarkReport): string {
     ]),
     [false, true, true, true, true, true, false]
   ));
+
+  if (report.reflectionVariants.length > 0) {
+    lines.push(formatTable(
+      "REFLECTION VARIANTS (byte-oriented vs token-oriented)",
+      ["Case", "Focus", "Full B", "Dense B", "dB", "Full cl100k", "Dense cl100k", "Full o200k", "Dense o200k"],
+      report.reflectionVariants.map((entry) => [
+        entry.label,
+        entry.focus,
+        `${entry.compactFullBytes}`,
+        `${entry.compactDenseBytes}`,
+        `${entry.byteDelta}`,
+        `${entry.compactFullTokensCl100k}`,
+        `${entry.compactDenseTokensCl100k}`,
+        `${entry.compactFullTokensO200k}`,
+        `${entry.compactDenseTokensO200k}`,
+      ]),
+      [false, false, true, true, true, true, true, true, true]
+    ));
+  }
 
   // Sample compact output (one per density for the first surface)
   lines.push("  SAMPLE COMPACT OUTPUT (handoff surface)");
@@ -801,7 +1005,7 @@ function formatReport(report: BenchmarkReport): string {
     lines.push("  ⚠ ROUND-TRIP FAILURES");
     lines.push("  ─────────────────────");
     for (const f of failures) {
-      lines.push(`  ${f.surface}/${f.density}: ${f.roundTripIssues.join("; ")}`);
+      lines.push(`  ${f.label}/${f.density}: ${f.roundTripIssues.join("; ")}`);
     }
   } else {
     lines.push("  ✓ ALL ROUND-TRIP CHECKS PASSED");
@@ -811,9 +1015,9 @@ function formatReport(report: BenchmarkReport): string {
   if (report.trailerOverhead.length > 0) {
     lines.push(formatTable(
       "INTEGRITY TRAILER OVERHEAD (#n=<bytecount>)",
-      ["Surface", "Density", "Trailer B", "Trailer cl100k", "Trailer o200k", "Content B", "Overhead%"],
+      ["Case", "Density", "Trailer B", "Trailer cl100k", "Trailer o200k", "Content B", "Overhead%"],
       report.trailerOverhead.map(t => [
-        t.surface, t.density, `${t.trailerBytes}`, `${t.trailerTokensCl100k}`,
+        t.label, t.density, `${t.trailerBytes}`, `${t.trailerTokensCl100k}`,
         `${t.trailerTokensO200k}`, `${t.contentBytes}`, `${t.overheadPercent}%`
       ]),
       [false, false, true, true, true, true, true]
@@ -824,9 +1028,9 @@ function formatReport(report: BenchmarkReport): string {
   if (report.autoDensity.length > 0) {
     lines.push(formatTable(
       "AUTO-DENSITY SELECTION (renderCeelineCompactAuto, no budget)",
-      ["Surface", "Selected", "Auto B", "Auto cl100k", "Auto o200k", "Full B", "Dense B"],
+      ["Case", "Selected", "Auto B", "Auto cl100k", "Auto o200k", "Full B", "Dense B"],
       report.autoDensity.map(a => [
-        a.surface, a.selectedDensity, `${a.autoBytes}`, `${a.autoTokensCl100k}`,
+        a.label, a.selectedDensity, `${a.autoBytes}`, `${a.autoTokensCl100k}`,
         `${a.autoTokensO200k}`, `${a.manualFullBytes}`, `${a.manualDenseBytes}`
       ]),
       [false, false, true, true, true, true, true]
@@ -838,7 +1042,7 @@ function formatReport(report: BenchmarkReport): string {
     lines.push("  ⚠ BUDGET EXCEEDED FAILURES");
     lines.push("  ──────────────────────────");
     for (const bf of report.budgetFailures) {
-      lines.push(`  ${bf.surface}/${bf.density}: budget=${bf.budget}, estimated=${bf.estimatedTokens}`);
+      lines.push(`  ${bf.label}/${bf.density}: budget=${bf.budget}, estimated=${bf.estimatedTokens}`);
     }
     lines.push("");
   }
@@ -847,9 +1051,9 @@ function formatReport(report: BenchmarkReport): string {
   if (report.formatComparison.length > 0) {
     lines.push(formatTable(
       "FORMAT COMPARISON (JSON vs YAML vs MsgPack vs CBOR vs Ceeline)",
-      ["Surface", "JSON B", "YAML B", "MsgPack B", "CBOR B", "Cee Full B", "Cee Dense B"],
+      ["Case", "JSON B", "YAML B", "MsgPack B", "CBOR B", "Cee Full B", "Cee Dense B"],
       report.formatComparison.map(f => [
-        f.surface, `${f.jsonBytes}`, `${f.yamlBytes}`, `${f.msgpackBytes}`,
+        f.label, `${f.jsonBytes}`, `${f.yamlBytes}`, `${f.msgpackBytes}`,
         `${f.cborBytes}`, `${f.compactFullBytes}`, `${f.compactDenseBytes}`
       ]),
       [false, true, true, true, true, true, true]
@@ -857,9 +1061,9 @@ function formatReport(report: BenchmarkReport): string {
 
     lines.push(formatTable(
       "TOKEN COMPARISON — TEXT FORMATS ONLY (LLM-readable, cl100k)",
-      ["Surface", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
+      ["Case", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
       report.formatComparison.map(f => [
-        f.surface, `${f.jsonTokensCl100k}`, `${f.yamlTokensCl100k}`,
+        f.label, `${f.jsonTokensCl100k}`, `${f.yamlTokensCl100k}`,
         `${f.compactFullTokensCl100k}`, `${f.compactDenseTokensCl100k}`,
         `${round((f.compactDenseTokensCl100k / f.jsonTokensCl100k) * 100)}%`,
         `${round((f.compactDenseTokensCl100k / f.yamlTokensCl100k) * 100)}%`
@@ -869,9 +1073,9 @@ function formatReport(report: BenchmarkReport): string {
 
     lines.push(formatTable(
       "TOKEN COMPARISON — TEXT FORMATS ONLY (LLM-readable, o200k)",
-      ["Surface", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
+      ["Case", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
       report.formatComparison.map(f => [
-        f.surface, `${f.jsonTokensO200k}`, `${f.yamlTokensO200k}`,
+        f.label, `${f.jsonTokensO200k}`, `${f.yamlTokensO200k}`,
         `${f.compactFullTokensO200k}`, `${f.compactDenseTokensO200k}`,
         `${round((f.compactDenseTokensO200k / f.jsonTokensO200k) * 100)}%`,
         `${round((f.compactDenseTokensO200k / f.yamlTokensO200k) * 100)}%`
@@ -898,12 +1102,209 @@ function formatReport(report: BenchmarkReport): string {
     lines.push(`  Ceeline full:        ${totals.ceeFull.toLocaleString()} bytes  (${round(totals.ceeFull / totals.json * 100)}% of JSON)`);
     lines.push(`  Ceeline dense:       ${totals.ceeDense.toLocaleString()} bytes  (${round(totals.ceeDense / totals.json * 100)}% of JSON)`);
     lines.push("");
+
+    lines.push(formatTable(
+      "EXTERNAL BASELINES — ONE SHOT BYTES",
+      ["Case", "PAKT B", "JTML B", "Zipson B", "JSKC B"],
+      report.formatComparison.map(f => [
+        f.label,
+        formatComparableCell(f.comparables, "pakt", "bytes"),
+        formatComparableCell(f.comparables, "jtml", "bytes"),
+        formatComparableCell(f.comparables, "zipson", "bytes"),
+        formatComparableCell(f.comparables, "jsonschema-key-compression", "bytes"),
+      ]),
+      [false, true, true, true, true]
+    ));
+
+    lines.push(formatTable(
+      "EXTERNAL BASELINES — ONE SHOT TOKENS (cl100k)",
+      ["Case", "JSON", "Cee Dense", "PAKT", "JTML", "Zipson", "JSKC"],
+      report.formatComparison.map(f => [
+        f.label,
+        `${f.jsonTokensCl100k}`,
+        `${f.compactDenseTokensCl100k}`,
+        formatComparableCell(f.comparables, "pakt", "tokensCl100k"),
+        formatComparableCell(f.comparables, "jtml", "tokensCl100k"),
+        formatComparableCell(f.comparables, "zipson", "tokensCl100k"),
+        formatComparableCell(f.comparables, "jsonschema-key-compression", "tokensCl100k"),
+      ]),
+      [false, true, true, true, true, true, true]
+    ));
+
+    const losslessOneShot = summarizeLosslessOneShot(report.formatComparison);
+    if (losslessOneShot.length > 0) {
+      lines.push(formatTable(
+        "LOSSLESS-ONLY SUMMARY — ONE SHOT",
+        ["Format", "Cases", "Bytes", "% JSON", "cl100k", "% JSON tok", "o200k"],
+        losslessOneShot.map((entry) => [
+          entry.format,
+          `${entry.cases}`,
+          `${entry.bytes}`,
+          `${round((entry.bytes / totals.json) * 100)}%`,
+          `${entry.tokensCl100k}`,
+          `${round((entry.tokensCl100k / report.formatComparison.reduce((sum, row) => sum + row.jsonTokensCl100k, 0)) * 100)}%`,
+          `${entry.tokensO200k}`,
+        ]),
+        [false, true, true, true, true, true, true]
+      ));
+    }
+
+    if (losslessOneShot.length > 0) {
+      lines.push("  EXTERNAL BASELINE TOTALS (one-shot, fully lossless formats only)");
+      lines.push("  ─────────────────────────────────────────────────────────────");
+      for (const entry of losslessOneShot) {
+        lines.push(
+          `  ${entry.format}: ${entry.bytes.toLocaleString()} bytes (${round(entry.bytes / totals.json * 100)}% of JSON), ${entry.tokensCl100k.toLocaleString()} cl100k tokens`,
+        );
+      }
+      lines.push("");
+    }
+  }
+
+  if (report.batchComparison.length > 0) {
+    lines.push(formatTable(
+      "BATCH TRACK — BYTES PER RECORD (per surface)",
+      ["Surface", "N", "JSON", "Cee Dense", "PAKT", "JTML", "JTML Ref", "Zipson", "JSKC", "TONL"],
+      report.batchComparison.map(batch => [
+        batch.surface,
+        `${batch.recordCount}`,
+        batchMetricCell(batch, "json", "bytes"),
+        batchMetricCell(batch, "ceeline-dense", "bytes"),
+        batchMetricCell(batch, "pakt", "bytes"),
+        batchMetricCell(batch, "jtml", "bytes"),
+        batchMetricCell(batch, "jtml-ref", "bytes"),
+        batchMetricCell(batch, "zipson", "bytes"),
+        batchMetricCell(batch, "jsonschema-key-compression", "bytes"),
+        batchMetricCell(batch, "tonl", "bytes"),
+      ]),
+      [false, true, true, true, true, true, true, true, true, true]
+    ));
+
+    lines.push(formatTable(
+      "BATCH TRACK — TOKENS PER RECORD (cl100k)",
+      ["Surface", "N", "JSON", "Cee Dense", "PAKT", "JTML", "JTML Ref", "Zipson", "JSKC", "TONL"],
+      report.batchComparison.map(batch => [
+        batch.surface,
+        `${batch.recordCount}`,
+        batchMetricCell(batch, "json", "tokensCl100k"),
+        batchMetricCell(batch, "ceeline-dense", "tokensCl100k"),
+        batchMetricCell(batch, "pakt", "tokensCl100k"),
+        batchMetricCell(batch, "jtml", "tokensCl100k"),
+        batchMetricCell(batch, "jtml-ref", "tokensCl100k"),
+        batchMetricCell(batch, "zipson", "tokensCl100k"),
+        batchMetricCell(batch, "jsonschema-key-compression", "tokensCl100k"),
+        batchMetricCell(batch, "tonl", "tokensCl100k"),
+      ]),
+      [false, true, true, true, true, true, true, true, true, true]
+    ));
+
+    const losslessBatch = summarizeLosslessBatch(report.batchComparison);
+    if (losslessBatch.length > 0) {
+      lines.push(formatTable(
+        "LOSSLESS-ONLY SUMMARY — PER-SURFACE BATCH",
+        ["Format", "Groups", "B/Record", "cl100k/Record", "o200k/Record"],
+        losslessBatch.map((entry) => [
+          entry.format,
+          `${entry.groups}`,
+          `${entry.bytesPerRecord}`,
+          `${entry.tokensCl100kPerRecord}`,
+          `${entry.tokensO200kPerRecord}`,
+        ]),
+        [false, true, true, true, true]
+      ));
+    }
+
+    const batchFailures = report.batchComparison.flatMap((batch) =>
+      batch.formats
+        .filter((entry) => entry.error || !entry.roundTripOk)
+        .map((entry) => `${batch.surface}/n=${batch.recordCount}/${entry.format}: ${entry.error ?? "round-trip mismatch"}`),
+    );
+
+    if (batchFailures.length > 0) {
+      lines.push("  ⚠ BATCH TRACK FAILURES");
+      lines.push("  ─────────────────────");
+      for (const failure of batchFailures) lines.push(`  ${failure}`);
+      lines.push("");
+    } else {
+      lines.push("  ✓ ALL BATCH TRACK ROUND-TRIP CHECKS PASSED");
+      lines.push("");
+    }
+  }
+
+  if (report.mixedBatchComparison.length > 0) {
+    lines.push(formatTable(
+      "MIXED-CORPUS BATCH — BYTES PER RECORD",
+      ["Group", "N", "JSON", "Cee Dense", "PAKT", "JTML", "JTML Ref", "Zipson", "JSKC", "TONL"],
+      report.mixedBatchComparison.map(batch => [
+        batch.surface,
+        `${batch.recordCount}`,
+        batchMetricCell(batch, "json", "bytes"),
+        batchMetricCell(batch, "ceeline-dense", "bytes"),
+        batchMetricCell(batch, "pakt", "bytes"),
+        batchMetricCell(batch, "jtml", "bytes"),
+        batchMetricCell(batch, "jtml-ref", "bytes"),
+        batchMetricCell(batch, "zipson", "bytes"),
+        batchMetricCell(batch, "jsonschema-key-compression", "bytes"),
+        batchMetricCell(batch, "tonl", "bytes"),
+      ]),
+      [false, true, true, true, true, true, true, true, true, true]
+    ));
+
+    lines.push(formatTable(
+      "MIXED-CORPUS BATCH — TOKENS PER RECORD (cl100k)",
+      ["Group", "N", "JSON", "Cee Dense", "PAKT", "JTML", "JTML Ref", "Zipson", "JSKC", "TONL"],
+      report.mixedBatchComparison.map(batch => [
+        batch.surface,
+        `${batch.recordCount}`,
+        batchMetricCell(batch, "json", "tokensCl100k"),
+        batchMetricCell(batch, "ceeline-dense", "tokensCl100k"),
+        batchMetricCell(batch, "pakt", "tokensCl100k"),
+        batchMetricCell(batch, "jtml", "tokensCl100k"),
+        batchMetricCell(batch, "jtml-ref", "tokensCl100k"),
+        batchMetricCell(batch, "zipson", "tokensCl100k"),
+        batchMetricCell(batch, "jsonschema-key-compression", "tokensCl100k"),
+        batchMetricCell(batch, "tonl", "tokensCl100k"),
+      ]),
+      [false, true, true, true, true, true, true, true, true, true]
+    ));
+
+    const mixedLossless = summarizeLosslessBatch(report.mixedBatchComparison);
+    if (mixedLossless.length > 0) {
+      lines.push(formatTable(
+        "LOSSLESS-ONLY SUMMARY — MIXED BATCH",
+        ["Format", "Groups", "B/Record", "cl100k/Record", "o200k/Record"],
+        mixedLossless.map((entry) => [
+          entry.format,
+          `${entry.groups}`,
+          `${entry.bytesPerRecord}`,
+          `${entry.tokensCl100kPerRecord}`,
+          `${entry.tokensO200kPerRecord}`,
+        ]),
+        [false, true, true, true, true]
+      ));
+    }
+
+    const mixedFailures = report.mixedBatchComparison.flatMap((batch) =>
+      batch.formats
+        .filter((entry) => entry.error || !entry.roundTripOk)
+        .map((entry) => `${batch.surface}/n=${batch.recordCount}/${entry.format}: ${entry.error ?? "round-trip mismatch"}`),
+    );
+
+    if (mixedFailures.length > 0) {
+      lines.push("  ⚠ MIXED-CORPUS BATCH FAILURES");
+      lines.push("  ─────────────────────────────");
+      for (const failure of mixedFailures) lines.push(`  ${failure}`);
+      lines.push("");
+    } else {
+      lines.push("  ✓ ALL MIXED-CORPUS BATCH ROUND-TRIP CHECKS PASSED");
+      lines.push("");
+    }
   }
 
   // Percentile latencies table
   if (report.percentileLatencies.length > 0) {
     lines.push(formatTable(
-      "PERCENTILE LATENCIES (ms per iteration of 8 envelopes, N=1000)",
+      `PERCENTILE LATENCIES (ms per iteration of ${CORPUS.length} envelopes, N=1000)`,
       ["Operation", "Density", "p50", "p95", "p99", "min", "max", "mean", "stdev"],
       report.percentileLatencies.map(p => [
         p.operation, p.density, `${p.p50Ms}`, `${p.p95Ms}`, `${p.p99Ms}`,
@@ -932,9 +1333,9 @@ function formatReport(report: BenchmarkReport): string {
   if (denseInfo.length > 0) {
     lines.push(formatTable(
       "INFORMATION DENSITY (dense density)",
-      ["Surface", "Facts", "Clauses", "B/Fact", "cl100k/Fact", "o200k/Fact", "B/Clause"],
+      ["Case", "Facts", "Clauses", "B/Fact", "cl100k/Fact", "o200k/Fact", "B/Clause"],
       denseInfo.map(i => [
-        i.surface, `${i.factCount}`, `${i.clauseCount}`,
+        i.label, `${i.factCount}`, `${i.clauseCount}`,
         `${i.bytesPerFact}`, `${i.tokensCl100kPerFact}`, `${i.tokensO200kPerFact}`,
         `${i.bytesPerClause}`
       ]),

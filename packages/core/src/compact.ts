@@ -67,6 +67,8 @@ import {
   definePersonalLexicon,
   parsePersonalStem,
   parsePersonalLexiconFromClauses,
+  PROSE_CONTRACTIONS,
+  REVERSE_PROSE_CONTRACTIONS,
 } from "@ceeline/schema";
 import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
@@ -82,10 +84,245 @@ function encodeList(values: readonly string[]): string {
   return values.map((v) => encodeAtom(v)).join(",");
 }
 
+const DENSE_DIGEST_METRIC_KEY_CODES: Readonly<Record<string, string>> = {
+  pendingChecks: "pc",
+  sessionMinutes: "sm",
+  tokenBudgetUsed: "tb",
+};
+
+const REVERSE_DENSE_DIGEST_METRIC_KEY_CODES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(DENSE_DIGEST_METRIC_KEY_CODES).map(([key, code]) => [code, key])
+);
+
+const DENSE_HANDOFF_SCOPE_CODES: Readonly<Record<string, string>> = {
+  transport: "t",
+  validation: "v",
+  security: "s",
+  performance: "p",
+  reliability: "r",
+  compliance: "c",
+};
+
+const REVERSE_DENSE_HANDOFF_SCOPE_CODES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(DENSE_HANDOFF_SCOPE_CODES).map(([key, code]) => [code, key])
+);
+
+const DENSE_PROMPT_CONTEXT_SOURCE_REF_CODES: Readonly<Record<string, string>> = {
+  workspace: "ws",
+  "workspace-config": "wc",
+};
+
+const REVERSE_DENSE_PROMPT_CONTEXT_SOURCE_REF_CODES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(DENSE_PROMPT_CONTEXT_SOURCE_REF_CODES).map(([key, code]) => [code, key])
+);
+
+const DENSE_HISTORY_ANCHOR_CODES: Readonly<Record<string, string>> = {
+  start: "s",
+  "bench-session-start": "bs",
+};
+
+const REVERSE_DENSE_HISTORY_ANCHOR_CODES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(DENSE_HISTORY_ANCHOR_CODES).map(([key, code]) => [code, key])
+);
+
 function encodeMetrics(metrics: Record<string, number>): string {
   return Object.entries(metrics)
     .map(([k, v]) => `${k}:${Number.isInteger(v) ? v.toString() : v}`)
     .join(",");
+}
+
+function encodeDenseDigestMetrics(metrics: Record<string, number>): string {
+  return Object.entries(metrics)
+    .map(([key, value]) => {
+      const encodedKey = DENSE_DIGEST_METRIC_KEY_CODES[key] ?? `!${key}`;
+      return `${encodedKey}:${Number.isInteger(value) ? value.toString() : value}`;
+    })
+    .join(",");
+}
+
+function encodeDensePromptContextSourceRef(sourceRef: string): string | undefined {
+  return DENSE_PROMPT_CONTEXT_SOURCE_REF_CODES[sourceRef];
+}
+
+function encodeDenseHandoffScopes(scope: readonly string[]): string {
+  return scope.map((item) => {
+    const code = DENSE_HANDOFF_SCOPE_CODES[item];
+    return code ? `@${code}` : encodeAtom(item);
+  }).join(",");
+}
+
+function decodeDenseHandoffScopes(raw: string): string[] {
+  return decodeList(raw).map((item) => {
+    if (item.startsWith("@")) {
+      return REVERSE_DENSE_HANDOFF_SCOPE_CODES[item.slice(1)] ?? item;
+    }
+    return item;
+  });
+}
+
+function encodeDenseHistoryAnchor(anchor: string): string | undefined {
+  return DENSE_HISTORY_ANCHOR_CODES[anchor];
+}
+
+// =========================================================================
+// Dense compression helpers
+// =========================================================================
+
+type ProtectedSpan = readonly [number, number];
+
+const EMPTY_PROTECTED_SPANS: readonly ProtectedSpan[] = [];
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function preserveLeadingCase(match: string, replacement: string): string {
+  if (match[0] !== match[0].toLowerCase()) {
+    return replacement[0].toUpperCase() + replacement.slice(1);
+  }
+  return replacement;
+}
+
+const SORTED_PROSE_CONTRACTIONS = [...PROSE_CONTRACTIONS]
+  .sort((a, b) => b[0].length - a[0].length);
+
+const CONTRACTION_MAP: ReadonlyMap<string, string> = new Map(
+  SORTED_PROSE_CONTRACTIONS.map(([full, abbr]) => [full.toLowerCase(), abbr])
+);
+
+const CONTRACTION_PATTERN = new RegExp(
+  `\\b(?:${SORTED_PROSE_CONTRACTIONS.map(([full]) => escapeRegExp(full)).join("|")})\\b`,
+  "gi"
+);
+
+const SORTED_PROSE_EXPANSIONS = [...REVERSE_PROSE_CONTRACTIONS.entries()]
+  .sort((a, b) => b[0].length - a[0].length);
+
+const EXPANSION_MAP: ReadonlyMap<string, string> = new Map(
+  SORTED_PROSE_EXPANSIONS.map(([abbr, full]) => [abbr.toLowerCase(), full])
+);
+
+// Context guards prevent expansion inside code/path contexts:
+//   (?<![/])     — not preceded by /  (path separator)
+//   (?<!\w\.)    — not preceded by word char + dot  (e.g. "obj.prop")
+//   (?![/])      — not followed by /
+//   (?!\.\w)     — not followed by dot + word char  (e.g. "val.pipeline")
+const EXPANSION_PATTERN = new RegExp(
+  `(?<![/])(?<!\\w\\.)\\b(?:${SORTED_PROSE_EXPANSIONS.map(([abbr]) => escapeRegExp(abbr)).join("|")})\\b(?![/])(?!\\.\\w)`,
+  "gi"
+);
+
+function createProtectedSpanFinder(preserveTokens: readonly string[]): (text: string) => readonly ProtectedSpan[] {
+  const uniqueTokens = [...new Set(preserveTokens)]
+    .filter((token) => token.length > 0)
+    .sort((a, b) => b.length - a.length);
+
+  if (uniqueTokens.length === 0) {
+    return () => EMPTY_PROTECTED_SPANS;
+  }
+
+  const tokenPattern = new RegExp(uniqueTokens.map(escapeRegExp).join("|"), "g");
+  const spanCache = new Map<string, readonly ProtectedSpan[]>();
+
+  return (text: string): readonly ProtectedSpan[] => {
+    const cached = spanCache.get(text);
+    if (cached) return cached;
+
+    tokenPattern.lastIndex = 0;
+    const spans: ProtectedSpan[] = [];
+    let match: RegExpExecArray | null;
+    while ((match = tokenPattern.exec(text)) !== null) {
+      spans.push([match.index, match.index + match[0].length]);
+      if (match[0].length === 0) {
+        tokenPattern.lastIndex += 1;
+      }
+    }
+
+    spanCache.set(text, spans);
+    return spans;
+  };
+}
+
+function createProtectedProseExpander(preserveTokens: readonly string[]): (text: string) => string {
+  const findProtectedSpans = createProtectedSpanFinder(preserveTokens);
+  const expansionCache = new Map<string, string>();
+
+  return (text: string): string => {
+    const cached = expansionCache.get(text);
+    if (cached !== undefined) return cached;
+
+    const spans = findProtectedSpans(text);
+    if (spans.length === 0) {
+      const expanded = expandProse(text);
+      expansionCache.set(text, expanded);
+      return expanded;
+    }
+
+    const parts: string[] = [];
+    let pos = 0;
+    for (const [start, end] of spans) {
+      if (pos < start) parts.push(expandProse(text.slice(pos, start)));
+      parts.push(text.slice(start, end));
+      pos = end;
+    }
+    if (pos < text.length) parts.push(expandProse(text.slice(pos)));
+
+    const expanded = parts.join("");
+    expansionCache.set(text, expanded);
+    return expanded;
+  };
+}
+
+/** Apply prose contractions to a text value (dense mode rendering). */
+function contractProse(text: string): string {
+  CONTRACTION_PATTERN.lastIndex = 0;
+  return text.replace(CONTRACTION_PATTERN, (match) => {
+    const replacement = CONTRACTION_MAP.get(match.toLowerCase()) ?? match;
+    return preserveLeadingCase(match, replacement);
+  });
+}
+
+/** Reverse prose contractions with case-preservation. */
+function expandProse(text: string): string {
+  EXPANSION_PATTERN.lastIndex = 0;
+  return text.replace(EXPANSION_PATTERN, (match) => {
+    const replacement = EXPANSION_MAP.get(match.toLowerCase()) ?? match;
+    return preserveLeadingCase(match, replacement);
+  });
+}
+
+/**
+ * Extract the intent verb stem (first component before the dot).
+ * e.g. "review.security" → "review", "test.handoff" → "test"
+ */
+function intentVerb(intent: string): string {
+  const dot = intent.indexOf(".");
+  return dot > 0 ? intent.slice(0, dot) : intent;
+}
+
+/**
+ * Elide the leading intent verb from a summary if it matches.
+ * Returns the elided summary prefixed with `~`, or the original if no match.
+ */
+function elideIntentVerb(summary: string, intent: string): string {
+  const verb = intentVerb(intent);
+  if (verb.length < 2) return summary;
+  if (summary.toLowerCase().startsWith(verb.toLowerCase())) {
+    const rest = summary.slice(verb.length).replace(/^\s+/, "");
+    if (rest.length > 0) return `~${rest}`;
+  }
+  return summary;
+}
+
+/**
+ * Restore the intent verb to a summary that was elided (starts with `~`).
+ * Returns the original summary with the verb prepended and capitalised.
+ */
+function restoreIntentVerb(summary: string, intent: string): string {
+  if (!summary.startsWith("~")) return summary;
+  const verb = intentVerb(intent);
+  const cap = verb.charAt(0).toUpperCase() + verb.slice(1);
+  return `${cap} ${summary.slice(1)}`;
 }
 
 // =========================================================================
@@ -165,14 +402,41 @@ function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domain
   return parts.join(" ");
 }
 
-function renderCommonPayload(payload: CommonPayload, density: CompactDensity): string[] {
-  const lines = [`${COMPACT_LINE_KEYS.summary}=${encodeAtom(payload.summary)}`];
+function renderCommonPayload(payload: CommonPayload, density: CompactDensity, intent?: string): string[] {
+  let summary = payload.summary;
+  let facts = payload.facts;
+  let ask = payload.ask;
+  let proseContracted = false;
 
-  for (const fact of payload.facts) {
+  // Dense-mode prose compression: contractions + intent-verb elision
+  if (density === "dense") {
+    const contractedSummary = contractProse(summary);
+    proseContracted = proseContracted || contractedSummary !== summary;
+    summary = contractedSummary;
+    if (intent) summary = elideIntentVerb(summary, intent);
+    facts = facts.map((fact) => {
+      const contractedFact = contractProse(fact);
+      proseContracted = proseContracted || contractedFact !== fact;
+      return contractedFact;
+    });
+    if (ask) {
+      const contractedAsk = contractProse(ask);
+      proseContracted = proseContracted || contractedAsk !== ask;
+      ask = contractedAsk;
+    }
+  }
+
+  const lines = [`${COMPACT_LINE_KEYS.summary}=${encodeAtom(summary)}`];
+
+  for (const fact of facts) {
     lines.push(`${COMPACT_LINE_KEYS.fact}=${encodeAtom(fact)}`);
   }
-  if (payload.ask) {
-    lines.push(`${COMPACT_LINE_KEYS.ask}=${encodeAtom(payload.ask)}`);
+  if (ask) {
+    lines.push(`${COMPACT_LINE_KEYS.ask}=${encodeAtom(ask)}`);
+  }
+  // Prose-contracted signal: tells the parser to expand abbreviations
+  if (density === "dense" && proseContracted) {
+    lines.push("pc=1");
   }
   if (density === "lite" && payload.artifacts.length > 0) {
     for (const artifact of payload.artifacts) {
@@ -183,33 +447,47 @@ function renderCommonPayload(payload: CommonPayload, density: CompactDensity): s
   return lines;
 }
 
-function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
+function renderSurfacePayload(envelope: CeelineEnvelope, density: CompactDensity, commonSegments?: readonly string[]): string[] {
   const payload = envelope.payload;
   const K = COMPACT_LINE_KEYS;
 
   switch (envelope.surface) {
     case "handoff": {
       const p = payload as HandoffPayload;
+      const scopes = encodeList(p.scope);
+      const denseScopes = encodeDenseHandoffScopes(p.scope);
       return [
         `${K.role}=${HANDOFF_ROLE_CODES[p.role]}`,
         `${K.target}=${HANDOFF_TARGET_CODES[p.target]}`,
-        `${K.scope}=${encodeList(p.scope)}`
+        density === "dense" && denseScopes.length < scopes.length + 1
+          ? `sx=${denseScopes}`
+          : `${K.scope}=${scopes}`
       ];
     }
     case "digest": {
       const p = payload as DigestPayload;
+      const metrics = encodeMetrics(p.metrics);
+      const denseMetrics = encodeDenseDigestMetrics(p.metrics);
       return [
         `${K.window}=${DIGEST_WINDOW_CODES[p.window]}`,
         `${K.status}=${DIGEST_STATUS_CODES[p.status]}`,
-        `${K.metrics}=${encodeMetrics(p.metrics)}`
+        density === "dense" && denseMetrics.length < metrics.length + 1
+          ? `mi=${denseMetrics}`
+          : `${K.metrics}=${metrics}`
       ];
     }
     case "memory": {
       const p = payload as MemoryPayload;
+      const citations = encodeList(p.citations);
+      const denseCitations = density === "dense" && commonSegments
+        ? encodeDenseMemoryCitations(p.citations, extractRenderedCommonPayload(commonSegments))
+        : undefined;
       return [
         `${K.memoryKind}=${MEMORY_KIND_CODES[p.memory_kind]}`,
         `${K.durability}=${MEMORY_DURABILITY_CODES[p.durability]}`,
-        `${K.citations}=${encodeList(p.citations)}`
+        denseCitations && denseCitations.length < citations.length + 1
+          ? `ci=${denseCitations}`
+          : `${K.citations}=${citations}`
       ];
     }
     case "reflection": {
@@ -221,7 +499,17 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
       const cnf = (payload as Record<string, unknown>).confidence as number | undefined;
       if (cnf !== undefined) lines.push(`${K.confidence}=${cnf}`);
       const rev = (payload as Record<string, unknown>).revision as string | undefined;
-      if (rev) lines.push(`${K.revision}=${encodeAtom(rev)}`);
+      if (rev) {
+        const revisionAtom = encodeAtom(rev);
+        const contractedRevision = density === "dense" ? contractProse(rev) : rev;
+        const contractedRevisionAtom = encodeAtom(contractedRevision);
+        if (density === "dense" && contractedRevision !== rev && contractedRevisionAtom.length + 5 < revisionAtom.length) {
+          lines.push(`${K.revision}=${contractedRevisionAtom}`);
+          lines.push("rvc=1");
+        } else {
+          lines.push(`${K.revision}=${revisionAtom}`);
+        }
+      }
       return lines;
     }
     case "tool_summary": {
@@ -245,7 +533,15 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
       const cand = (payload as Record<string, unknown>).candidates as string[] | undefined;
       if (cand?.length) lines.push(`${K.candidates}=${encodeList(cand)}`);
       const sel = (payload as Record<string, unknown>).selected as string | undefined;
-      if (sel) lines.push(`${K.selected}=${encodeAtom(sel)}`);
+      if (sel) {
+        const selectedIndex = cand?.indexOf(sel) ?? -1;
+        const selectedAtom = encodeAtom(sel);
+        if (density === "dense" && selectedIndex >= 0 && `si=${selectedIndex}`.length < `${K.selected}=${selectedAtom}`.length) {
+          lines.push(`si=${selectedIndex}`);
+        } else {
+          lines.push(`${K.selected}=${selectedAtom}`);
+        }
+      }
       return lines;
     }
     case "prompt_context": {
@@ -257,7 +553,15 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
       const pri = (payload as Record<string, unknown>).priority as number | undefined;
       if (pri !== undefined) lines.push(`${K.priority}=${pri}`);
       const src = (payload as Record<string, unknown>).source_ref as string | undefined;
-      if (src) lines.push(`${K.sourceRef}=${encodeAtom(src)}`);
+      if (src) {
+        const encodedSourceRef = encodeDensePromptContextSourceRef(src);
+        const sourceRefAtom = encodeAtom(src);
+        if (density === "dense" && encodedSourceRef && `sr=${encodedSourceRef}`.length < `${K.sourceRef}=${sourceRefAtom}`.length) {
+          lines.push(`sr=${encodedSourceRef}`);
+        } else {
+          lines.push(`${K.sourceRef}=${sourceRefAtom}`);
+        }
+      }
       return lines;
     }
     case "history": {
@@ -269,7 +573,15 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
       const tc = (payload as Record<string, unknown>).turn_count as number | undefined;
       if (tc !== undefined) lines.push(`${K.turnCount}=${tc}`);
       const anc = (payload as Record<string, unknown>).anchor as string | undefined;
-      if (anc) lines.push(`${K.anchor}=${encodeAtom(anc)}`);
+      if (anc) {
+        const encodedAnchor = encodeDenseHistoryAnchor(anc);
+        const anchorAtom = encodeAtom(anc);
+        if (density === "dense" && encodedAnchor && `ac=${encodedAnchor}`.length < `${K.anchor}=${anchorAtom}`.length) {
+          lines.push(`ac=${encodedAnchor}`);
+        } else {
+          lines.push(`${K.anchor}=${anchorAtom}`);
+        }
+      }
       return lines;
     }
     /* v8 ignore next 2 — all 8 surfaces handled above */
@@ -278,7 +590,7 @@ function renderSurfacePayload(envelope: CeelineEnvelope): string[] {
   }
 }
 
-function renderPreserve(envelope: CeelineEnvelope, density: CompactDensity): string[] {
+function renderPreserve(envelope: CeelineEnvelope, density: CompactDensity, proseSegments?: string[]): string[] {
   const lines: string[] = [];
 
   if (shouldEmitPreserveClasses(density)) {
@@ -287,7 +599,12 @@ function renderPreserve(envelope: CeelineEnvelope, density: CompactDensity): str
     }
   }
   if (shouldEmitTokens(density)) {
+    // In dense mode, deduplicate tok= clauses against prose content
+    const proseText = density === "dense" && proseSegments
+      ? proseSegments.join(" ")
+      : "";
     for (const token of envelope.preserve.tokens) {
+      if (density === "dense" && proseText.includes(token)) continue;
       lines.push(`${COMPACT_LINE_KEYS.token}=${encodeAtom(token)}`);
     }
   }
@@ -341,11 +658,12 @@ export function renderCeelineCompact(
     return fail({ code: "unknown_surface", message: `Unknown surface: ${envelope.surface}`, path: "surface" });
   }
 
+  const commonSegments = renderCommonPayload(envelope.payload, density, envelope.intent);
   const segments = [
     renderHeader(envelope, density, options?.domains, options?.dialects, options?.lexicons),
-    ...renderCommonPayload(envelope.payload, density),
-    ...renderSurfacePayload(envelope),
-    ...renderPreserve(envelope, density),
+    ...commonSegments,
+    ...renderSurfacePayload(envelope, density, commonSegments),
+    ...renderPreserve(envelope, density, commonSegments),
     ...renderDiagnostics(envelope),
     ...renderExtensions(envelope)
   ];
@@ -526,6 +844,182 @@ function decodeMetrics(raw: string): Record<string, number> {
   return out;
 }
 
+/** Decode dense metrics string `pc:3,!items:4` → canonical Record. */
+function decodeDenseDigestMetrics(raw: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const pair of raw.split(",")) {
+    const colon = pair.indexOf(":");
+    if (colon > 0) {
+      const encodedKey = pair.slice(0, colon);
+      const key = encodedKey.startsWith("!")
+        ? encodedKey.slice(1)
+        : (REVERSE_DENSE_DIGEST_METRIC_KEY_CODES[encodedKey] ?? encodedKey);
+      out[key] = Number(pair.slice(colon + 1));
+    }
+  }
+  return out;
+}
+
+type DenseRenderedCommonPayload = {
+  summary: string;
+  facts: string[];
+  ask: string;
+};
+
+function splitCommaAware(raw: string): string[] {
+  if (raw === "") return [];
+  const items: string[] = [];
+  let start = 0;
+  let inQuote = false;
+  for (let i = 0; i < raw.length; i++) {
+    if (raw[i] === "\\" && inQuote) {
+      i++;
+      continue;
+    }
+    if (raw[i] === '"') {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (!inQuote && raw[i] === ",") {
+      items.push(raw.slice(start, i));
+      start = i + 1;
+    }
+  }
+  items.push(raw.slice(start));
+  return items;
+}
+
+function extractRenderedCommonPayload(commonSegments: readonly string[]): DenseRenderedCommonPayload {
+  const rendered: DenseRenderedCommonPayload = {
+    summary: "",
+    facts: [],
+    ask: "",
+  };
+
+  for (const segment of commonSegments) {
+    const [key, value] = splitKV(segment);
+    if (key === COMPACT_LINE_KEYS.summary) rendered.summary = decodeAtom(value);
+    if (key === COMPACT_LINE_KEYS.fact) rendered.facts.push(decodeAtom(value));
+    if (key === COMPACT_LINE_KEYS.ask) rendered.ask = decodeAtom(value);
+  }
+
+  return rendered;
+}
+
+function isDenseCitationAliasCandidate(citation: string): boolean {
+  return citation.includes("://") || citation.includes("/") || citation.includes(".");
+}
+
+function findDenseCitationReference(citation: string, rendered: DenseRenderedCommonPayload): string | undefined {
+  let best: string | undefined;
+
+  const summaryIndex = rendered.summary.indexOf(citation);
+  if (summaryIndex !== -1) {
+    best = summaryIndex === 0
+      ? `@s/${citation.length}`
+      : `@s.${summaryIndex}/${citation.length}`;
+  }
+
+  for (let i = 0; i < rendered.facts.length; i++) {
+    const factIndex = rendered.facts[i].indexOf(citation);
+    if (factIndex !== -1) {
+      const candidate = factIndex === 0
+        ? `@f${i}/${citation.length}`
+        : `@f${i}.${factIndex}/${citation.length}`;
+      if (!best || candidate.length < best.length) best = candidate;
+    }
+  }
+
+  const askIndex = rendered.ask.indexOf(citation);
+  if (askIndex !== -1) {
+    const candidate = askIndex === 0
+      ? `@a/${citation.length}`
+      : `@a.${askIndex}/${citation.length}`;
+    if (!best || candidate.length < best.length) best = candidate;
+  }
+
+  return best;
+}
+
+function encodeDenseMemoryCitations(citations: readonly string[], rendered: DenseRenderedCommonPayload): string {
+  return citations.map((citation) => {
+    const literal = encodeAtom(citation);
+    if (!isDenseCitationAliasCandidate(citation)) return literal;
+    const reference = findDenseCitationReference(citation, rendered);
+    return reference && reference.length < literal.length ? reference : literal;
+  }).join(",");
+}
+
+function resolveDenseCitationReference(raw: string, rendered: DenseRenderedCommonPayload): string | undefined {
+  let source = "";
+  let start = 0;
+  let length = 0;
+
+  const summaryMatch = raw.match(/^@s(?:\.(\d+))?\/(\d+)$/);
+  if (summaryMatch) {
+    source = rendered.summary;
+    start = Number(summaryMatch[1] ?? "0");
+    length = Number(summaryMatch[2]);
+  }
+
+  const askMatch = raw.match(/^@a(?:\.(\d+))?\/(\d+)$/);
+  if (askMatch) {
+    source = rendered.ask;
+    start = Number(askMatch[1] ?? "0");
+    length = Number(askMatch[2]);
+  }
+
+  const factMatch = raw.match(/^@f(\d+)(?:\.(\d+))?\/(\d+)$/);
+  if (factMatch) {
+    const factIndex = Number(factMatch[1]);
+    source = rendered.facts[factIndex] ?? "";
+    start = Number(factMatch[2] ?? "0");
+    length = Number(factMatch[3]);
+  }
+
+  const legacySummaryMatch = raw.match(/^@s\.(\d+)\.(\d+)$/);
+  if (legacySummaryMatch) {
+    source = rendered.summary;
+    start = Number(legacySummaryMatch[1]);
+    length = Number(legacySummaryMatch[2]);
+  }
+
+  const legacyAskMatch = raw.match(/^@a\.(\d+)\.(\d+)$/);
+  if (legacyAskMatch) {
+    source = rendered.ask;
+    start = Number(legacyAskMatch[1]);
+    length = Number(legacyAskMatch[2]);
+  }
+
+  const legacyFactMatch = raw.match(/^@f(\d+)\.(\d+)\.(\d+)$/);
+  if (legacyFactMatch) {
+    const factIndex = Number(legacyFactMatch[1]);
+    source = rendered.facts[factIndex] ?? "";
+    start = Number(legacyFactMatch[2]);
+    length = Number(legacyFactMatch[3]);
+  }
+
+  if (!source || !Number.isInteger(start) || !Number.isInteger(length) || start < 0 || length <= 0 || start + length > source.length) {
+    return undefined;
+  }
+
+  return source.slice(start, start + length);
+}
+
+function decodeDenseMemoryCitations(raw: string, rendered: DenseRenderedCommonPayload): string[] | undefined {
+  const decoded: string[] = [];
+  for (const item of splitCommaAware(raw)) {
+    if (!item.startsWith("@")) {
+      decoded.push(item.startsWith("=") ? decodeAtom(item.slice(1)) : decodeAtom(item));
+      continue;
+    }
+    const resolved = resolveDenseCitationReference(item, rendered);
+    if (!resolved) return undefined;
+    decoded.push(resolved);
+  }
+  return decoded;
+}
+
 /** Split a `key=value` string on the first `=`. */
 function splitKV(clause: string): [string, string] {
   const eq = clause.indexOf("=");
@@ -598,11 +1092,13 @@ const SURFACE_FIELD_DECODERS: Record<string, Record<string, FieldDecoder>> = {
     role: (raw, out) => { out.surfaceFields.role = REVERSE_HANDOFF_ROLE_CODES[raw] ?? raw; },
     tgt: (raw, out) => { out.surfaceFields.target = REVERSE_HANDOFF_TARGET_CODES[raw] ?? raw; },
     sc: (raw, out) => { out.surfaceFields.scope = decodeList(raw); },
+    sx: (raw, out) => { out.surfaceFields.scope = decodeDenseHandoffScopes(raw); },
   },
   digest: {
     win: (raw, out) => { out.surfaceFields.window = REVERSE_DIGEST_WINDOW_CODES[raw] ?? raw; },
     st: (raw, out) => { out.surfaceFields.status = REVERSE_DIGEST_STATUS_CODES[raw] ?? raw; },
     met: (raw, out) => { out.surfaceFields.metrics = decodeMetrics(raw) as unknown as string[]; },
+    mi: (raw, out) => { out.surfaceFields.metrics = decodeDenseDigestMetrics(raw) as unknown as string[]; },
   },
   memory: {
     mk: (raw, out) => { out.surfaceFields.memory_kind = REVERSE_MEMORY_KIND_CODES[raw] ?? raw; },
@@ -628,11 +1124,13 @@ const SURFACE_FIELD_DECODERS: Record<string, Record<string, FieldDecoder>> = {
     ph: (raw, out) => { out.surfaceFields.phase = REVERSE_PROMPT_CONTEXT_PHASE_CODES[raw] ?? raw; },
     pri: (raw, out) => { out.surfaceFields.priority = Number(raw); },
     src: (raw, out) => { out.surfaceFields.source_ref = decodeAtom(raw); },
+    sr: (raw, out) => { out.surfaceFields.source_ref = REVERSE_DENSE_PROMPT_CONTEXT_SOURCE_REF_CODES[raw] ?? raw; },
   },
   history: {
     spn: (raw, out) => { out.surfaceFields.span = REVERSE_HISTORY_SPAN_CODES[raw] ?? raw; },
     tc: (raw, out) => { out.surfaceFields.turn_count = Number(raw); },
     anc: (raw, out) => { out.surfaceFields.anchor = decodeAtom(raw); },
+    ac: (raw, out) => { out.surfaceFields.anchor = REVERSE_DENSE_HISTORY_ANCHOR_CODES[raw] ?? raw; },
   },
 };
 
@@ -667,6 +1165,9 @@ function parseCeelineCompactInner(
 ): CeelineResult<CompactParseResult> {
   const issues: ValidationIssue[] = [];
   const { headerParts, bodyClauses } = splitClauses(text);
+  let denseMemoryCitationsRaw: string | undefined;
+  let reflectionRevisionContracted = false;
+  let routingSelectedIndexRaw: string | undefined;
 
   // -- Validate header marker --
   if (headerParts.length === 0 || !headerParts[0].startsWith("@cl")) {
@@ -764,6 +1265,7 @@ function parseCeelineCompactInner(
   }
 
   // -- Parse body clauses --
+  let proseContracted = false;
   for (const clause of bodyClauses) {
     const [ck, cv] = splitKV(clause.trim());
 
@@ -835,11 +1337,23 @@ function parseCeelineCompactInner(
       continue;
     }
 
+    if (result.surface === "memory" && ck === "ci") {
+      denseMemoryCitationsRaw = cv;
+      continue;
+    }
+
+    if (result.surface === "routing" && ck === "si") {
+      routingSelectedIndexRaw = cv;
+      continue;
+    }
+
     // Common payload keys
     switch (ck) {
       case "sum": result.summary = decodeAtom(cv); continue;
       case "f": result.facts.push(decodeAtom(cv)); continue;
       case "ask": result.ask = decodeAtom(cv); continue;
+      case "pc": proseContracted = cv === "1"; continue;
+      case "rvc": reflectionRevisionContracted = cv === "1"; continue;
       case "art": {
         try { result.artifacts.push(JSON.parse(decodeAtom(cv))); } catch { result.artifacts.push(cv); }
         continue;
@@ -925,6 +1439,59 @@ function parseCeelineCompactInner(
       const expr = resolveSymbolExpr(sv, result.surface);
       if (expr) result.symbolExprs[key] = expr;
     }
+  }
+
+  if (result.surface === "memory" && denseMemoryCitationsRaw !== undefined && result.surfaceFields.citations === undefined) {
+    const citations = decodeDenseMemoryCitations(denseMemoryCitationsRaw, {
+      summary: result.summary,
+      facts: result.facts,
+      ask: result.ask,
+    });
+    if (citations) {
+      result.surfaceFields.citations = citations;
+    } else {
+      result.unknown.ci = denseMemoryCitationsRaw;
+      issues.push({
+        path: "body.ci",
+        code: "invalid_dense_citations",
+        message: `Memory dense citations are invalid: ${denseMemoryCitationsRaw}`,
+      });
+    }
+  }
+
+  if (result.surface === "routing" && routingSelectedIndexRaw !== undefined && result.surfaceFields.selected === undefined) {
+    const selectedIndex = Number(routingSelectedIndexRaw);
+    const candidates = result.surfaceFields.candidates;
+    if (Array.isArray(candidates) && Number.isInteger(selectedIndex) && selectedIndex >= 0 && selectedIndex < candidates.length) {
+      result.surfaceFields.selected = candidates[selectedIndex];
+    } else {
+      result.unknown.si = routingSelectedIndexRaw;
+      issues.push({
+        path: "body.si",
+        code: "invalid_selected_index",
+        message: `Routing selected index is invalid for candidates: ${routingSelectedIndexRaw}`,
+      });
+    }
+  }
+
+  // Post-processing: restore elided intent verbs (marker-based, always safe).
+  result.summary = restoreIntentVerb(result.summary, result.intent);
+
+  // Post-processing: expand prose contractions when the pc=1 marker is present.
+  // The context-guarded regex avoids expanding abbreviations inside code/path
+  // contexts (e.g. "src/" stays "src/", not "source/"). Preserve tokens provide
+  // an additional protection layer — spans matching any tok= value are shielded.
+  if (proseContracted) {
+    const expandProtected = createProtectedProseExpander(result.preserveTokens);
+    result.summary = expandProtected(result.summary);
+    result.facts = result.facts.map((fact) => expandProtected(fact));
+    if (result.ask) result.ask = expandProtected(result.ask);
+    if (result.surface === "reflection" && typeof result.surfaceFields.revision === "string") {
+      result.surfaceFields.revision = expandProtected(result.surfaceFields.revision);
+    }
+  } else if (reflectionRevisionContracted && result.surface === "reflection" && typeof result.surfaceFields.revision === "string") {
+    const expandProtected = createProtectedProseExpander(result.preserveTokens);
+    result.surfaceFields.revision = expandProtected(result.surfaceFields.revision);
   }
 
   // Issues are informational (warnings), not failures.  The parse succeeds

@@ -23,6 +23,112 @@ export const COMPACT_DENSITIES = ["lite", "full", "dense"] as const;
 export type CompactDensity = (typeof COMPACT_DENSITIES)[number];
 
 // ---------------------------------------------------------------------------
+// Prose contractions — industry-standard abbreviations for dense mode
+// ---------------------------------------------------------------------------
+
+/**
+ * Controlled prose contraction table for dense rendering.
+ * Each entry: full word → standard abbreviation.
+ * Criteria: universally understood by developers and LLMs,
+ * unambiguous in software context, word-boundary only.
+ * Sorted longest-first for safe replacement (avoid partial matches).
+ */
+export const PROSE_CONTRACTIONS: ReadonlyArray<readonly [string, string]> = [
+  // Multi-word (must come first)
+  ["regular expression", "regex"],
+  // Single words — longest first
+  ["authentication", "auth"],
+  ["synchronization", "sync"],
+  ["implementation", "impl"],
+  ["initialization", "init"],
+  ["configuration", "config"],
+  ["documentation", "docs"],
+  ["authorization", "authz"],
+  ["administrator", "admin"],
+  ["specification", "spec"],
+  ["orchestrator", "orch"],
+  ["architecture", "arch"],
+  ["asynchronous", "async"],
+  ["notification", "notif"],
+  ["vulnerability", "vuln"],
+  ["dependencies", "deps"],
+  ["environment", "env"],
+  ["development", "dev"],
+  ["information", "info"],
+  ["performance", "perf"],
+  ["permissions", "perms"],
+  ["description", "desc"],
+  ["application", "app"],
+  ["certificate", "cert"],
+  ["properties", "props"],
+  ["production", "prod"],
+  ["expression", "expr"],
+  ["connection", "conn"],
+  ["operations", "ops"],
+  ["statistics", "stats"],
+  ["attributes", "attrs"],
+  ["dependency", "dep"],
+  ["repository", "repo"],
+  ["parameters", "params"],
+  ["permission", "perm"],
+  ["executable", "exec"],
+  ["generation", "gen"],
+  ["validation", "val"],
+  ["candidates", "cands"],
+  ["confidence", "conf"],
+  ["persistent", "persist"],
+  ["utilities", "utils"],
+  ["directory", "dir"],
+  ["temporary", "tmp"],
+  ["parameter", "param"],
+  ["arguments", "args"],
+  ["attribute", "attr"],
+  ["candidate", "cand"],
+  ["reference", "ref"],
+  ["operation", "op"],
+  ["variables", "vars"],
+  ["function", "func"],
+  ["database", "db"],
+  ["security", "sec"],
+  ["register", "reg"],
+  ["protocol", "proto"],
+  ["original", "orig"],
+  ["previous", "prev"],
+  ["response", "res"],
+  ["sequence", "seq"],
+  ["variable", "var"],
+  ["argument", "arg"],
+  ["property", "prop"],
+  ["standard", "std"],
+  ["allocate", "alloc"],
+  ["context", "ctx"],
+  ["request", "req"],
+  ["package", "pkg"],
+  ["current", "curr"],
+  ["version", "ver"],
+  ["maximum", "max"],
+  ["minimum", "min"],
+  ["message", "msg"],
+  ["address", "addr"],
+  ["command", "cmd"],
+  ["library", "lib"],
+  ["utility", "util"],
+  ["number", "num"],
+  ["object", "obj"],
+  ["source", "src"],
+  ["string", "str"],
+  ["memory", "mem"],
+  ["module", "mod"],
+  ["length", "len"],
+  ["index", "idx"],
+] as const;
+
+/** Reverse map: abbreviation → full word (for parser expansion). */
+export const REVERSE_PROSE_CONTRACTIONS: ReadonlyMap<string, string> = new Map(
+  PROSE_CONTRACTIONS.map(([full, abbr]) => [abbr, full])
+);
+
+// ---------------------------------------------------------------------------
 // Core code maps (forward: canonical name → compact code)
 // ---------------------------------------------------------------------------
 

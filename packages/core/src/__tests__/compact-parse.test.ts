@@ -374,6 +374,77 @@ describe("parseCeelineCompact", () => {
     }
   });
 
+  it("parses dense digest metric key codes", () => {
+    const text = "@cl1 s=dg i=summarize.session ; sum=test ; mi=pc:3,sm:47,tb:1420";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.metrics).toEqual({
+        pendingChecks: 3,
+        sessionMinutes: 47,
+        tokenBudgetUsed: 1420,
+      });
+    }
+  });
+
+  it("parses routing selected index even when it appears before candidates", () => {
+    const text = "@cl1 s=rt i=route.select ; sum=test ; si=1 ; cand=a,b";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.candidates).toEqual(["a", "b"]);
+      expect(parsed.value.surfaceFields.selected).toBe("b");
+    }
+  });
+
+  it("parses dense memory citation references", () => {
+    const text = "@cl1 s=me i=memory.capture ; sum=test ; f=\"https://ceeline.dev/spec remains the ref URL.\" ; ci=@f0/24,docs/ceeline-language-spec-v1.md";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.citations).toEqual([
+        "https://ceeline.dev/spec",
+        "docs/ceeline-language-spec-v1.md",
+      ]);
+    }
+  });
+
+  it("parses dense handoff scope codes", () => {
+    const text = "@cl1 s=ho i=review.security ; sum=test ; sx=@t,@v";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.scope).toEqual(["transport", "validation"]);
+    }
+  });
+
+  it("parses dense prompt_context source_ref codes", () => {
+    const text = "@cl1 s=pc i=context.inject ; sum=test ; sr=wc";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.source_ref).toBe("workspace-config");
+    }
+  });
+
+  it("parses dense reflection revision contractions", () => {
+    const text = '@cl1 s=rf i=reflect.confidence ; sum=test ; rev="Sec val config." ; rvc=1';
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.revision).toBe("Security validation configuration.");
+    }
+  });
+
+  it("parses dense history anchor codes", () => {
+    const text = "@cl1 s=hs i=history.snapshot ; sum=test ; ac=bs";
+    const parsed = parseCeelineCompact(text);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.surfaceFields.anchor).toBe("bench-session-start");
+    }
+  });
+
   it("parses prompt_context surface fields", () => {
     const rendered = renderCeelineCompact(makePromptContext(), "full");
     expect(rendered.ok).toBe(true);

@@ -1,1 +1,1 @@
-@cl1 s=me i=test.memory ; sum="Test memory summary." ; f="Fact one." ; ask="Test ask." ; mk=fa ; dur=ps ; cit=ref.md ; #n=116
+@cl1 s=me i=test.memory ; sum="~mem summary." ; f="Fact one." ; ask="Test ask." ; pc=1 ; mk=fa ; dur=ps ; ci=ref.md ; #n=115

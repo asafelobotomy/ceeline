@@ -1,8 +1,9 @@
 {
-  "generated": "2026-04-12T18:36:09.200Z",
+  "generated": "2026-04-12T22:44:38.742Z",
   "envelopes": [
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "lite",
       "jsonBytes": 983,
       "compactBytes": 392,
@@ -22,6 +23,7 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "full",
       "jsonBytes": 983,
       "compactBytes": 463,
@@ -41,25 +43,27 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "dense",
       "jsonBytes": 983,
-      "compactBytes": 419,
-      "byteRatio": 2.35,
-      "byteSaving": 57.38,
+      "compactBytes": 341,
+      "byteRatio": 2.88,
+      "byteSaving": 65.31,
       "jsonTokensCl100k": 240,
-      "compactTokensCl100k": 120,
-      "tokenRatioCl100k": 2,
-      "tokenSavingCl100k": 50,
+      "compactTokensCl100k": 102,
+      "tokenRatioCl100k": 2.35,
+      "tokenSavingCl100k": 57.5,
       "jsonTokensO200k": 243,
-      "compactTokensO200k": 119,
-      "tokenRatioO200k": 2.04,
-      "tokenSavingO200k": 51.03,
+      "compactTokensO200k": 101,
+      "tokenRatioO200k": 2.41,
+      "tokenSavingO200k": 58.44,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=ho i=review.security ; sum=\"Review src/core/codec.ts for transport safety before release.\" ; f=\"Preserve {{PROJECT_ID}} exactly.\" ; f=\"Preserve GPT-5.4 exactly.\" ; f=\"The module handles all inbound byte streams from external agents.\" ; ask=\"Return severity-ordered findings only.\" ; role=rv ; tgt=fx ; sc=transport,validation ; tok=src/core/codec.ts ; tok=\"{{PROJECT_ID}}\" ; tok=GPT-5.4 ; tok=\"npm test\" ; #n=410"
+      "compactText": "@cl1 s=ho i=review.security ; sum=\"~src/core/codec.ts for transport safety before release.\" ; f=\"Preserve {{PROJECT_ID}} exactly.\" ; f=\"Preserve GPT-5.4 exactly.\" ; f=\"The mod handles all inbound byte streams from external agents.\" ; ask=\"Return severity-ordered findings only.\" ; pc=1 ; role=rv ; tgt=fx ; sx=@t,@v ; tok=\"npm test\" ; #n=332"
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "lite",
       "jsonBytes": 953,
       "compactBytes": 430,
@@ -79,6 +83,7 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "full",
       "jsonBytes": 953,
       "compactBytes": 470,
@@ -98,25 +103,27 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "dense",
       "jsonBytes": 953,
-      "compactBytes": 443,
-      "byteRatio": 2.15,
-      "byteSaving": 53.52,
+      "compactBytes": 370,
+      "byteRatio": 2.58,
+      "byteSaving": 61.18,
       "jsonTokensCl100k": 232,
-      "compactTokensCl100k": 125,
-      "tokenRatioCl100k": 1.86,
-      "tokenSavingCl100k": 46.12,
+      "compactTokensCl100k": 112,
+      "tokenRatioCl100k": 2.07,
+      "tokenSavingCl100k": 51.72,
       "jsonTokensO200k": 238,
-      "compactTokensO200k": 125,
-      "tokenRatioO200k": 1.9,
-      "tokenSavingO200k": 47.48,
+      "compactTokensO200k": 112,
+      "tokenRatioO200k": 2.13,
+      "tokenSavingO200k": 52.94,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=dg i=summarize.session md=ad au=o fb=vb rs=te ; sum=\"Summarize the latest internal session state for operator review.\" ; f=\"npm test has not run in this session.\" ; f=\"$CI was unset during the last pipeline run.\" ; f=\"Three pending security checks remain.\" ; ask=\"Render a compact operator digest with actionable items.\" ; win=ss ; st=wr ; met=pendingChecks:3,sessionMinutes:47,tokenBudgetUsed:1420 ; tok=\"npm test\" ; tok=\"$CI\" ; #n=434"
+      "compactText": "@cl1 s=dg i=summarize.session md=ad au=o fb=vb rs=te ; sum=\"~the latest internal session state for operator review.\" ; f=\"npm test has not run in this session.\" ; f=\"$CI was unset during the last pipeline run.\" ; f=\"Three pending sec checks remain.\" ; ask=\"Render a compact operator digest with actionable items.\" ; pc=1 ; win=ss ; st=wr ; mi=pc:3,sm:47,tb:1420 ; #n=361"
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "lite",
       "jsonBytes": 948,
       "compactBytes": 414,
@@ -136,6 +143,7 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "full",
       "jsonBytes": 948,
       "compactBytes": 443,
@@ -155,82 +163,147 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "dense",
       "jsonBytes": 948,
-      "compactBytes": 426,
-      "byteRatio": 2.23,
-      "byteSaving": 55.06,
+      "compactBytes": 377,
+      "byteRatio": 2.51,
+      "byteSaving": 60.23,
       "jsonTokensCl100k": 222,
-      "compactTokensCl100k": 115,
-      "tokenRatioCl100k": 1.93,
-      "tokenSavingCl100k": 48.2,
-      "jsonTokensO200k": 228,
-      "compactTokensO200k": 115,
-      "tokenRatioO200k": 1.98,
-      "tokenSavingO200k": 49.56,
-      "roundTripOk": true,
-      "roundTripIssues": [],
-      "compactText": "@cl1 s=me i=memory.capture md=ad rs=nr ; sum=\"Capture a stable product fact for future sessions.\" ; f=\"Ceeline v1 uses a canonical JSON envelope.\" ; f=\"https://ceeline.dev/spec remains the reference URL.\" ; f=\"The compact dialect supports three density levels.\" ; ask=\"Store a compact durable fact entry.\" ; mk=fa ; dur=ps ; cit=https://ceeline.dev/spec,docs/ceeline-language-spec-v1.md ; tok=https://ceeline.dev/spec ; #n=417"
-    },
-    {
-      "surface": "reflection",
-      "density": "lite",
-      "jsonBytes": 949,
-      "compactBytes": 428,
-      "byteRatio": 2.22,
-      "byteSaving": 54.9,
-      "jsonTokensCl100k": 217,
-      "compactTokensCl100k": 121,
-      "tokenRatioCl100k": 1.79,
-      "tokenSavingCl100k": 44.24,
-      "jsonTokensO200k": 219,
-      "compactTokensO200k": 118,
-      "tokenRatioO200k": 1.86,
-      "tokenSavingO200k": 46.12,
-      "roundTripOk": true,
-      "roundTripIssues": [],
-      "compactText": "@cl1 s=rf i=reflect.confidence ch=i md=ro au=m fb=rj rs=n sz=st mx=500\nsum=\"Self-critique of the validation pipeline coverage.\"\nf=\"Edge case for empty payload.facts is not tested.\"\nf=\"Confidence in handoff validation is high.\"\nf=\"Confidence in digest metric parsing is moderate.\"\nask=\"Identify the lowest-confidence validation path.\"\nrty=cc\ncnf=0.72\nrev=\"Add edge-case tests for empty arrays in all payload types.\"\ncls=cs\n#n=421"
-    },
-    {
-      "surface": "reflection",
-      "density": "full",
-      "jsonBytes": 949,
-      "compactBytes": 438,
-      "byteRatio": 2.17,
-      "byteSaving": 53.85,
-      "jsonTokensCl100k": 217,
-      "compactTokensCl100k": 117,
-      "tokenRatioCl100k": 1.85,
-      "tokenSavingCl100k": 46.08,
-      "jsonTokensO200k": 219,
-      "compactTokensO200k": 114,
-      "tokenRatioO200k": 1.92,
-      "tokenSavingO200k": 47.95,
-      "roundTripOk": true,
-      "roundTripIssues": [],
-      "compactText": "@cl1 s=rf i=reflect.confidence mx=500 ; sum=\"Self-critique of the validation pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Confidence in handoff validation is high.\" ; f=\"Confidence in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-confidence validation path.\" ; rty=cc ; cnf=0.72 ; rev=\"Add edge-case tests for empty arrays in all payload types.\" ; cls=cs ; tok=validateEnvelope ; #n=429"
-    },
-    {
-      "surface": "reflection",
-      "density": "dense",
-      "jsonBytes": 949,
-      "compactBytes": 422,
-      "byteRatio": 2.25,
-      "byteSaving": 55.53,
-      "jsonTokensCl100k": 217,
       "compactTokensCl100k": 110,
-      "tokenRatioCl100k": 1.97,
-      "tokenSavingCl100k": 49.31,
-      "jsonTokensO200k": 219,
-      "compactTokensO200k": 107,
-      "tokenRatioO200k": 2.05,
-      "tokenSavingO200k": 51.14,
+      "tokenRatioCl100k": 2.02,
+      "tokenSavingCl100k": 50.45,
+      "jsonTokensO200k": 228,
+      "compactTokensO200k": 110,
+      "tokenRatioO200k": 2.07,
+      "tokenSavingO200k": 51.75,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=rf i=reflect.confidence ; sum=\"Self-critique of the validation pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Confidence in handoff validation is high.\" ; f=\"Confidence in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-confidence validation path.\" ; rty=cc ; cnf=0.72 ; rev=\"Add edge-case tests for empty arrays in all payload types.\" ; tok=validateEnvelope ; #n=413"
+      "compactText": "@cl1 s=me i=memory.capture md=ad rs=nr ; sum=\"Capture a stable product fact for future sessions.\" ; f=\"Ceeline v1 uses a canonical JSON envelope.\" ; f=\"https://ceeline.dev/spec remains the ref URL.\" ; f=\"The compact dialect supports three density levels.\" ; ask=\"Store a compact durable fact entry.\" ; pc=1 ; mk=fa ; dur=ps ; ci=@f1/24,docs/ceeline-language-spec-v1.md ; #n=368"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection",
+      "density": "lite",
+      "jsonBytes": 951,
+      "compactBytes": 430,
+      "byteRatio": 2.21,
+      "byteSaving": 54.78,
+      "jsonTokensCl100k": 214,
+      "compactTokensCl100k": 118,
+      "tokenRatioCl100k": 1.81,
+      "tokenSavingCl100k": 44.86,
+      "jsonTokensO200k": 216,
+      "compactTokensO200k": 115,
+      "tokenRatioO200k": 1.88,
+      "tokenSavingO200k": 46.76,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence ch=i md=ro au=m fb=rj rs=n sz=st mx=500\nsum=\"Self-critique of the validation pipeline coverage.\"\nf=\"Edge case for empty payload.facts is not tested.\"\nf=\"Confidence in handoff validation is high.\"\nf=\"Confidence in digest metric parsing is moderate.\"\nask=\"Identify the lowest-confidence validation path.\"\nrty=cc\ncnf=0.72\nrev=\"Add validation configuration tests for empty payload arrays.\"\ncls=cs\n#n=423"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection",
+      "density": "full",
+      "jsonBytes": 951,
+      "compactBytes": 440,
+      "byteRatio": 2.16,
+      "byteSaving": 53.73,
+      "jsonTokensCl100k": 214,
+      "compactTokensCl100k": 114,
+      "tokenRatioCl100k": 1.88,
+      "tokenSavingCl100k": 46.73,
+      "jsonTokensO200k": 216,
+      "compactTokensO200k": 111,
+      "tokenRatioO200k": 1.95,
+      "tokenSavingO200k": 48.61,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence mx=500 ; sum=\"Self-critique of the validation pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Confidence in handoff validation is high.\" ; f=\"Confidence in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-confidence validation path.\" ; rty=cc ; cnf=0.72 ; rev=\"Add validation configuration tests for empty payload arrays.\" ; cls=cs ; tok=validateEnvelope ; #n=431"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection",
+      "density": "dense",
+      "jsonBytes": 951,
+      "compactBytes": 386,
+      "byteRatio": 2.46,
+      "byteSaving": 59.41,
+      "jsonTokensCl100k": 214,
+      "compactTokensCl100k": 114,
+      "tokenRatioCl100k": 1.88,
+      "tokenSavingCl100k": 46.73,
+      "jsonTokensO200k": 216,
+      "compactTokensO200k": 113,
+      "tokenRatioO200k": 1.91,
+      "tokenSavingO200k": 47.69,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence ; sum=\"Self-critique of the val pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Conf in handoff val is high.\" ; f=\"Conf in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-conf val path.\" ; pc=1 ; rty=cc ; cnf=0.72 ; rev=\"Add val config tests for empty payload arrays.\" ; rvc=1 ; tok=validateEnvelope ; #n=377"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "lite",
+      "jsonBytes": 934,
+      "compactBytes": 401,
+      "byteRatio": 2.33,
+      "byteSaving": 57.07,
+      "jsonTokensCl100k": 215,
+      "compactTokensCl100k": 117,
+      "tokenRatioCl100k": 1.84,
+      "tokenSavingCl100k": 45.58,
+      "jsonTokensO200k": 217,
+      "compactTokensO200k": 114,
+      "tokenRatioO200k": 1.9,
+      "tokenSavingO200k": 47.47,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence ch=i md=ro au=m fb=rj rs=n sz=st mx=500\nsum=\"Self-critique of the validation pipeline coverage.\"\nf=\"Edge case for empty payload.facts is not tested.\"\nf=\"Confidence in handoff validation is high.\"\nf=\"Confidence in digest metric parsing is moderate.\"\nask=\"Identify the lowest-confidence validation path.\"\nrty=cc\ncnf=0.72\nrev=\"Add auth authz val config docs.\"\ncls=cs\n#n=394"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "full",
+      "jsonBytes": 934,
+      "compactBytes": 411,
+      "byteRatio": 2.27,
+      "byteSaving": 56,
+      "jsonTokensCl100k": 215,
+      "compactTokensCl100k": 113,
+      "tokenRatioCl100k": 1.9,
+      "tokenSavingCl100k": 47.44,
+      "jsonTokensO200k": 217,
+      "compactTokensO200k": 110,
+      "tokenRatioO200k": 1.97,
+      "tokenSavingO200k": 49.31,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence mx=500 ; sum=\"Self-critique of the validation pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Confidence in handoff validation is high.\" ; f=\"Confidence in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-confidence validation path.\" ; rty=cc ; cnf=0.72 ; rev=\"Add auth authz val config docs.\" ; cls=cs ; tok=validateEnvelope ; #n=402"
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "dense",
+      "jsonBytes": 934,
+      "compactBytes": 363,
+      "byteRatio": 2.57,
+      "byteSaving": 61.13,
+      "jsonTokensCl100k": 215,
+      "compactTokensCl100k": 108,
+      "tokenRatioCl100k": 1.99,
+      "tokenSavingCl100k": 49.77,
+      "jsonTokensO200k": 217,
+      "compactTokensO200k": 107,
+      "tokenRatioO200k": 2.03,
+      "tokenSavingO200k": 50.69,
+      "roundTripOk": true,
+      "roundTripIssues": [],
+      "compactText": "@cl1 s=rf i=reflect.confidence ; sum=\"Self-critique of the val pipeline coverage.\" ; f=\"Edge case for empty payload.facts is not tested.\" ; f=\"Conf in handoff val is high.\" ; f=\"Conf in digest metric parsing is moderate.\" ; ask=\"Identify the lowest-conf val path.\" ; pc=1 ; rty=cc ; cnf=0.72 ; rev=\"Add auth authz val config docs.\" ; tok=validateEnvelope ; #n=354"
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "lite",
       "jsonBytes": 820,
       "compactBytes": 296,
@@ -250,6 +323,7 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "full",
       "jsonBytes": 820,
       "compactBytes": 313,
@@ -269,25 +343,27 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "dense",
       "jsonBytes": 820,
-      "compactBytes": 297,
-      "byteRatio": 2.76,
-      "byteSaving": 63.78,
+      "compactBytes": 292,
+      "byteRatio": 2.81,
+      "byteSaving": 64.39,
       "jsonTokensCl100k": 195,
-      "compactTokensCl100k": 86,
-      "tokenRatioCl100k": 2.27,
-      "tokenSavingCl100k": 55.9,
+      "compactTokensCl100k": 89,
+      "tokenRatioCl100k": 2.19,
+      "tokenSavingCl100k": 54.36,
       "jsonTokensO200k": 202,
-      "compactTokensO200k": 86,
-      "tokenRatioO200k": 2.35,
-      "tokenSavingO200k": 57.43,
+      "compactTokensO200k": 89,
+      "tokenRatioO200k": 2.27,
+      "tokenSavingO200k": 55.94,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=ts i=tool.report ; sum=\"ESLint completed with partial results on the core package.\" ; f=\"12 files scanned.\" ; f=\"2 warnings found in compact.ts.\" ; f=\"No errors.\" ; ask=\"Summarize tool outcome for orchestrator routing.\" ; tn=eslint ; out=pt ; ela=3420 ; tok=eslint ; tok=typescript ; #n=288"
+      "compactText": "@cl1 s=ts i=tool.report ; sum=\"ESLint completed with partial results on the core pkg.\" ; f=\"12 files scanned.\" ; f=\"2 warnings found in compact.ts.\" ; f=\"No errors.\" ; ask=\"Summarize tool outcome for orch routing.\" ; pc=1 ; tn=eslint ; out=pt ; ela=3420 ; tok=eslint ; tok=typescript ; #n=283"
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "lite",
       "jsonBytes": 878,
       "compactBytes": 377,
@@ -307,6 +383,7 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "full",
       "jsonBytes": 878,
       "compactBytes": 368,
@@ -326,25 +403,27 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "dense",
       "jsonBytes": 878,
-      "compactBytes": 361,
-      "byteRatio": 2.43,
-      "byteSaving": 58.88,
+      "compactBytes": 334,
+      "byteRatio": 2.63,
+      "byteSaving": 61.96,
       "jsonTokensCl100k": 201,
-      "compactTokensCl100k": 93,
-      "tokenRatioCl100k": 2.16,
-      "tokenSavingCl100k": 53.73,
+      "compactTokensCl100k": 95,
+      "tokenRatioCl100k": 2.12,
+      "tokenSavingCl100k": 52.74,
       "jsonTokensO200k": 207,
-      "compactTokensO200k": 93,
-      "tokenRatioO200k": 2.23,
-      "tokenSavingO200k": 55.07,
+      "compactTokensO200k": 95,
+      "tokenRatioO200k": 2.18,
+      "tokenSavingO200k": 54.11,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=rt i=route.select md=ad ; sum=\"Select the best agent for a security review task.\" ; f=\"Three candidate agents are available.\" ; f=\"Security-specialist has highest match score.\" ; f=\"Generalist is fallback.\" ; ask=\"Choose the optimal routing for this intent.\" ; str=cn ; cand=security-specialist,code-reviewer,generalist ; sel=security-specialist ; #n=352"
+      "compactText": "@cl1 s=rt i=route.select md=ad ; sum=\"Select the best agent for a sec review task.\" ; f=\"Three cand agents are available.\" ; f=\"Sec-specialist has highest match score.\" ; f=\"Generalist is fallback.\" ; ask=\"Choose the optimal routing for this intent.\" ; pc=1 ; str=cn ; cand=security-specialist,code-reviewer,generalist ; si=0 ; #n=325"
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "lite",
       "jsonBytes": 967,
       "compactBytes": 421,
@@ -364,6 +443,7 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "full",
       "jsonBytes": 967,
       "compactBytes": 459,
@@ -383,25 +463,27 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "dense",
       "jsonBytes": 967,
-      "compactBytes": 434,
-      "byteRatio": 2.23,
-      "byteSaving": 55.12,
+      "compactBytes": 395,
+      "byteRatio": 2.45,
+      "byteSaving": 59.15,
       "jsonTokensCl100k": 226,
-      "compactTokensCl100k": 114,
-      "tokenRatioCl100k": 1.98,
-      "tokenSavingCl100k": 49.56,
+      "compactTokensCl100k": 110,
+      "tokenRatioCl100k": 2.05,
+      "tokenSavingCl100k": 51.33,
       "jsonTokensO200k": 231,
-      "compactTokensO200k": 114,
-      "tokenRatioO200k": 2.03,
-      "tokenSavingO200k": 50.65,
+      "compactTokensO200k": 110,
+      "tokenRatioO200k": 2.1,
+      "tokenSavingO200k": 52.38,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=pc i=context.inject ; sum=\"Inject workspace context into the system prompt for grounding.\" ; f=\"Workspace root is {{WORKSPACE_ROOT}}.\" ; f=\"TypeScript 5.x with composite project references.\" ; f=\"ESM-only with Bundler moduleResolution.\" ; f=\"Test runner is vitest.\" ; ask=\"Include these facts in the system section at priority 10.\" ; ph=sy ; pri=10 ; src=workspace-config ; tok=\"{{WORKSPACE_ROOT}}\" ; tok=tsconfig.json ; #n=425"
+      "compactText": "@cl1 s=pc i=context.inject ; sum=\"Inject workspace ctx into the system prompt for grounding.\" ; f=\"Workspace root is {{WORKSPACE_ROOT}}.\" ; f=\"TypeScript 5.x with composite project references.\" ; f=\"ESM-only with Bundler moduleResolution.\" ; f=\"Test runner is vitest.\" ; ask=\"Include these facts in the system section at priority 10.\" ; pc=1 ; ph=sy ; pri=10 ; sr=wc ; tok=tsconfig.json ; #n=386"
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "lite",
       "jsonBytes": 889,
       "compactBytes": 386,
@@ -421,6 +503,7 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "full",
       "jsonBytes": 889,
       "compactBytes": 376,
@@ -440,277 +523,279 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "dense",
       "jsonBytes": 889,
-      "compactBytes": 369,
-      "byteRatio": 2.41,
-      "byteSaving": 58.49,
+      "compactBytes": 351,
+      "byteRatio": 2.53,
+      "byteSaving": 60.52,
       "jsonTokensCl100k": 203,
-      "compactTokensCl100k": 94,
-      "tokenRatioCl100k": 2.16,
-      "tokenSavingCl100k": 53.69,
+      "compactTokensCl100k": 96,
+      "tokenRatioCl100k": 2.11,
+      "tokenSavingCl100k": 52.71,
       "jsonTokensO200k": 205,
-      "compactTokensO200k": 92,
-      "tokenRatioO200k": 2.23,
-      "tokenSavingO200k": 55.12,
+      "compactTokensO200k": 94,
+      "tokenRatioO200k": 2.18,
+      "tokenSavingO200k": 54.15,
       "roundTripOk": true,
       "roundTripIssues": [],
-      "compactText": "@cl1 s=hs i=history.snapshot ch=cu ; sum=\"Snapshot of the current exchange for participant-local state.\" ; f=\"User asked about Ceeline benchmarking.\" ; f=\"Agent outlined metrics: byte ratio, token ratio, round-trip fidelity.\" ; f=\"User approved the approach.\" ; ask=\"Compact the exchange for future context injection.\" ; spn=ex ; tc=6 ; anc=bench-session-start ; #n=360"
+      "compactText": "@cl1 s=hs i=history.snapshot ch=cu ; sum=\"Snapshot of the curr exchange for participant-local state.\" ; f=\"User asked about Ceeline benchmarking.\" ; f=\"Agent outlined metrics: byte ratio, token ratio, round-trip fidelity.\" ; f=\"User approved the approach.\" ; ask=\"Compact the exchange for future ctx injection.\" ; pc=1 ; spn=ex ; tc=6 ; ac=bs ; #n=342"
     }
   ],
   "bySurface": [
     {
       "label": "handoff",
       "count": 3,
-      "avgByteRatio": 2.33,
-      "avgByteSaving": 56.8,
-      "avgTokenRatioCl100k": 1.9,
-      "avgTokenSavingCl100k": 47.22,
-      "avgTokenRatioO200k": 1.94,
-      "avgTokenSavingO200k": 48.15,
+      "avgByteRatio": 2.5,
+      "avgByteSaving": 59.44,
+      "avgTokenRatioCl100k": 2.02,
+      "avgTokenSavingCl100k": 49.72,
+      "avgTokenRatioO200k": 2.06,
+      "avgTokenSavingO200k": 50.62,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2949,
-      "totalCompactBytes": 1274,
+      "totalCompactBytes": 1196,
       "totalJsonTokensCl100k": 720,
-      "totalCompactTokensCl100k": 380,
+      "totalCompactTokensCl100k": 362,
       "totalJsonTokensO200k": 729,
-      "totalCompactTokensO200k": 378
+      "totalCompactTokensO200k": 360
     },
     {
       "label": "digest",
       "count": 3,
-      "avgByteRatio": 2.13,
-      "avgByteSaving": 53.03,
-      "avgTokenRatioCl100k": 1.81,
-      "avgTokenSavingCl100k": 44.54,
-      "avgTokenRatioO200k": 1.85,
-      "avgTokenSavingO200k": 45.94,
+      "avgByteRatio": 2.28,
+      "avgByteSaving": 55.58,
+      "avgTokenRatioCl100k": 1.88,
+      "avgTokenSavingCl100k": 46.41,
+      "avgTokenRatioO200k": 1.93,
+      "avgTokenSavingO200k": 47.76,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2859,
-      "totalCompactBytes": 1343,
+      "totalCompactBytes": 1270,
       "totalJsonTokensCl100k": 696,
-      "totalCompactTokensCl100k": 386,
+      "totalCompactTokensCl100k": 373,
       "totalJsonTokensO200k": 714,
-      "totalCompactTokensO200k": 386
+      "totalCompactTokensO200k": 373
     },
     {
       "label": "memory",
       "count": 3,
-      "avgByteRatio": 2.22,
-      "avgByteSaving": 54.89,
-      "avgTokenRatioCl100k": 1.88,
-      "avgTokenSavingCl100k": 46.85,
-      "avgTokenRatioO200k": 1.93,
-      "avgTokenSavingO200k": 48.25,
+      "avgByteRatio": 2.31,
+      "avgByteSaving": 56.61,
+      "avgTokenRatioCl100k": 1.91,
+      "avgTokenSavingCl100k": 47.6,
+      "avgTokenRatioO200k": 1.96,
+      "avgTokenSavingO200k": 48.98,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2844,
-      "totalCompactBytes": 1283,
+      "totalCompactBytes": 1234,
       "totalJsonTokensCl100k": 666,
-      "totalCompactTokensCl100k": 354,
+      "totalCompactTokensCl100k": 349,
       "totalJsonTokensO200k": 684,
-      "totalCompactTokensO200k": 354
+      "totalCompactTokensO200k": 349
     },
     {
       "label": "reflection",
-      "count": 3,
-      "avgByteRatio": 2.21,
-      "avgByteSaving": 54.76,
-      "avgTokenRatioCl100k": 1.87,
-      "avgTokenSavingCl100k": 46.54,
+      "count": 6,
+      "avgByteRatio": 2.33,
+      "avgByteSaving": 57.02,
+      "avgTokenRatioCl100k": 1.88,
+      "avgTokenSavingCl100k": 46.85,
       "avgTokenRatioO200k": 1.94,
-      "avgTokenSavingO200k": 48.4,
+      "avgTokenSavingO200k": 48.42,
       "roundTripPassRate": 100,
-      "totalJsonBytes": 2847,
-      "totalCompactBytes": 1288,
-      "totalJsonTokensCl100k": 651,
-      "totalCompactTokensCl100k": 348,
-      "totalJsonTokensO200k": 657,
-      "totalCompactTokensO200k": 339
+      "totalJsonBytes": 5655,
+      "totalCompactBytes": 2431,
+      "totalJsonTokensCl100k": 1287,
+      "totalCompactTokensCl100k": 684,
+      "totalJsonTokensO200k": 1299,
+      "totalCompactTokensO200k": 670
     },
     {
       "label": "tool_summary",
       "count": 3,
-      "avgByteRatio": 2.72,
-      "avgByteSaving": 63.17,
-      "avgTokenRatioCl100k": 2.14,
-      "avgTokenSavingCl100k": 53.16,
-      "avgTokenRatioO200k": 2.22,
-      "avgTokenSavingO200k": 54.79,
+      "avgByteRatio": 2.73,
+      "avgByteSaving": 63.37,
+      "avgTokenRatioCl100k": 2.11,
+      "avgTokenSavingCl100k": 52.65,
+      "avgTokenRatioO200k": 2.19,
+      "avgTokenSavingO200k": 54.29,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2460,
-      "totalCompactBytes": 906,
+      "totalCompactBytes": 901,
       "totalJsonTokensCl100k": 585,
-      "totalCompactTokensCl100k": 274,
+      "totalCompactTokensCl100k": 277,
       "totalJsonTokensO200k": 606,
-      "totalCompactTokensO200k": 274
+      "totalCompactTokensO200k": 277
     },
     {
       "label": "routing",
       "count": 3,
-      "avgByteRatio": 2.38,
-      "avgByteSaving": 58.01,
-      "avgTokenRatioCl100k": 2.06,
-      "avgTokenSavingCl100k": 51.41,
-      "avgTokenRatioO200k": 2.13,
-      "avgTokenSavingO200k": 52.98,
+      "avgByteRatio": 2.45,
+      "avgByteSaving": 59.04,
+      "avgTokenRatioCl100k": 2.05,
+      "avgTokenSavingCl100k": 51.08,
+      "avgTokenRatioO200k": 2.12,
+      "avgTokenSavingO200k": 52.66,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2634,
-      "totalCompactBytes": 1106,
+      "totalCompactBytes": 1079,
       "totalJsonTokensCl100k": 603,
-      "totalCompactTokensCl100k": 293,
+      "totalCompactTokensCl100k": 295,
       "totalJsonTokensO200k": 621,
-      "totalCompactTokensO200k": 292
+      "totalCompactTokensO200k": 294
     },
     {
       "label": "prompt_context",
       "count": 3,
-      "avgByteRatio": 2.21,
-      "avgByteSaving": 54.7,
-      "avgTokenRatioCl100k": 1.89,
-      "avgTokenSavingCl100k": 46.9,
-      "avgTokenRatioO200k": 1.93,
-      "avgTokenSavingO200k": 48.05,
+      "avgByteRatio": 2.29,
+      "avgByteSaving": 56.05,
+      "avgTokenRatioCl100k": 1.91,
+      "avgTokenSavingCl100k": 47.49,
+      "avgTokenRatioO200k": 1.95,
+      "avgTokenSavingO200k": 48.63,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2901,
-      "totalCompactBytes": 1314,
+      "totalCompactBytes": 1275,
       "totalJsonTokensCl100k": 678,
-      "totalCompactTokensCl100k": 360,
+      "totalCompactTokensCl100k": 356,
       "totalJsonTokensO200k": 693,
-      "totalCompactTokensO200k": 360
+      "totalCompactTokensO200k": 356
     },
     {
       "label": "history",
       "count": 3,
-      "avgByteRatio": 2.36,
-      "avgByteSaving": 57.59,
-      "avgTokenRatioCl100k": 2.06,
-      "avgTokenSavingCl100k": 51.4,
-      "avgTokenRatioO200k": 2.13,
-      "avgTokenSavingO200k": 52.85,
+      "avgByteRatio": 2.4,
+      "avgByteSaving": 58.27,
+      "avgTokenRatioCl100k": 2.04,
+      "avgTokenSavingCl100k": 51.07,
+      "avgTokenRatioO200k": 2.11,
+      "avgTokenSavingO200k": 52.52,
       "roundTripPassRate": 100,
       "totalJsonBytes": 2667,
-      "totalCompactBytes": 1131,
+      "totalCompactBytes": 1113,
       "totalJsonTokensCl100k": 609,
-      "totalCompactTokensCl100k": 296,
+      "totalCompactTokensCl100k": 298,
       "totalJsonTokensO200k": 615,
-      "totalCompactTokensO200k": 290
+      "totalCompactTokensO200k": 292
     }
   ],
   "byDensity": [
     {
       "label": "lite",
-      "count": 8,
-      "avgByteRatio": 2.37,
-      "avgByteSaving": 57.53,
+      "count": 9,
+      "avgByteRatio": 2.36,
+      "avgByteSaving": 57.46,
       "avgTokenRatioCl100k": 1.91,
-      "avgTokenSavingCl100k": 47.63,
-      "avgTokenRatioO200k": 1.97,
-      "avgTokenSavingO200k": 49.08,
+      "avgTokenSavingCl100k": 47.47,
+      "avgTokenRatioO200k": 1.96,
+      "avgTokenSavingO200k": 48.97,
       "roundTripPassRate": 100,
-      "totalJsonBytes": 7387,
-      "totalCompactBytes": 3144,
-      "totalJsonTokensCl100k": 1736,
-      "totalCompactTokensCl100k": 910,
-      "totalJsonTokensO200k": 1773,
-      "totalCompactTokensO200k": 904
+      "totalJsonBytes": 8323,
+      "totalCompactBytes": 3547,
+      "totalJsonTokensCl100k": 1948,
+      "totalCompactTokensCl100k": 1024,
+      "totalJsonTokensO200k": 1987,
+      "totalCompactTokensO200k": 1015
     },
     {
       "label": "full",
-      "count": 8,
+      "count": 9,
       "avgByteRatio": 2.24,
-      "avgByteSaving": 55.11,
+      "avgByteSaving": 55.19,
       "avgTokenRatioCl100k": 1.9,
-      "avgTokenSavingCl100k": 47.06,
+      "avgTokenSavingCl100k": 47.18,
       "avgTokenRatioO200k": 1.96,
-      "avgTokenSavingO200k": 48.51,
+      "avgTokenSavingO200k": 48.67,
       "roundTripPassRate": 100,
-      "totalJsonBytes": 7387,
-      "totalCompactBytes": 3330,
-      "totalJsonTokensCl100k": 1736,
-      "totalCompactTokensCl100k": 924,
-      "totalJsonTokensO200k": 1773,
-      "totalCompactTokensO200k": 918
+      "totalJsonBytes": 8323,
+      "totalCompactBytes": 3743,
+      "totalJsonTokensCl100k": 1948,
+      "totalCompactTokensCl100k": 1034,
+      "totalJsonTokensO200k": 1987,
+      "totalCompactTokensO200k": 1025
     },
     {
       "label": "dense",
-      "count": 8,
-      "avgByteRatio": 2.35,
-      "avgByteSaving": 57.22,
-      "avgTokenRatioCl100k": 2.04,
-      "avgTokenSavingCl100k": 50.81,
-      "avgTokenRatioO200k": 2.1,
-      "avgTokenSavingO200k": 52.18,
+      "count": 9,
+      "avgByteRatio": 2.6,
+      "avgByteSaving": 61.48,
+      "avgTokenRatioCl100k": 2.09,
+      "avgTokenSavingCl100k": 51.92,
+      "avgTokenRatioO200k": 2.14,
+      "avgTokenSavingO200k": 53.12,
       "roundTripPassRate": 100,
-      "totalJsonBytes": 7387,
-      "totalCompactBytes": 3171,
-      "totalJsonTokensCl100k": 1736,
-      "totalCompactTokensCl100k": 857,
-      "totalJsonTokensO200k": 1773,
-      "totalCompactTokensO200k": 851
+      "totalJsonBytes": 8323,
+      "totalCompactBytes": 3209,
+      "totalJsonTokensCl100k": 1948,
+      "totalCompactTokensCl100k": 936,
+      "totalJsonTokensO200k": 1987,
+      "totalCompactTokensO200k": 931
     }
   ],
   "overall": {
     "label": "overall",
-    "count": 24,
-    "avgByteRatio": 2.32,
-    "avgByteSaving": 56.62,
-    "avgTokenRatioCl100k": 1.95,
-    "avgTokenSavingCl100k": 48.5,
-    "avgTokenRatioO200k": 2.01,
-    "avgTokenSavingO200k": 49.93,
+    "count": 27,
+    "avgByteRatio": 2.4,
+    "avgByteSaving": 58.04,
+    "avgTokenRatioCl100k": 1.97,
+    "avgTokenSavingCl100k": 48.86,
+    "avgTokenRatioO200k": 2.02,
+    "avgTokenSavingO200k": 50.26,
     "roundTripPassRate": 100,
-    "totalJsonBytes": 22161,
-    "totalCompactBytes": 9645,
-    "totalJsonTokensCl100k": 5208,
-    "totalCompactTokensCl100k": 2691,
-    "totalJsonTokensO200k": 5319,
-    "totalCompactTokensO200k": 2673
+    "totalJsonBytes": 24969,
+    "totalCompactBytes": 10499,
+    "totalJsonTokensCl100k": 5844,
+    "totalCompactTokensCl100k": 2994,
+    "totalJsonTokensO200k": 5961,
+    "totalCompactTokensO200k": 2971
   },
   "throughput": {
     "render": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 105.82,
-        "envelopesPerMs": 9.45,
-        "avgMsPerEnvelope": 0.1058
+        "totalMs": 180.28,
+        "envelopesPerMs": 5.55,
+        "avgMsPerEnvelope": 0.1803
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 91.14,
-        "envelopesPerMs": 10.97,
-        "avgMsPerEnvelope": 0.0911
+        "totalMs": 158.86,
+        "envelopesPerMs": 6.29,
+        "avgMsPerEnvelope": 0.1589
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 53.25,
-        "envelopesPerMs": 18.78,
-        "avgMsPerEnvelope": 0.0533
+        "totalMs": 188.73,
+        "envelopesPerMs": 5.3,
+        "avgMsPerEnvelope": 0.1887
       }
     },
     "parse": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 171.95,
-        "envelopesPerMs": 5.82,
-        "avgMsPerEnvelope": 0.172
+        "totalMs": 310.17,
+        "envelopesPerMs": 3.22,
+        "avgMsPerEnvelope": 0.3102
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 116.53,
-        "envelopesPerMs": 8.58,
-        "avgMsPerEnvelope": 0.1165
+        "totalMs": 193.84,
+        "envelopesPerMs": 5.16,
+        "avgMsPerEnvelope": 0.1938
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 103.84,
-        "envelopesPerMs": 9.63,
-        "avgMsPerEnvelope": 0.1038
+        "totalMs": 395.08,
+        "envelopesPerMs": 2.53,
+        "avgMsPerEnvelope": 0.3951
       }
     }
   },
   "trailerOverhead": [
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -720,6 +805,7 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -729,15 +815,17 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 410,
-      "overheadPercent": 2.15
+      "contentBytes": 332,
+      "overheadPercent": 2.64
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -747,6 +835,7 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -756,15 +845,17 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 434,
-      "overheadPercent": 2.03
+      "contentBytes": 361,
+      "overheadPercent": 2.43
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -774,6 +865,7 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -783,42 +875,77 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 417,
-      "overheadPercent": 2.11
+      "contentBytes": 368,
+      "overheadPercent": 2.39
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 421,
-      "overheadPercent": 1.64
+      "contentBytes": 423,
+      "overheadPercent": 1.63
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 429,
+      "contentBytes": 431,
       "overheadPercent": 2.05
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 413,
-      "overheadPercent": 2.13
+      "contentBytes": 377,
+      "overheadPercent": 2.33
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 394,
+      "overheadPercent": 1.75
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 402,
+      "overheadPercent": 2.19
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 354,
+      "overheadPercent": 2.48
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -828,6 +955,7 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -837,15 +965,17 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 288,
-      "overheadPercent": 3.03
+      "contentBytes": 283,
+      "overheadPercent": 3.08
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -855,6 +985,7 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -864,15 +995,17 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 352,
-      "overheadPercent": 2.49
+      "contentBytes": 325,
+      "overheadPercent": 2.69
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -882,6 +1015,7 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -891,15 +1025,17 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 425,
-      "overheadPercent": 2.07
+      "contentBytes": 386,
+      "overheadPercent": 2.28
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "lite",
       "trailerBytes": 7,
       "trailerTokensCl100k": 5,
@@ -909,6 +1045,7 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "full",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
@@ -918,92 +1055,112 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "dense",
       "trailerBytes": 9,
       "trailerTokensCl100k": 5,
       "trailerTokensO200k": 5,
-      "contentBytes": 360,
-      "overheadPercent": 2.44
+      "contentBytes": 342,
+      "overheadPercent": 2.56
     }
   ],
   "autoDensity": [
     {
       "surface": "handoff",
+      "label": "handoff",
       "selectedDensity": "full",
       "autoBytes": 463,
       "autoTokensCl100k": 139,
       "autoTokensO200k": 138,
       "manualFullBytes": 463,
-      "manualDenseBytes": 419
+      "manualDenseBytes": 341
     },
     {
       "surface": "digest",
+      "label": "digest",
       "selectedDensity": "lite",
       "autoBytes": 430,
       "autoTokensCl100k": 125,
       "autoTokensO200k": 125,
       "manualFullBytes": 470,
-      "manualDenseBytes": 443
+      "manualDenseBytes": 370
     },
     {
       "surface": "memory",
+      "label": "memory",
       "selectedDensity": "full",
       "autoBytes": 443,
       "autoTokensCl100k": 121,
       "autoTokensO200k": 121,
       "manualFullBytes": 443,
-      "manualDenseBytes": 426
+      "manualDenseBytes": 377
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "selectedDensity": "full",
-      "autoBytes": 438,
-      "autoTokensCl100k": 117,
-      "autoTokensO200k": 114,
-      "manualFullBytes": 438,
-      "manualDenseBytes": 422
+      "autoBytes": 440,
+      "autoTokensCl100k": 114,
+      "autoTokensO200k": 111,
+      "manualFullBytes": 440,
+      "manualDenseBytes": 386
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "selectedDensity": "full",
+      "autoBytes": 411,
+      "autoTokensCl100k": 113,
+      "autoTokensO200k": 110,
+      "manualFullBytes": 411,
+      "manualDenseBytes": 363
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "selectedDensity": "full",
       "autoBytes": 313,
       "autoTokensCl100k": 93,
       "autoTokensO200k": 93,
       "manualFullBytes": 313,
-      "manualDenseBytes": 297
+      "manualDenseBytes": 292
     },
     {
       "surface": "routing",
+      "label": "routing",
       "selectedDensity": "full",
       "autoBytes": 368,
       "autoTokensCl100k": 96,
       "autoTokensO200k": 96,
       "manualFullBytes": 368,
-      "manualDenseBytes": 361
+      "manualDenseBytes": 334
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "selectedDensity": "full",
       "autoBytes": 459,
       "autoTokensCl100k": 125,
       "autoTokensO200k": 125,
       "manualFullBytes": 459,
-      "manualDenseBytes": 434
+      "manualDenseBytes": 395
     },
     {
       "surface": "history",
+      "label": "history",
       "selectedDensity": "full",
       "autoBytes": 376,
       "autoTokensCl100k": 97,
       "autoTokensO200k": 95,
       "manualFullBytes": 376,
-      "manualDenseBytes": 369
+      "manualDenseBytes": 351
     }
   ],
   "budgetFailures": [],
   "formatComparison": [
     {
       "surface": "handoff",
+      "label": "handoff",
       "jsonBytes": 983,
       "jsonTokensCl100k": 240,
       "jsonTokensO200k": 243,
@@ -1015,12 +1172,43 @@
       "compactFullBytes": 463,
       "compactFullTokensCl100k": 139,
       "compactFullTokensO200k": 138,
-      "compactDenseBytes": 419,
-      "compactDenseTokensCl100k": 120,
-      "compactDenseTokensO200k": 119
+      "compactDenseBytes": 341,
+      "compactDenseTokensCl100k": 102,
+      "compactDenseTokensO200k": 101,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 942,
+          "tokensCl100k": 270,
+          "tokensO200k": 269,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1135,
+          "tokensCl100k": 491,
+          "tokensO200k": 473,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 1053,
+          "tokensCl100k": 334,
+          "tokensO200k": 328,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 800,
+          "tokensCl100k": 259,
+          "tokensO200k": 258,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "digest",
+      "label": "digest",
       "jsonBytes": 953,
       "jsonTokensCl100k": 232,
       "jsonTokensO200k": 238,
@@ -1032,12 +1220,43 @@
       "compactFullBytes": 470,
       "compactFullTokensCl100k": 136,
       "compactFullTokensO200k": 136,
-      "compactDenseBytes": 443,
-      "compactDenseTokensCl100k": 125,
-      "compactDenseTokensO200k": 125
+      "compactDenseBytes": 370,
+      "compactDenseTokensCl100k": 112,
+      "compactDenseTokensO200k": 112,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 953,
+          "tokensCl100k": 232,
+          "tokensO200k": 238,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1087,
+          "tokensCl100k": 448,
+          "tokensO200k": 441,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 1016,
+          "tokensCl100k": 319,
+          "tokensO200k": 317,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 766,
+          "tokensCl100k": 251,
+          "tokensO200k": 254,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "memory",
+      "label": "memory",
       "jsonBytes": 948,
       "jsonTokensCl100k": 222,
       "jsonTokensO200k": 228,
@@ -1049,29 +1268,139 @@
       "compactFullBytes": 443,
       "compactFullTokensCl100k": 121,
       "compactFullTokensO200k": 121,
-      "compactDenseBytes": 426,
-      "compactDenseTokensCl100k": 115,
-      "compactDenseTokensO200k": 115
+      "compactDenseBytes": 377,
+      "compactDenseTokensCl100k": 110,
+      "compactDenseTokensO200k": 110,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 948,
+          "tokensCl100k": 222,
+          "tokensO200k": 228,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1089,
+          "tokensCl100k": 473,
+          "tokensO200k": 457,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 985,
+          "tokensCl100k": 302,
+          "tokensO200k": 299,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 750,
+          "tokensCl100k": 238,
+          "tokensO200k": 240,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "reflection",
-      "jsonBytes": 949,
-      "jsonTokensCl100k": 217,
-      "jsonTokensO200k": 219,
-      "yamlBytes": 928,
-      "yamlTokensCl100k": 242,
-      "yamlTokensO200k": 243,
-      "msgpackBytes": 830,
-      "cborBytes": 845,
-      "compactFullBytes": 438,
-      "compactFullTokensCl100k": 117,
-      "compactFullTokensO200k": 114,
-      "compactDenseBytes": 422,
-      "compactDenseTokensCl100k": 110,
-      "compactDenseTokensO200k": 107
+      "label": "reflection",
+      "jsonBytes": 951,
+      "jsonTokensCl100k": 214,
+      "jsonTokensO200k": 216,
+      "yamlBytes": 930,
+      "yamlTokensCl100k": 239,
+      "yamlTokensO200k": 240,
+      "msgpackBytes": 832,
+      "cborBytes": 847,
+      "compactFullBytes": 440,
+      "compactFullTokensCl100k": 114,
+      "compactFullTokensO200k": 111,
+      "compactDenseBytes": 386,
+      "compactDenseTokensCl100k": 114,
+      "compactDenseTokensO200k": 113,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 951,
+          "tokensCl100k": 214,
+          "tokensO200k": 216,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1049,
+          "tokensCl100k": 390,
+          "tokensO200k": 370,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 1008,
+          "tokensCl100k": 292,
+          "tokensO200k": 287,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 750,
+          "tokensCl100k": 232,
+          "tokensO200k": 231,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "jsonBytes": 934,
+      "jsonTokensCl100k": 215,
+      "jsonTokensO200k": 217,
+      "yamlBytes": 913,
+      "yamlTokensCl100k": 240,
+      "yamlTokensO200k": 241,
+      "msgpackBytes": 814,
+      "cborBytes": 830,
+      "compactFullBytes": 411,
+      "compactFullTokensCl100k": 113,
+      "compactFullTokensO200k": 110,
+      "compactDenseBytes": 363,
+      "compactDenseTokensCl100k": 108,
+      "compactDenseTokensO200k": 107,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 934,
+          "tokensCl100k": 215,
+          "tokensO200k": 217,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1032,
+          "tokensCl100k": 391,
+          "tokensO200k": 371,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 991,
+          "tokensCl100k": 293,
+          "tokensO200k": 288,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 733,
+          "tokensCl100k": 233,
+          "tokensO200k": 232,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "jsonBytes": 820,
       "jsonTokensCl100k": 195,
       "jsonTokensO200k": 202,
@@ -1083,12 +1412,43 @@
       "compactFullBytes": 313,
       "compactFullTokensCl100k": 93,
       "compactFullTokensO200k": 93,
-      "compactDenseBytes": 297,
-      "compactDenseTokensCl100k": 86,
-      "compactDenseTokensO200k": 86
+      "compactDenseBytes": 292,
+      "compactDenseTokensCl100k": 89,
+      "compactDenseTokensO200k": 89,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 792,
+          "tokensCl100k": 230,
+          "tokensO200k": 232,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 901,
+          "tokensCl100k": 324,
+          "tokensO200k": 321,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 871,
+          "tokensCl100k": 274,
+          "tokensO200k": 274,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 626,
+          "tokensCl100k": 212,
+          "tokensO200k": 215,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "routing",
+      "label": "routing",
       "jsonBytes": 878,
       "jsonTokensCl100k": 201,
       "jsonTokensO200k": 207,
@@ -1100,12 +1460,43 @@
       "compactFullBytes": 368,
       "compactFullTokensCl100k": 96,
       "compactFullTokensO200k": 96,
-      "compactDenseBytes": 361,
-      "compactDenseTokensCl100k": 93,
-      "compactDenseTokensO200k": 93
+      "compactDenseBytes": 334,
+      "compactDenseTokensCl100k": 95,
+      "compactDenseTokensO200k": 95,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 852,
+          "tokensCl100k": 234,
+          "tokensO200k": 235,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 992,
+          "tokensCl100k": 383,
+          "tokensO200k": 369,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 917,
+          "tokensCl100k": 280,
+          "tokensO200k": 278,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 684,
+          "tokensCl100k": 220,
+          "tokensO200k": 222,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "jsonBytes": 967,
       "jsonTokensCl100k": 226,
       "jsonTokensO200k": 231,
@@ -1117,12 +1508,43 @@
       "compactFullBytes": 459,
       "compactFullTokensCl100k": 125,
       "compactFullTokensO200k": 125,
-      "compactDenseBytes": 434,
-      "compactDenseTokensCl100k": 114,
-      "compactDenseTokensO200k": 114
+      "compactDenseBytes": 395,
+      "compactDenseTokensCl100k": 110,
+      "compactDenseTokensO200k": 110,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 933,
+          "tokensCl100k": 256,
+          "tokensO200k": 257,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 1091,
+          "tokensCl100k": 440,
+          "tokensO200k": 428,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 1022,
+          "tokensCl100k": 310,
+          "tokensO200k": 308,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 776,
+          "tokensCl100k": 244,
+          "tokensO200k": 246,
+          "roundTripOk": true
+        }
+      ]
     },
     {
       "surface": "history",
+      "label": "history",
       "jsonBytes": 889,
       "jsonTokensCl100k": 203,
       "jsonTokensO200k": 205,
@@ -1134,77 +1556,1395 @@
       "compactFullBytes": 376,
       "compactFullTokensCl100k": 97,
       "compactFullTokensO200k": 95,
-      "compactDenseBytes": 369,
-      "compactDenseTokensCl100k": 94,
-      "compactDenseTokensO200k": 92
+      "compactDenseBytes": 351,
+      "compactDenseTokensCl100k": 96,
+      "compactDenseTokensO200k": 94,
+      "comparables": [
+        {
+          "format": "pakt",
+          "bytes": 889,
+          "tokensCl100k": 203,
+          "tokensO200k": 205,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 980,
+          "tokensCl100k": 363,
+          "tokensO200k": 352,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 944,
+          "tokensCl100k": 280,
+          "tokensO200k": 275,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 701,
+          "tokensCl100k": 221,
+          "tokensO200k": 221,
+          "roundTripOk": true
+        }
+      ]
+    }
+  ],
+  "batchComparison": [
+    {
+      "surface": "handoff",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9983,
+          "tokensCl100k": 2482,
+          "tokensO200k": 2512,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4630,
+          "tokensCl100k": 1390,
+          "tokensO200k": 1380,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3410,
+          "tokensCl100k": 1020,
+          "tokensO200k": 1010,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7620,
+          "tokensCl100k": 2054,
+          "tokensO200k": 2075,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 12394,
+          "tokensCl100k": 8089,
+          "tokensO200k": 7519,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 12258,
+          "tokensCl100k": 8061,
+          "tokensO200k": 7491,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3925,
+          "tokensCl100k": 2109,
+          "tokensO200k": 2048,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 8153,
+          "tokensCl100k": 2672,
+          "tokensO200k": 2662,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7898,
+          "tokensCl100k": 2164,
+          "tokensO200k": 2145,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "handoff",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 99985,
+          "tokensCl100k": 24802,
+          "tokensO200k": 25102,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 46300,
+          "tokensCl100k": 13900,
+          "tokensO200k": 13800,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 34100,
+          "tokensCl100k": 10200,
+          "tokensO200k": 10100,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 73592,
+          "tokensCl100k": 19874,
+          "tokensO200k": 20075,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 122468,
+          "tokensCl100k": 80457,
+          "tokensO200k": 74722,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 122332,
+          "tokensCl100k": 80429,
+          "tokensO200k": 74694,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 32637,
+          "tokensCl100k": 19749,
+          "tokensO200k": 19148,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 81685,
+          "tokensCl100k": 26702,
+          "tokensO200k": 26602,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 73781,
+          "tokensCl100k": 20434,
+          "tokensO200k": 20235,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "digest",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9683,
+          "tokensCl100k": 2402,
+          "tokensO200k": 2462,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4700,
+          "tokensCl100k": 1360,
+          "tokensO200k": 1360,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3700,
+          "tokensCl100k": 1120,
+          "tokensO200k": 1120,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7401,
+          "tokensCl100k": 1973,
+          "tokensO200k": 2024,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 12003,
+          "tokensCl100k": 7703,
+          "tokensO200k": 7252,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 11867,
+          "tokensCl100k": 7675,
+          "tokensO200k": 7224,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3717,
+          "tokensCl100k": 2040,
+          "tokensO200k": 1983,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7813,
+          "tokensCl100k": 2592,
+          "tokensO200k": 2622,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7497,
+          "tokensCl100k": 2013,
+          "tokensO200k": 2024,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "digest",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 96985,
+          "tokensCl100k": 24002,
+          "tokensO200k": 24602,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 47000,
+          "tokensCl100k": 13600,
+          "tokensO200k": 13600,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 37000,
+          "tokensCl100k": 11200,
+          "tokensO200k": 11200,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 71393,
+          "tokensCl100k": 18983,
+          "tokensO200k": 19484,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 118566,
+          "tokensCl100k": 76601,
+          "tokensO200k": 72154,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 118430,
+          "tokensCl100k": 76573,
+          "tokensO200k": 72126,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 30719,
+          "tokensCl100k": 19140,
+          "tokensO200k": 18543,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 78285,
+          "tokensCl100k": 25902,
+          "tokensO200k": 26202,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 69780,
+          "tokensCl100k": 18933,
+          "tokensO200k": 19034,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "memory",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9633,
+          "tokensCl100k": 2302,
+          "tokensO200k": 2362,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4430,
+          "tokensCl100k": 1210,
+          "tokensO200k": 1210,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3770,
+          "tokensCl100k": 1100,
+          "tokensO200k": 1100,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 8089,
+          "tokensCl100k": 2037,
+          "tokensO200k": 2097,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 11934,
+          "tokensCl100k": 7773,
+          "tokensO200k": 7344,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 11798,
+          "tokensCl100k": 7745,
+          "tokensO200k": 7316,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3524,
+          "tokensCl100k": 1915,
+          "tokensO200k": 1848,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7653,
+          "tokensCl100k": 2462,
+          "tokensO200k": 2482,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7387,
+          "tokensCl100k": 1973,
+          "tokensO200k": 1974,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "memory",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 96485,
+          "tokensCl100k": 23002,
+          "tokensO200k": 23602,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 44300,
+          "tokensCl100k": 12100,
+          "tokensO200k": 12100,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 37700,
+          "tokensCl100k": 11000,
+          "tokensO200k": 11000,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 79101,
+          "tokensCl100k": 19857,
+          "tokensO200k": 20457,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 117957,
+          "tokensCl100k": 77755,
+          "tokensO200k": 73291,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 117821,
+          "tokensCl100k": 77727,
+          "tokensO200k": 73263,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 28906,
+          "tokensCl100k": 17935,
+          "tokensO200k": 17238,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 76685,
+          "tokensCl100k": 24602,
+          "tokensO200k": 24802,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 68680,
+          "tokensCl100k": 18533,
+          "tokensO200k": 18534,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "reflection",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9578,
+          "tokensCl100k": 2227,
+          "tokensO200k": 2247,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4255,
+          "tokensCl100k": 1135,
+          "tokensO200k": 1105,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3745,
+          "tokensCl100k": 1110,
+          "tokensO200k": 1100,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7493,
+          "tokensCl100k": 1861,
+          "tokensO200k": 1899,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 11822,
+          "tokensCl100k": 7594,
+          "tokensO200k": 6998,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 11686,
+          "tokensCl100k": 7566,
+          "tokensO200k": 6970,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3594,
+          "tokensCl100k": 1869,
+          "tokensO200k": 1809,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7568,
+          "tokensCl100k": 2407,
+          "tokensO200k": 2397,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7236,
+          "tokensCl100k": 1868,
+          "tokensO200k": 1839,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "reflection",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 95935,
+          "tokensCl100k": 22252,
+          "tokensO200k": 22452,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 42550,
+          "tokensCl100k": 11350,
+          "tokensO200k": 11050,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 37450,
+          "tokensCl100k": 11100,
+          "tokensO200k": 11000,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 72475,
+          "tokensCl100k": 17926,
+          "tokensO200k": 18324,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 116721,
+          "tokensCl100k": 75411,
+          "tokensO200k": 69479,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 116585,
+          "tokensCl100k": 75383,
+          "tokensO200k": 69451,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 29066,
+          "tokensCl100k": 17439,
+          "tokensO200k": 16839,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 75835,
+          "tokensCl100k": 24052,
+          "tokensO200k": 23952,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 67134,
+          "tokensCl100k": 17483,
+          "tokensO200k": 17184,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "tool_summary",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 8353,
+          "tokensCl100k": 2032,
+          "tokensO200k": 2102,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 3130,
+          "tokensCl100k": 930,
+          "tokensO200k": 930,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 2920,
+          "tokensCl100k": 890,
+          "tokensO200k": 890,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7475,
+          "tokensCl100k": 1850,
+          "tokensO200k": 1920,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 10239,
+          "tokensCl100k": 6462,
+          "tokensO200k": 6081,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 10103,
+          "tokensCl100k": 6434,
+          "tokensO200k": 6053,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3374,
+          "tokensCl100k": 1842,
+          "tokensO200k": 1796,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 6413,
+          "tokensCl100k": 2202,
+          "tokensO200k": 2232,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 6073,
+          "tokensCl100k": 1684,
+          "tokensO200k": 1705,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "tool_summary",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 83685,
+          "tokensCl100k": 20302,
+          "tokensO200k": 21002,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 31300,
+          "tokensCl100k": 9300,
+          "tokensO200k": 9300,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 29200,
+          "tokensCl100k": 8900,
+          "tokensO200k": 8900,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 73717,
+          "tokensCl100k": 18140,
+          "tokensO200k": 18840,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 100872,
+          "tokensCl100k": 64090,
+          "tokensO200k": 60363,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 100736,
+          "tokensCl100k": 64062,
+          "tokensO200k": 60335,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 28396,
+          "tokensCl100k": 17412,
+          "tokensO200k": 16916,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 64285,
+          "tokensCl100k": 22002,
+          "tokensO200k": 22302,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 55486,
+          "tokensCl100k": 15634,
+          "tokensO200k": 15835,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "routing",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 8933,
+          "tokensCl100k": 2092,
+          "tokensO200k": 2152,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 3680,
+          "tokensCl100k": 960,
+          "tokensO200k": 960,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3340,
+          "tokensCl100k": 950,
+          "tokensO200k": 950,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7479,
+          "tokensCl100k": 1863,
+          "tokensO200k": 1923,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 10995,
+          "tokensCl100k": 6974,
+          "tokensO200k": 6565,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 10859,
+          "tokensCl100k": 6946,
+          "tokensO200k": 6537,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3465,
+          "tokensCl100k": 1875,
+          "tokensO200k": 1809,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 6993,
+          "tokensCl100k": 2282,
+          "tokensO200k": 2302,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 6608,
+          "tokensCl100k": 1713,
+          "tokensO200k": 1724,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "routing",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 89485,
+          "tokensCl100k": 20902,
+          "tokensO200k": 21502,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 36800,
+          "tokensCl100k": 9600,
+          "tokensO200k": 9600,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 33400,
+          "tokensCl100k": 9500,
+          "tokensO200k": 9500,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 73091,
+          "tokensCl100k": 18153,
+          "tokensO200k": 18753,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 108558,
+          "tokensCl100k": 69845,
+          "tokensO200k": 65581,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 108422,
+          "tokensCl100k": 69817,
+          "tokensO200k": 65553,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 28937,
+          "tokensCl100k": 17715,
+          "tokensO200k": 17019,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 70085,
+          "tokensCl100k": 22802,
+          "tokensO200k": 23002,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 60881,
+          "tokensCl100k": 15933,
+          "tokensO200k": 16034,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "prompt_context",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9823,
+          "tokensCl100k": 2342,
+          "tokensO200k": 2392,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4590,
+          "tokensCl100k": 1250,
+          "tokensO200k": 1250,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3950,
+          "tokensCl100k": 1100,
+          "tokensO200k": 1100,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7676,
+          "tokensCl100k": 1974,
+          "tokensO200k": 2024,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 12172,
+          "tokensCl100k": 7896,
+          "tokensO200k": 7417,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 12036,
+          "tokensCl100k": 7868,
+          "tokensO200k": 7389,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3597,
+          "tokensCl100k": 1932,
+          "tokensO200k": 1875,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7913,
+          "tokensCl100k": 2522,
+          "tokensO200k": 2542,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7605,
+          "tokensCl100k": 2034,
+          "tokensO200k": 2035,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "prompt_context",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 98385,
+          "tokensCl100k": 23402,
+          "tokensO200k": 23902,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 45900,
+          "tokensCl100k": 12500,
+          "tokensO200k": 12500,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 39500,
+          "tokensCl100k": 11000,
+          "tokensO200k": 11000,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 74188,
+          "tokensCl100k": 18984,
+          "tokensO200k": 19484,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 120265,
+          "tokensCl100k": 79047,
+          "tokensO200k": 74083,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 120129,
+          "tokensCl100k": 79019,
+          "tokensO200k": 74055,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 29339,
+          "tokensCl100k": 18042,
+          "tokensO200k": 17445,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 79285,
+          "tokensCl100k": 25202,
+          "tokensO200k": 25402,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 70788,
+          "tokensCl100k": 19134,
+          "tokensO200k": 19135,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "history",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9043,
+          "tokensCl100k": 2112,
+          "tokensO200k": 2132,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 3760,
+          "tokensCl100k": 970,
+          "tokensO200k": 950,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3510,
+          "tokensCl100k": 960,
+          "tokensO200k": 940,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 7255,
+          "tokensCl100k": 1844,
+          "tokensO200k": 1882,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 11124,
+          "tokensCl100k": 7147,
+          "tokensO200k": 6688,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 10988,
+          "tokensCl100k": 7119,
+          "tokensO200k": 6660,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 3411,
+          "tokensCl100k": 1803,
+          "tokensO200k": 1743,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7163,
+          "tokensCl100k": 2292,
+          "tokensO200k": 2292,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 6678,
+          "tokensCl100k": 1723,
+          "tokensO200k": 1704,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "history",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 90585,
+          "tokensCl100k": 21102,
+          "tokensO200k": 21302,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 37600,
+          "tokensCl100k": 9700,
+          "tokensO200k": 9500,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 35100,
+          "tokensCl100k": 9600,
+          "tokensO200k": 9400,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 70527,
+          "tokensCl100k": 17864,
+          "tokensO200k": 18262,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 109768,
+          "tokensCl100k": 70966,
+          "tokensO200k": 66422,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 109632,
+          "tokensCl100k": 70938,
+          "tokensO200k": 66394,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 28073,
+          "tokensCl100k": 16923,
+          "tokensO200k": 16323,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 71785,
+          "tokensCl100k": 22902,
+          "tokensO200k": 22902,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 61581,
+          "tokensCl100k": 16033,
+          "tokensO200k": 15834,
+          "roundTripOk": true
+        }
+      ]
+    }
+  ],
+  "mixedBatchComparison": [
+    {
+      "surface": "mixed",
+      "size": 10,
+      "recordCount": 10,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 9459,
+          "tokensCl100k": 2270,
+          "tokensO200k": 2312,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 4206,
+          "tokensCl100k": 1173,
+          "tokensO200k": 1163,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 3550,
+          "tokensCl100k": 1038,
+          "tokensO200k": 1032,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 9016,
+          "tokensCl100k": 2212,
+          "tokensO200k": 2255,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 11686,
+          "tokensCl100k": 7532,
+          "tokensO200k": 7037,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 11550,
+          "tokensCl100k": 7504,
+          "tokensO200k": 7009,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 6401,
+          "tokensCl100k": 2475,
+          "tokensO200k": 2415,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 7701,
+          "tokensCl100k": 2436,
+          "tokensO200k": 2447,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 7208,
+          "tokensCl100k": 1920,
+          "tokensO200k": 1913,
+          "roundTripOk": true
+        }
+      ]
+    },
+    {
+      "surface": "mixed",
+      "size": 100,
+      "recordCount": 100,
+      "formats": [
+        {
+          "format": "json",
+          "bytes": 94221,
+          "tokensCl100k": 22470,
+          "tokensO200k": 22902,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-full",
+          "bytes": 41636,
+          "tokensCl100k": 11513,
+          "tokensO200k": 11413,
+          "roundTripOk": true
+        },
+        {
+          "format": "ceeline-dense",
+          "bytes": 35640,
+          "tokensCl100k": 10398,
+          "tokensO200k": 10342,
+          "roundTripOk": true
+        },
+        {
+          "format": "pakt",
+          "bytes": 74741,
+          "tokensCl100k": 19054,
+          "tokensO200k": 19527,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml",
+          "bytes": 114730,
+          "tokensCl100k": 74465,
+          "tokensO200k": 69561,
+          "roundTripOk": true
+        },
+        {
+          "format": "jtml-ref",
+          "bytes": 114594,
+          "tokensCl100k": 74437,
+          "tokensO200k": 69533,
+          "roundTripOk": true
+        },
+        {
+          "format": "zipson",
+          "bytes": 34333,
+          "tokensCl100k": 19765,
+          "tokensO200k": 19145,
+          "roundTripOk": true
+        },
+        {
+          "format": "jsonschema-key-compression",
+          "bytes": 76713,
+          "tokensCl100k": 24106,
+          "tokensO200k": 24237,
+          "roundTripOk": true
+        },
+        {
+          "format": "tonl",
+          "bytes": 66211,
+          "tokensCl100k": 17760,
+          "tokensO200k": 17693,
+          "roundTripOk": true
+        }
+      ]
+    }
+  ],
+  "reflectionVariants": [
+    {
+      "label": "reflection",
+      "focus": "bytes",
+      "compactFullBytes": 440,
+      "compactDenseBytes": 386,
+      "byteDelta": -54,
+      "compactFullTokensCl100k": 114,
+      "compactDenseTokensCl100k": 114,
+      "compactFullTokensO200k": 111,
+      "compactDenseTokensO200k": 113
+    },
+    {
+      "label": "reflection-token",
+      "focus": "tokens",
+      "compactFullBytes": 411,
+      "compactDenseBytes": 363,
+      "byteDelta": -48,
+      "compactFullTokensCl100k": 113,
+      "compactDenseTokensCl100k": 108,
+      "compactFullTokensO200k": 110,
+      "compactDenseTokensO200k": 107
     }
   ],
   "percentileLatencies": [
     {
       "operation": "render",
       "density": "lite",
-      "p50Ms": 0.0486,
-      "p95Ms": 0.1115,
-      "p99Ms": 0.1368,
-      "minMs": 0.0449,
-      "maxMs": 1.7204,
-      "meanMs": 0.0672,
-      "stdevMs": 0.0603
+      "p50Ms": 0.135,
+      "p95Ms": 0.3261,
+      "p99Ms": 0.5316,
+      "minMs": 0.0909,
+      "maxMs": 2.0384,
+      "meanMs": 0.1702,
+      "stdevMs": 0.1198
     },
     {
       "operation": "parse",
       "density": "lite",
-      "p50Ms": 0.1192,
-      "p95Ms": 0.2549,
-      "p99Ms": 0.3131,
-      "minMs": 0.0757,
-      "maxMs": 2.7148,
-      "meanMs": 0.1525,
-      "stdevMs": 0.1502
+      "p50Ms": 0.2647,
+      "p95Ms": 0.4856,
+      "p99Ms": 0.6323,
+      "minMs": 0.097,
+      "maxMs": 1.411,
+      "meanMs": 0.2735,
+      "stdevMs": 0.1256
     },
     {
       "operation": "render",
       "density": "full",
-      "p50Ms": 0.0483,
-      "p95Ms": 0.1284,
-      "p99Ms": 0.21,
-      "minMs": 0.0453,
-      "maxMs": 1.0168,
-      "meanMs": 0.0645,
-      "stdevMs": 0.0442
+      "p50Ms": 0.1373,
+      "p95Ms": 0.2965,
+      "p99Ms": 0.4343,
+      "minMs": 0.0654,
+      "maxMs": 0.9456,
+      "meanMs": 0.1535,
+      "stdevMs": 0.0797
     },
     {
       "operation": "parse",
       "density": "full",
-      "p50Ms": 0.1109,
-      "p95Ms": 0.2233,
-      "p99Ms": 0.264,
-      "minMs": 0.0982,
-      "maxMs": 1.9033,
-      "meanMs": 0.1364,
-      "stdevMs": 0.0698
+      "p50Ms": 0.1593,
+      "p95Ms": 0.3307,
+      "p99Ms": 0.4221,
+      "minMs": 0.1243,
+      "maxMs": 0.9983,
+      "meanMs": 0.1935,
+      "stdevMs": 0.0763
     },
     {
       "operation": "render",
       "density": "dense",
-      "p50Ms": 0.0444,
-      "p95Ms": 0.0963,
-      "p99Ms": 0.1126,
-      "minMs": 0.0412,
-      "maxMs": 0.17,
-      "meanMs": 0.0536,
-      "stdevMs": 0.0189
+      "p50Ms": 0.1476,
+      "p95Ms": 0.3341,
+      "p99Ms": 0.5347,
+      "minMs": 0.1053,
+      "maxMs": 1.4071,
+      "meanMs": 0.1888,
+      "stdevMs": 0.094
     },
     {
       "operation": "parse",
       "density": "dense",
-      "p50Ms": 0.0967,
-      "p95Ms": 0.204,
-      "p99Ms": 0.2357,
-      "minMs": 0.0861,
-      "maxMs": 0.983,
-      "meanMs": 0.1204,
-      "stdevMs": 0.0586
+      "p50Ms": 0.2863,
+      "p95Ms": 0.583,
+      "p99Ms": 0.8589,
+      "minMs": 0.1971,
+      "maxMs": 1.7504,
+      "meanMs": 0.3405,
+      "stdevMs": 0.1446
     }
   ],
   "scaling": [
@@ -1212,61 +2952,62 @@
       "scale": "1x",
       "factCount": 3,
       "jsonBytes": 985,
-      "compactBytes": 419,
-      "byteRatio": 2.35,
-      "tokenRatioCl100k": 2.01,
-      "tokenRatioO200k": 2.05,
-      "renderMs": 0.0179,
-      "parseMs": 0.0125
+      "compactBytes": 341,
+      "byteRatio": 2.89,
+      "tokenRatioCl100k": 2.36,
+      "tokenRatioO200k": 2.42,
+      "renderMs": 0.0239,
+      "parseMs": 0.0493
     },
     {
       "scale": "2x",
       "factCount": 6,
       "jsonBytes": 1158,
-      "compactBytes": 604,
-      "byteRatio": 1.92,
-      "tokenRatioCl100k": 1.65,
-      "tokenRatioO200k": 1.7,
-      "renderMs": 0.0096,
-      "parseMs": 0.0168
+      "compactBytes": 523,
+      "byteRatio": 2.21,
+      "tokenRatioCl100k": 1.84,
+      "tokenRatioO200k": 1.9,
+      "renderMs": 0.0279,
+      "parseMs": 0.0356
     },
     {
       "scale": "5x",
       "factCount": 15,
       "jsonBytes": 1677,
-      "compactBytes": 1160,
-      "byteRatio": 1.45,
-      "tokenRatioCl100k": 1.25,
-      "tokenRatioO200k": 1.3,
-      "renderMs": 0.0142,
-      "parseMs": 0.0228
+      "compactBytes": 1070,
+      "byteRatio": 1.57,
+      "tokenRatioCl100k": 1.32,
+      "tokenRatioO200k": 1.38,
+      "renderMs": 0.0434,
+      "parseMs": 0.0602
     },
     {
       "scale": "10x",
       "factCount": 30,
       "jsonBytes": 2545,
-      "compactBytes": 2088,
-      "byteRatio": 1.22,
-      "tokenRatioCl100k": 1.07,
-      "tokenRatioO200k": 1.12,
-      "renderMs": 0.0593,
-      "parseMs": 0.0308
+      "compactBytes": 1983,
+      "byteRatio": 1.28,
+      "tokenRatioCl100k": 1.1,
+      "tokenRatioO200k": 1.15,
+      "renderMs": 0.0648,
+      "parseMs": 0.1133
     },
     {
       "scale": "20x",
       "factCount": 60,
       "jsonBytes": 4305,
-      "compactBytes": 3968,
-      "byteRatio": 1.08,
-      "tokenRatioCl100k": 0.95,
-      "tokenRatioO200k": 1.01,
-      "renderMs": 0.0317,
-      "parseMs": 0.0652
+      "compactBytes": 3833,
+      "byteRatio": 1.12,
+      "tokenRatioCl100k": 0.97,
+      "tokenRatioO200k": 1.03,
+      "renderMs": 0.1216,
+      "parseMs": 0.2357
     }
   ],
   "informationDensity": [
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 130.67,
@@ -1277,6 +3018,7 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 154.33,
@@ -1287,16 +3029,18 @@
     },
     {
       "surface": "handoff",
+      "label": "handoff",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 139.67,
-      "tokensCl100kPerFact": 40,
-      "tokensO200kPerFact": 39.67,
-      "clauseCount": 14,
-      "bytesPerClause": 29.93
+      "bytesPerFact": 113.67,
+      "tokensCl100kPerFact": 34,
+      "tokensO200kPerFact": 33.67,
+      "clauseCount": 12,
+      "bytesPerClause": 28.42
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 143.33,
@@ -1307,6 +3051,7 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 156.67,
@@ -1317,16 +3062,18 @@
     },
     {
       "surface": "digest",
+      "label": "digest",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 147.67,
-      "tokensCl100kPerFact": 41.67,
-      "tokensO200kPerFact": 41.67,
-      "clauseCount": 12,
-      "bytesPerClause": 36.92
+      "bytesPerFact": 123.33,
+      "tokensCl100kPerFact": 37.33,
+      "tokensO200kPerFact": 37.33,
+      "clauseCount": 11,
+      "bytesPerClause": 33.64
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 138,
@@ -1337,6 +3084,7 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 147.67,
@@ -1347,46 +3095,84 @@
     },
     {
       "surface": "memory",
+      "label": "memory",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 142,
-      "tokensCl100kPerFact": 38.33,
-      "tokensO200kPerFact": 38.33,
+      "bytesPerFact": 125.67,
+      "tokensCl100kPerFact": 36.67,
+      "tokensO200kPerFact": 36.67,
       "clauseCount": 11,
-      "bytesPerClause": 38.73
+      "bytesPerClause": 34.27
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "lite",
       "factCount": 3,
-      "bytesPerFact": 142.67,
-      "tokensCl100kPerFact": 40.33,
-      "tokensO200kPerFact": 39.33,
+      "bytesPerFact": 143.33,
+      "tokensCl100kPerFact": 39.33,
+      "tokensO200kPerFact": 38.33,
       "clauseCount": 11,
-      "bytesPerClause": 38.91
+      "bytesPerClause": 39.09
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "full",
       "factCount": 3,
-      "bytesPerFact": 146,
-      "tokensCl100kPerFact": 39,
-      "tokensO200kPerFact": 38,
+      "bytesPerFact": 146.67,
+      "tokensCl100kPerFact": 38,
+      "tokensO200kPerFact": 37,
       "clauseCount": 12,
-      "bytesPerClause": 36.5
+      "bytesPerClause": 36.67
     },
     {
       "surface": "reflection",
+      "label": "reflection",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 140.67,
-      "tokensCl100kPerFact": 36.67,
-      "tokensO200kPerFact": 35.67,
+      "bytesPerFact": 128.67,
+      "tokensCl100kPerFact": 38,
+      "tokensO200kPerFact": 37.67,
+      "clauseCount": 13,
+      "bytesPerClause": 29.69
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 133.67,
+      "tokensCl100kPerFact": 39,
+      "tokensO200kPerFact": 38,
       "clauseCount": 11,
-      "bytesPerClause": 38.36
+      "bytesPerClause": 36.45
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 137,
+      "tokensCl100kPerFact": 37.67,
+      "tokensO200kPerFact": 36.67,
+      "clauseCount": 12,
+      "bytesPerClause": 34.25
+    },
+    {
+      "surface": "reflection",
+      "label": "reflection-token",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 121,
+      "tokensCl100kPerFact": 36,
+      "tokensO200kPerFact": 35.67,
+      "clauseCount": 12,
+      "bytesPerClause": 30.25
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 98.67,
@@ -1397,6 +3183,7 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 104.33,
@@ -1407,16 +3194,18 @@
     },
     {
       "surface": "tool_summary",
+      "label": "tool",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 99,
-      "tokensCl100kPerFact": 28.67,
-      "tokensO200kPerFact": 28.67,
-      "clauseCount": 12,
-      "bytesPerClause": 24.75
+      "bytesPerFact": 97.33,
+      "tokensCl100kPerFact": 29.67,
+      "tokensO200kPerFact": 29.67,
+      "clauseCount": 13,
+      "bytesPerClause": 22.46
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 125.67,
@@ -1427,6 +3216,7 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 122.67,
@@ -1437,16 +3227,18 @@
     },
     {
       "surface": "routing",
+      "label": "routing",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 120.33,
-      "tokensCl100kPerFact": 31,
-      "tokensO200kPerFact": 31,
-      "clauseCount": 10,
-      "bytesPerClause": 36.1
+      "bytesPerFact": 111.33,
+      "tokensCl100kPerFact": 31.67,
+      "tokensO200kPerFact": 31.67,
+      "clauseCount": 11,
+      "bytesPerClause": 30.36
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "lite",
       "factCount": 4,
       "bytesPerFact": 105.25,
@@ -1457,6 +3249,7 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "full",
       "factCount": 4,
       "bytesPerFact": 114.75,
@@ -1467,16 +3260,18 @@
     },
     {
       "surface": "prompt_context",
+      "label": "prompt",
       "density": "dense",
       "factCount": 4,
-      "bytesPerFact": 108.5,
-      "tokensCl100kPerFact": 28.5,
-      "tokensO200kPerFact": 28.5,
+      "bytesPerFact": 98.75,
+      "tokensCl100kPerFact": 27.5,
+      "tokensO200kPerFact": 27.5,
       "clauseCount": 13,
-      "bytesPerClause": 33.38
+      "bytesPerClause": 30.38
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "lite",
       "factCount": 3,
       "bytesPerFact": 128.67,
@@ -1487,6 +3282,7 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "full",
       "factCount": 3,
       "bytesPerFact": 125.33,
@@ -1497,13 +3293,14 @@
     },
     {
       "surface": "history",
+      "label": "history",
       "density": "dense",
       "factCount": 3,
-      "bytesPerFact": 123,
-      "tokensCl100kPerFact": 31.33,
-      "tokensO200kPerFact": 30.67,
-      "clauseCount": 10,
-      "bytesPerClause": 36.9
+      "bytesPerFact": 117,
+      "tokensCl100kPerFact": 32,
+      "tokensO200kPerFact": 31.33,
+      "clauseCount": 11,
+      "bytesPerClause": 31.91
     }
   ]
 }

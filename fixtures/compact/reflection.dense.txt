@@ -1,1 +1,1 @@
-@cl1 s=rf i=test.reflection ; sum="Test reflection summary." ; f="Fact one." ; ask="Test ask." ; rty=sc ; cnf=0.8 ; rev="Fix edge case." ; #n=136
+@cl1 s=rf i=test.reflection ; sum="~reflection summary." ; f="Fact one." ; ask="Test ask." ; rty=sc ; cnf=0.8 ; rev="Fix edge case." ; #n=132

@@ -1,1 +1,1 @@
-@cl1 s=ho i=test.handoff ; sum="Test handoff summary." ; f="Fact one." ; ask="Test ask." ; role=rv ; tgt=fx ; sc=transport ; #n=122
+@cl1 s=ho i=test.handoff ; sum="~handoff summary." ; f="Fact one." ; ask="Test ask." ; role=rv ; tgt=fx ; sx=@t ; #n=111

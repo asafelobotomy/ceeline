@@ -1,5 +1,8 @@
 /**
- * Benchmark corpus — realistic envelopes for all 8 active surfaces.
+ * Benchmark corpus — realistic envelopes across the active surfaces.
+ *
+ * Some surfaces intentionally include multiple variants when we want to track
+ * different compression behaviors on the same payload type.
  *
  * Each envelope is a valid CeelineEnvelope that exercises the surface-specific
  * payload fields documented in the v1 language spec.
@@ -92,7 +95,29 @@ export const CORPUS: readonly CeelineEnvelope[] = [
       ask: "Identify the lowest-confidence validation path.",
       reflection_type: "confidence_check",
       confidence: 0.72,
-      revision: "Add edge-case tests for empty arrays in all payload types.",
+      revision: "Add validation configuration tests for empty payload arrays.",
+      artifacts: [],
+      metadata: {}
+    },
+    render: { style: "none", locale: "en", sanitizer: "strict" }
+  } as CeelineEnvelope,
+
+  {
+    ceeline_version: "1.0",
+    envelope_id: "cel:bench-reflection-token-001",
+    surface: "reflection",
+    channel: "internal",
+    intent: "reflect.confidence",
+    source: { kind: "agent", name: "self-critic", instance: "bench-critic-token", timestamp: "2026-04-12T10:03:30Z" },
+    constraints: { mode: "read_only", audience: "machine", max_render_tokens: 500, no_user_visible_output: true, fallback: "reject" },
+    preserve: { tokens: ["validateEnvelope"], classes: ["code_span"] },
+    payload: {
+      summary: "Self-critique of the validation pipeline coverage.",
+      facts: ["Edge case for empty payload.facts is not tested.", "Confidence in handoff validation is high.", "Confidence in digest metric parsing is moderate."],
+      ask: "Identify the lowest-confidence validation path.",
+      reflection_type: "confidence_check",
+      confidence: 0.72,
+      revision: "Add auth authz val config docs.",
       artifacts: [],
       metadata: {}
     },

@@ -1,1 +1,1 @@
-@cl1 s=dg i=test.digest ; sum="Test digest summary." ; f="Fact one." ; ask="Test ask." ; win=ss ; st=ok ; met=items:3 ; #n=117
+@cl1 s=dg i=test.digest ; sum="~digest summary." ; f="Fact one." ; ask="Test ask." ; win=ss ; st=ok ; met=items:3 ; #n=113
