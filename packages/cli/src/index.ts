@@ -5,7 +5,10 @@ import {
   decodeEnvelope,
   detectLeaks,
   encodeCanonical,
+  parseCeelineCompact,
   parseEnvelope,
+  renderCeelineCompact,
+  renderCeelineCompactAuto,
   renderInternal,
   renderUserFacing,
   validateEnvelope
@@ -35,6 +38,8 @@ function printUsage(): void {
       "  ceeline render <json>",
       "  ceeline validate <json>",
       "  ceeline detect-leak <text>",
+      "  ceeline render-compact <json> [--density lite|full|dense|auto]",
+      "  ceeline parse-compact <compact-text>",
       "",
       "If no payload argument is provided, the CLI reads from stdin."
     ].join("\n") + "\n"
@@ -144,6 +149,45 @@ function handleDetectLeak(inputText: string): void {
   writeJson(detectLeaks(inputText));
 }
 
+function handleRenderCompact(inputText: string, densityArg: string | undefined): void {
+  const parsed = parseEnvelope(inputText);
+  if (!parsed.ok) {
+    writeJson(parsed.issues);
+    process.exitCode = 1;
+    return;
+  }
+
+  const validDensities = ["lite", "full", "dense", "auto"] as const;
+  const density = densityArg ?? "auto";
+  if (!validDensities.includes(density as typeof validDensities[number])) {
+    writeError(`Invalid density '${density}'. Must be one of: ${validDensities.join(", ")}`);
+    return;
+  }
+
+  const result = density === "auto"
+    ? renderCeelineCompactAuto(parsed.value)
+    : renderCeelineCompact(parsed.value, density as "lite" | "full" | "dense");
+
+  if (!result.ok) {
+    writeJson(result.issues);
+    process.exitCode = 1;
+    return;
+  }
+
+  process.stdout.write(`${result.value}\n`);
+}
+
+function handleParseCompact(inputText: string): void {
+  const result = parseCeelineCompact(inputText);
+  if (!result.ok) {
+    writeJson(result.issues);
+    process.exitCode = 1;
+    return;
+  }
+
+  writeJson(result.value);
+}
+
 export async function runCli(argv: string[]): Promise<void> {
   const [command, ...rest] = argv;
 
@@ -174,6 +218,17 @@ export async function runCli(argv: string[]): Promise<void> {
         break;
       case "detect-leak":
         handleDetectLeak(inputText);
+        break;
+      case "render-compact": {
+        const densityIdx = rest.indexOf("--density");
+        const densityArg = densityIdx >= 0 ? rest[densityIdx + 1] : undefined;
+        const filteredRest = rest.filter((_, i) => i !== densityIdx && i !== densityIdx + 1);
+        const compactInput = await readInput(filteredRest);
+        handleRenderCompact(compactInput || inputText, densityArg);
+        break;
+      }
+      case "parse-compact":
+        handleParseCompact(inputText);
         break;
       default:
         writeError(`Unknown command '${command}'.`);

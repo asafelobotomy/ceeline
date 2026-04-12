@@ -2,11 +2,14 @@ import {
   decodeEnvelope,
   detectLeaks,
   encodeCanonical,
+  parseCeelineCompact,
   parseEnvelope,
+  renderCeelineCompact,
+  renderCeelineCompactAuto,
   renderUserFacing,
   validateEnvelope
 } from "@ceeline/core";
-import type { CeelineSurface } from "@ceeline/schema";
+import { SURFACES, type CeelineSurface } from "@ceeline/schema";
 
 export interface McpToolDescriptor {
   name: string;
@@ -100,6 +103,29 @@ export function createCeelineMcpToolDescriptors(): McpToolDescriptor[] {
           text: { type: "string" }
         }
       }
+    },
+    {
+      name: "render_compact",
+      description: "Render a Ceeline envelope into compact text format.",
+      inputSchema: {
+        type: "object",
+        required: ["envelope"],
+        properties: {
+          envelope: { type: "object" },
+          density: { type: "string", enum: ["lite", "full", "dense", "auto"] }
+        }
+      }
+    },
+    {
+      name: "parse_compact",
+      description: "Parse compact Ceeline text back into structured data.",
+      inputSchema: {
+        type: "object",
+        required: ["text"],
+        properties: {
+          text: { type: "string" }
+        }
+      }
     }
   ];
 }
@@ -107,6 +133,19 @@ export function createCeelineMcpToolDescriptors(): McpToolDescriptor[] {
 export function invokeCeelineMcpTool(call: McpToolCall): unknown {
   switch (call.name) {
     case "translate_to_ceeline": {
+      const surface = call.arguments.surface;
+      if (typeof surface !== "string" || !SURFACES.includes(surface as CeelineSurface)) {
+        return { errors: [{ code: "invalid_surface", message: `Invalid surface '${String(surface)}'. Must be one of: ${SURFACES.join(", ")}`, path: "surface" }] };
+      }
+      const payload = call.arguments.payload;
+      if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+        return { errors: [{ code: "invalid_payload", message: "payload must be a non-null object.", path: "payload" }] };
+      }
+      const payloadRecord = payload as Record<string, unknown>;
+      if (typeof payloadRecord.summary !== "string") {
+        return { errors: [{ code: "missing_summary", message: "payload.summary is required and must be a string.", path: "payload.summary" }] };
+      }
+
       const result = encodeCanonical(
         {
           text: typeof call.arguments.text === "string" ? call.arguments.text : undefined,
@@ -117,15 +156,15 @@ export function invokeCeelineMcpTool(call: McpToolCall): unknown {
             instance: "manual",
             timestamp: new Date().toISOString()
           },
-          payload: (call.arguments.payload as {
+          payload: payloadRecord as {
             summary: string;
             facts?: string[];
             ask?: string;
             artifacts?: unknown[];
             metadata?: Record<string, unknown>;
-          })
+          }
         },
-        call.arguments.surface as CeelineSurface
+        surface as CeelineSurface
       );
 
       return result.ok ? result.value : { errors: result.issues };
@@ -148,6 +187,29 @@ export function invokeCeelineMcpTool(call: McpToolCall): unknown {
     }
     case "detect_ceeline_leak": {
       return { findings: detectLeaks(String(call.arguments.text ?? "")) };
+    }
+    case "render_compact": {
+      const parsed = parseEnvelope(JSON.stringify(call.arguments.envelope));
+      if (!parsed.ok) {
+        return { errors: parsed.issues };
+      }
+      const density = call.arguments.density;
+      const validDensities = ["lite", "full", "dense", "auto"];
+      if (density !== undefined && (typeof density !== "string" || !validDensities.includes(density))) {
+        return { errors: [{ code: "invalid_density", message: `Invalid density '${String(density)}'. Must be one of: ${validDensities.join(", ")}`, path: "density" }] };
+      }
+      const result = density === "auto" || density === undefined
+        ? renderCeelineCompactAuto(parsed.value)
+        : renderCeelineCompact(parsed.value, density as "lite" | "full" | "dense");
+      return result.ok ? { text: result.value } : { errors: result.issues };
+    }
+    case "parse_compact": {
+      const text = call.arguments.text;
+      if (typeof text !== "string") {
+        return { errors: [{ code: "invalid_text", message: "text must be a string.", path: "text" }] };
+      }
+      const result = parseCeelineCompact(text);
+      return result.ok ? result.value : { errors: result.issues };
     }
     default:
       return { errors: [{ code: "unknown_tool", message: `Unknown tool '${call.name}'.`, path: "$tool" }] };
