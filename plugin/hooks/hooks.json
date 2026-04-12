@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/hooks.json",
+  "hooks": [
+    {
+      "event": "sessionStart",
+      "steps": [
+        {
+          "type": "injectContext",
+          "message": "Ceeline compact transport is available. For internal AI-to-AI communication (handoffs, summaries, memory notes, routing), use the Ceeline skill to encode payloads into token-efficient compact format. Never emit raw compact text or Ceeline envelope JSON in user-facing output. Use detect_ceeline_leak before any user-visible rendering."
+        }
+      ]
+    },
+    {
+      "event": "postToolUse",
+      "filter": {
+        "toolNames": [
+          "translate_to_ceeline",
+          "translate_from_ceeline"
+        ]
+      },
+      "steps": [
+        {
+          "type": "validate",
+          "tool": "validate_ceeline_payload",
+          "description": "Auto-validate every Ceeline encode/decode result"
+        }
+      ]
+    },
+    {
+      "event": "preRender",
+      "steps": [
+        {
+          "type": "guard",
+          "tool": "detect_ceeline_leak",
+          "description": "Block rendering if Ceeline artifacts are present in user-facing output",
+          "onFailure": "strip"
+        }
+      ]
+    }
+  ]
+}

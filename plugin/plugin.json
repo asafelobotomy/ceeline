@@ -1,0 +1,8 @@
+{
+  "name": "ceeline",
+  "displayName": "Ceeline – Compact AI Transport",
+  "description": "Schema-first compact transport layer for internal AI communication. Encodes, validates, and renders Ceeline envelopes to reduce token usage on machine-controlled surfaces.",
+  "version": "0.1.0",
+  "publisher": "asafelobotomy",
+  "repository": "https://github.com/asafelobotomy/ceeline"
+}

@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "ceeline": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["../adapters/mcp-server/dist/index.js"],
+      "env": {},
+      "metadata": {
+        "description": "Ceeline compact transport MCP server — encode, decode, validate, render, compact, and leak-detect Ceeline envelopes",
+        "tools": [
+          "translate_to_ceeline",
+          "translate_from_ceeline",
+          "validate_ceeline_payload",
+          "render_verbose_summary",
+          "detect_ceeline_leak",
+          "render_compact",
+          "parse_compact"
+        ]
+      }
+    }
+  }
+}

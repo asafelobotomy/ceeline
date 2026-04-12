@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-12T01:18:58.453Z",
+  "generated": "2026-04-12T09:37:12.619Z",
   "envelopes": [
     {
       "surface": "handoff",
@@ -670,42 +670,335 @@
     "render": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 40.78,
-        "envelopesPerMs": 24.52,
-        "avgMsPerEnvelope": 0.0408
+        "totalMs": 80.85,
+        "envelopesPerMs": 12.37,
+        "avgMsPerEnvelope": 0.0809
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 34.47,
-        "envelopesPerMs": 29.01,
-        "avgMsPerEnvelope": 0.0345
+        "totalMs": 79.23,
+        "envelopesPerMs": 12.62,
+        "avgMsPerEnvelope": 0.0792
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 24.89,
-        "envelopesPerMs": 40.18,
-        "avgMsPerEnvelope": 0.0249
+        "totalMs": 66.08,
+        "envelopesPerMs": 15.13,
+        "avgMsPerEnvelope": 0.0661
       }
     },
     "parse": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 59.01,
-        "envelopesPerMs": 16.95,
-        "avgMsPerEnvelope": 0.059
+        "totalMs": 129.58,
+        "envelopesPerMs": 7.72,
+        "avgMsPerEnvelope": 0.1296
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 31.57,
-        "envelopesPerMs": 31.68,
-        "avgMsPerEnvelope": 0.0316
+        "totalMs": 60.3,
+        "envelopesPerMs": 16.58,
+        "avgMsPerEnvelope": 0.0603
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 27.01,
-        "envelopesPerMs": 37.02,
-        "avgMsPerEnvelope": 0.027
+        "totalMs": 55.24,
+        "envelopesPerMs": 18.1,
+        "avgMsPerEnvelope": 0.0552
       }
     }
-  }
+  },
+  "trailerOverhead": [
+    {
+      "surface": "handoff",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 385,
+      "overheadPercent": 1.79
+    },
+    {
+      "surface": "handoff",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 454,
+      "overheadPercent": 1.94
+    },
+    {
+      "surface": "handoff",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 410,
+      "overheadPercent": 2.15
+    },
+    {
+      "surface": "digest",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 423,
+      "overheadPercent": 1.63
+    },
+    {
+      "surface": "digest",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 461,
+      "overheadPercent": 1.91
+    },
+    {
+      "surface": "digest",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 434,
+      "overheadPercent": 2.03
+    },
+    {
+      "surface": "memory",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 407,
+      "overheadPercent": 1.69
+    },
+    {
+      "surface": "memory",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 434,
+      "overheadPercent": 2.03
+    },
+    {
+      "surface": "memory",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 417,
+      "overheadPercent": 2.11
+    },
+    {
+      "surface": "reflection",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 421,
+      "overheadPercent": 1.64
+    },
+    {
+      "surface": "reflection",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 429,
+      "overheadPercent": 2.05
+    },
+    {
+      "surface": "reflection",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 413,
+      "overheadPercent": 2.13
+    },
+    {
+      "surface": "tool_summary",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 289,
+      "overheadPercent": 2.36
+    },
+    {
+      "surface": "tool_summary",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 304,
+      "overheadPercent": 2.88
+    },
+    {
+      "surface": "tool_summary",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 288,
+      "overheadPercent": 3.03
+    },
+    {
+      "surface": "routing",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 370,
+      "overheadPercent": 1.86
+    },
+    {
+      "surface": "routing",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 359,
+      "overheadPercent": 2.45
+    },
+    {
+      "surface": "routing",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 352,
+      "overheadPercent": 2.49
+    },
+    {
+      "surface": "prompt_context",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 414,
+      "overheadPercent": 1.66
+    },
+    {
+      "surface": "prompt_context",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 450,
+      "overheadPercent": 1.96
+    },
+    {
+      "surface": "prompt_context",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 425,
+      "overheadPercent": 2.07
+    },
+    {
+      "surface": "history",
+      "density": "lite",
+      "trailerBytes": 7,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 379,
+      "overheadPercent": 1.81
+    },
+    {
+      "surface": "history",
+      "density": "full",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 367,
+      "overheadPercent": 2.39
+    },
+    {
+      "surface": "history",
+      "density": "dense",
+      "trailerBytes": 9,
+      "trailerTokensCl100k": 5,
+      "trailerTokensO200k": 5,
+      "contentBytes": 360,
+      "overheadPercent": 2.44
+    }
+  ],
+  "autoDensity": [
+    {
+      "surface": "handoff",
+      "selectedDensity": "full",
+      "autoBytes": 463,
+      "autoTokensCl100k": 139,
+      "autoTokensO200k": 138,
+      "manualFullBytes": 463,
+      "manualDenseBytes": 419
+    },
+    {
+      "surface": "digest",
+      "selectedDensity": "lite",
+      "autoBytes": 430,
+      "autoTokensCl100k": 125,
+      "autoTokensO200k": 125,
+      "manualFullBytes": 470,
+      "manualDenseBytes": 443
+    },
+    {
+      "surface": "memory",
+      "selectedDensity": "full",
+      "autoBytes": 443,
+      "autoTokensCl100k": 121,
+      "autoTokensO200k": 121,
+      "manualFullBytes": 443,
+      "manualDenseBytes": 426
+    },
+    {
+      "surface": "reflection",
+      "selectedDensity": "full",
+      "autoBytes": 438,
+      "autoTokensCl100k": 117,
+      "autoTokensO200k": 114,
+      "manualFullBytes": 438,
+      "manualDenseBytes": 422
+    },
+    {
+      "surface": "tool_summary",
+      "selectedDensity": "full",
+      "autoBytes": 313,
+      "autoTokensCl100k": 93,
+      "autoTokensO200k": 93,
+      "manualFullBytes": 313,
+      "manualDenseBytes": 297
+    },
+    {
+      "surface": "routing",
+      "selectedDensity": "full",
+      "autoBytes": 368,
+      "autoTokensCl100k": 96,
+      "autoTokensO200k": 96,
+      "manualFullBytes": 368,
+      "manualDenseBytes": 361
+    },
+    {
+      "surface": "prompt_context",
+      "selectedDensity": "full",
+      "autoBytes": 459,
+      "autoTokensCl100k": 125,
+      "autoTokensO200k": 125,
+      "manualFullBytes": 459,
+      "manualDenseBytes": 434
+    },
+    {
+      "surface": "history",
+      "selectedDensity": "full",
+      "autoBytes": 376,
+      "autoTokensCl100k": 97,
+      "autoTokensO200k": 95,
+      "manualFullBytes": 376,
+      "manualDenseBytes": 369
+    }
+  ],
+  "budgetFailures": []
 }

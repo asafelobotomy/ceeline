@@ -18,7 +18,7 @@
  */
 
 import { getEncoding } from "js-tiktoken";
-import { renderCeelineCompact, parseCeelineCompact } from "@ceeline/core";
+import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@ceeline/core";
 import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
 import { CORPUS } from "./corpus.js";
 
@@ -88,6 +88,36 @@ interface BenchmarkReport {
     render: Record<string, ThroughputMetrics>;
     parse: Record<string, ThroughputMetrics>;
   };
+  trailerOverhead: TrailerOverhead[];
+  autoDensity: AutoDensityResult[];
+  budgetFailures: BudgetFailure[];
+}
+
+interface TrailerOverhead {
+  surface: string;
+  density: CompactDensity;
+  trailerBytes: number;
+  trailerTokensCl100k: number;
+  trailerTokensO200k: number;
+  contentBytes: number;
+  overheadPercent: number;
+}
+
+interface AutoDensityResult {
+  surface: string;
+  selectedDensity: string;
+  autoBytes: number;
+  autoTokensCl100k: number;
+  autoTokensO200k: number;
+  manualFullBytes: number;
+  manualDenseBytes: number;
+}
+
+interface BudgetFailure {
+  surface: string;
+  density: CompactDensity;
+  budget: number;
+  estimatedTokens: number;
 }
 
 // ── Measurement ─────────────────────────────────────────────────────────
@@ -202,6 +232,84 @@ function round(n: number, decimals = 2): number {
   return Math.round(n * f) / f;
 }
 
+// ── Trailer overhead measurement ────────────────────────────────────────
+
+function measureTrailerOverhead(envelope: CeelineEnvelope, density: CompactDensity): TrailerOverhead | null {
+  const result = renderCeelineCompact(envelope, density);
+  if (!result.ok) return null;
+
+  const compact = result.value;
+  const sep = density === "lite" ? "\n" : " ; ";
+  const trailerIdx = compact.lastIndexOf(`${sep}#n=`);
+  if (trailerIdx === -1) return null;
+
+  const content = compact.slice(0, trailerIdx);
+  const trailer = compact.slice(trailerIdx);
+  const contentBytes = Buffer.byteLength(content, "utf-8");
+  const trailerBytes = Buffer.byteLength(trailer, "utf-8");
+  const trailerTokensCl100k = countTokens(trailer, "cl100k");
+  const trailerTokensO200k = countTokens(trailer, "o200k");
+
+  return {
+    surface: envelope.surface,
+    density,
+    trailerBytes,
+    trailerTokensCl100k,
+    trailerTokensO200k,
+    contentBytes,
+    overheadPercent: round(trailerBytes / (contentBytes + trailerBytes) * 100)
+  };
+}
+
+// ── Auto-density measurement ────────────────────────────────────────────
+
+function measureAutoDensity(envelope: CeelineEnvelope): AutoDensityResult | null {
+  const autoResult = renderCeelineCompactAuto(envelope);
+  const fullResult = renderCeelineCompact(envelope, "full");
+  const denseResult = renderCeelineCompact(envelope, "dense");
+
+  if (!autoResult.ok) return null;
+
+  // Detect which density was selected by checking format
+  const isMultiline = autoResult.value.includes("\n");
+  const selectedDensity = isMultiline ? "lite" : (
+    fullResult.ok && autoResult.value === fullResult.value ? "full" :
+    denseResult.ok && autoResult.value === denseResult.value ? "dense" : "unknown"
+  );
+
+  return {
+    surface: envelope.surface,
+    selectedDensity,
+    autoBytes: Buffer.byteLength(autoResult.value, "utf-8"),
+    autoTokensCl100k: countTokens(autoResult.value, "cl100k"),
+    autoTokensO200k: countTokens(autoResult.value, "o200k"),
+    manualFullBytes: fullResult.ok ? Buffer.byteLength(fullResult.value, "utf-8") : 0,
+    manualDenseBytes: denseResult.ok ? Buffer.byteLength(denseResult.value, "utf-8") : 0
+  };
+}
+
+// ── Budget failure detection ────────────────────────────────────────────
+
+function detectBudgetFailures(envelope: CeelineEnvelope): BudgetFailure[] {
+  const budget = envelope.constraints.max_render_tokens;
+  if (budget <= 0) return [];
+
+  const failures: BudgetFailure[] = [];
+  for (const density of DENSITIES) {
+    const result = renderCeelineCompact(envelope, density);
+    if (!result.ok && result.issues.some(i => i.code === "token_budget_exceeded")) {
+      const match = result.issues[0].message.match(/~(\d+) tokens/);
+      failures.push({
+        surface: envelope.surface,
+        density,
+        budget,
+        estimatedTokens: match ? parseInt(match[1], 10) : 0
+      });
+    }
+  }
+  return failures;
+}
+
 // ── Main ────────────────────────────────────────────────────────────────
 
 function run(): BenchmarkReport {
@@ -249,13 +357,38 @@ function run(): BenchmarkReport {
     }, ITERATIONS);
   }
 
+  // 6. Trailer overhead
+  const trailerOverhead: TrailerOverhead[] = [];
+  for (const envelope of CORPUS) {
+    for (const density of DENSITIES) {
+      const overhead = measureTrailerOverhead(envelope, density);
+      if (overhead) trailerOverhead.push(overhead);
+    }
+  }
+
+  // 7. Auto-density comparison
+  const autoDensity: AutoDensityResult[] = [];
+  for (const envelope of CORPUS) {
+    const ad = measureAutoDensity(envelope);
+    if (ad) autoDensity.push(ad);
+  }
+
+  // 8. Budget failure detection
+  const budgetFailures: BudgetFailure[] = [];
+  for (const envelope of CORPUS) {
+    budgetFailures.push(...detectBudgetFailures(envelope));
+  }
+
   return {
     generated: new Date().toISOString(),
     envelopes: all,
     bySurface,
     byDensity,
     overall,
-    throughput: { render: throughputRender, parse: throughputParse }
+    throughput: { render: throughputRender, parse: throughputParse },
+    trailerOverhead,
+    autoDensity,
+    budgetFailures
   };
 }
 
@@ -396,6 +529,43 @@ function formatReport(report: BenchmarkReport): string {
   } else {
     lines.push("  ✓ ALL ROUND-TRIP CHECKS PASSED");
   }
+
+  // Trailer overhead table
+  if (report.trailerOverhead.length > 0) {
+    lines.push(formatTable(
+      "INTEGRITY TRAILER OVERHEAD (#n=<bytecount>)",
+      ["Surface", "Density", "Trailer B", "Trailer cl100k", "Trailer o200k", "Content B", "Overhead%"],
+      report.trailerOverhead.map(t => [
+        t.surface, t.density, `${t.trailerBytes}`, `${t.trailerTokensCl100k}`,
+        `${t.trailerTokensO200k}`, `${t.contentBytes}`, `${t.overheadPercent}%`
+      ]),
+      [false, false, true, true, true, true, true]
+    ));
+  }
+
+  // Auto-density table
+  if (report.autoDensity.length > 0) {
+    lines.push(formatTable(
+      "AUTO-DENSITY SELECTION (renderCeelineCompactAuto, no budget)",
+      ["Surface", "Selected", "Auto B", "Auto cl100k", "Auto o200k", "Full B", "Dense B"],
+      report.autoDensity.map(a => [
+        a.surface, a.selectedDensity, `${a.autoBytes}`, `${a.autoTokensCl100k}`,
+        `${a.autoTokensO200k}`, `${a.manualFullBytes}`, `${a.manualDenseBytes}`
+      ]),
+      [false, false, true, true, true, true, true]
+    ));
+  }
+
+  // Budget failures
+  if (report.budgetFailures.length > 0) {
+    lines.push("  ⚠ BUDGET EXCEEDED FAILURES");
+    lines.push("  ──────────────────────────");
+    for (const bf of report.budgetFailures) {
+      lines.push(`  ${bf.surface}/${bf.density}: budget=${bf.budget}, estimated=${bf.estimatedTokens}`);
+    }
+    lines.push("");
+  }
+
   lines.push("");
 
   return lines.join("\n");

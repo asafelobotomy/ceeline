@@ -1,6 +1,6 @@
 ╔══════════════════════════════════════════════════════════════════╗
 ║            CEELINE COMPACT DIALECT BENCHMARK REPORT            ║
-║            Generated: 2026-04-12T01:18:58                      ║
+║            Generated: 2026-04-12T09:37:12                      ║
 ╚══════════════════════════════════════════════════════════════════╝
 
   OVERALL SUMMARY
@@ -48,12 +48,12 @@
   ───────────────────────────────────────────────────────────────
   │ Operation │ Density │ Total ms │ Envelopes/ms │ ms/Envelope │
   ├────────────┼─────────┼──────────┼──────────────┼──────────────┤
-  │ render    │ lite    │    40.78 │        24.52 │      0.0408 │
-  │ render    │ full    │    34.47 │        29.01 │      0.0345 │
-  │ render    │ dense   │    24.89 │        40.18 │      0.0249 │
-  │ parse     │ lite    │    59.01 │        16.95 │       0.059 │
-  │ parse     │ full    │    31.57 │        31.68 │      0.0316 │
-  │ parse     │ dense   │    27.01 │        37.02 │       0.027 │
+  │ render    │ lite    │    80.85 │        12.37 │      0.0809 │
+  │ render    │ full    │    79.23 │        12.62 │      0.0792 │
+  │ render    │ dense   │    66.08 │        15.13 │      0.0661 │
+  │ parse     │ lite    │   129.58 │         7.72 │      0.1296 │
+  │ parse     │ full    │     60.3 │        16.58 │      0.0603 │
+  │ parse     │ dense   │    55.24 │         18.1 │      0.0552 │
   ───────────────────────────────────────────────────────────────
 
 
@@ -96,3 +96,49 @@
   @cl1 s=ho i=review.security ; sum="Review src/core/codec.ts for transport safety before release." ; f="Preserve {{PROJECT_ID}} exactly." ; f="Preserve GPT-5.4 exactly." ; f="The module handles all inbound byte streams from external agents." ; ask="Return severity-ordered findings only." ; role=rv ; tgt=fx ; sc=transport,validation ; tok=src/core/codec.ts ; tok="{{PROJECT_ID}}" ; tok=GPT-5.4 ; tok="npm test" ; #n=410
 
   ✓ ALL ROUND-TRIP CHECKS PASSED
+
+  INTEGRITY TRAILER OVERHEAD (#n=<bytecount>)
+  ─────────────────────────────────────────────────────────────────────────────────────────────────
+  │ Surface        │ Density │ Trailer B │ Trailer cl100k │ Trailer o200k │ Content B │ Overhead% │
+  ├─────────────────┼─────────┼───────────┼────────────────┼───────────────┼───────────┼────────────┤
+  │ handoff        │ lite    │         7 │              5 │             5 │       385 │     1.79% │
+  │ handoff        │ full    │         9 │              5 │             5 │       454 │     1.94% │
+  │ handoff        │ dense   │         9 │              5 │             5 │       410 │     2.15% │
+  │ digest         │ lite    │         7 │              5 │             5 │       423 │     1.63% │
+  │ digest         │ full    │         9 │              5 │             5 │       461 │     1.91% │
+  │ digest         │ dense   │         9 │              5 │             5 │       434 │     2.03% │
+  │ memory         │ lite    │         7 │              5 │             5 │       407 │     1.69% │
+  │ memory         │ full    │         9 │              5 │             5 │       434 │     2.03% │
+  │ memory         │ dense   │         9 │              5 │             5 │       417 │     2.11% │
+  │ reflection     │ lite    │         7 │              5 │             5 │       421 │     1.64% │
+  │ reflection     │ full    │         9 │              5 │             5 │       429 │     2.05% │
+  │ reflection     │ dense   │         9 │              5 │             5 │       413 │     2.13% │
+  │ tool_summary   │ lite    │         7 │              5 │             5 │       289 │     2.36% │
+  │ tool_summary   │ full    │         9 │              5 │             5 │       304 │     2.88% │
+  │ tool_summary   │ dense   │         9 │              5 │             5 │       288 │     3.03% │
+  │ routing        │ lite    │         7 │              5 │             5 │       370 │     1.86% │
+  │ routing        │ full    │         9 │              5 │             5 │       359 │     2.45% │
+  │ routing        │ dense   │         9 │              5 │             5 │       352 │     2.49% │
+  │ prompt_context │ lite    │         7 │              5 │             5 │       414 │     1.66% │
+  │ prompt_context │ full    │         9 │              5 │             5 │       450 │     1.96% │
+  │ prompt_context │ dense   │         9 │              5 │             5 │       425 │     2.07% │
+  │ history        │ lite    │         7 │              5 │             5 │       379 │     1.81% │
+  │ history        │ full    │         9 │              5 │             5 │       367 │     2.39% │
+  │ history        │ dense   │         9 │              5 │             5 │       360 │     2.44% │
+  ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  AUTO-DENSITY SELECTION (renderCeelineCompactAuto, no budget)
+  ────────────────────────────────────────────────────────────────────────────────────
+  │ Surface        │ Selected │ Auto B │ Auto cl100k │ Auto o200k │ Full B │ Dense B │
+  ├─────────────────┼──────────┼────────┼─────────────┼────────────┼────────┼──────────┤
+  │ handoff        │ full     │    463 │         139 │        138 │    463 │     419 │
+  │ digest         │ lite     │    430 │         125 │        125 │    470 │     443 │
+  │ memory         │ full     │    443 │         121 │        121 │    443 │     426 │
+  │ reflection     │ full     │    438 │         117 │        114 │    438 │     422 │
+  │ tool_summary   │ full     │    313 │          93 │         93 │    313 │     297 │
+  │ routing        │ full     │    368 │          96 │         96 │    368 │     361 │
+  │ prompt_context │ full     │    459 │         125 │        125 │    459 │     434 │
+  │ history        │ full     │    376 │          97 │         95 │    376 │     369 │
+  ────────────────────────────────────────────────────────────────────────────────────
+
