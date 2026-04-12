@@ -21,6 +21,9 @@ import { getEncoding } from "js-tiktoken";
 import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@ceeline/core";
 import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
 import { CORPUS } from "./corpus.js";
+import { stringify as yamlStringify } from "yaml";
+import { encode as msgpackEncode } from "@msgpack/msgpack";
+import { encode as cborEncode } from "cbor-x";
 
 // ── Tokenizers ──────────────────────────────────────────────────────────
 
@@ -91,6 +94,10 @@ interface BenchmarkReport {
   trailerOverhead: TrailerOverhead[];
   autoDensity: AutoDensityResult[];
   budgetFailures: BudgetFailure[];
+  formatComparison: FormatComparison[];
+  percentileLatencies: PercentileLatency[];
+  scaling: ScalingResult[];
+  informationDensity: InformationDensity[];
 }
 
 interface TrailerOverhead {
@@ -118,6 +125,59 @@ interface BudgetFailure {
   density: CompactDensity;
   budget: number;
   estimatedTokens: number;
+}
+
+interface FormatComparison {
+  surface: string;
+  jsonBytes: number;
+  jsonTokensCl100k: number;
+  jsonTokensO200k: number;
+  yamlBytes: number;
+  yamlTokensCl100k: number;
+  yamlTokensO200k: number;
+  msgpackBytes: number;
+  cborBytes: number;
+  compactFullBytes: number;
+  compactFullTokensCl100k: number;
+  compactFullTokensO200k: number;
+  compactDenseBytes: number;
+  compactDenseTokensCl100k: number;
+  compactDenseTokensO200k: number;
+}
+
+interface PercentileLatency {
+  operation: string;
+  density: CompactDensity;
+  p50Ms: number;
+  p95Ms: number;
+  p99Ms: number;
+  minMs: number;
+  maxMs: number;
+  meanMs: number;
+  stdevMs: number;
+}
+
+interface ScalingResult {
+  scale: string;
+  factCount: number;
+  jsonBytes: number;
+  compactBytes: number;
+  byteRatio: number;
+  tokenRatioCl100k: number;
+  tokenRatioO200k: number;
+  renderMs: number;
+  parseMs: number;
+}
+
+interface InformationDensity {
+  surface: string;
+  density: CompactDensity;
+  factCount: number;
+  bytesPerFact: number;
+  tokensCl100kPerFact: number;
+  tokensO200kPerFact: number;
+  clauseCount: number;
+  bytesPerClause: number;
 }
 
 // ── Measurement ─────────────────────────────────────────────────────────
@@ -310,6 +370,194 @@ function detectBudgetFailures(envelope: CeelineEnvelope): BudgetFailure[] {
   return failures;
 }
 
+// ── Format comparison measurement ───────────────────────────────────────
+
+function measureFormatComparison(envelope: CeelineEnvelope): FormatComparison {
+  const json = JSON.stringify(envelope);
+  const yamlText = yamlStringify(envelope);
+  const msgpack = msgpackEncode(envelope);
+  const cbor = cborEncode(envelope);
+  const fullResult = renderCeelineCompact(envelope, "full");
+  const denseResult = renderCeelineCompact(envelope, "dense");
+  const compactFull = fullResult.ok ? fullResult.value : "";
+  const compactDense = denseResult.ok ? denseResult.value : "";
+
+  return {
+    surface: envelope.surface,
+    jsonBytes: Buffer.byteLength(json, "utf-8"),
+    jsonTokensCl100k: countTokens(json, "cl100k"),
+    jsonTokensO200k: countTokens(json, "o200k"),
+    yamlBytes: Buffer.byteLength(yamlText, "utf-8"),
+    yamlTokensCl100k: countTokens(yamlText, "cl100k"),
+    yamlTokensO200k: countTokens(yamlText, "o200k"),
+    msgpackBytes: msgpack.byteLength,
+    cborBytes: cbor.byteLength,
+    compactFullBytes: Buffer.byteLength(compactFull, "utf-8"),
+    compactFullTokensCl100k: countTokens(compactFull, "cl100k"),
+    compactFullTokensO200k: countTokens(compactFull, "o200k"),
+    compactDenseBytes: Buffer.byteLength(compactDense, "utf-8"),
+    compactDenseTokensCl100k: countTokens(compactDense, "cl100k"),
+    compactDenseTokensO200k: countTokens(compactDense, "o200k")
+  };
+}
+
+// ── Percentile latency measurement ─────────────────────────────────────
+
+function measurePercentileLatencies(density: CompactDensity, iterations: number): PercentileLatency[] {
+  // Warm up
+  for (let i = 0; i < 50; i++) {
+    for (const envelope of CORPUS) renderCeelineCompact(envelope, density);
+  }
+
+  // Measure render latencies
+  const renderTimes: number[] = [];
+  for (let i = 0; i < iterations; i++) {
+    const start = performance.now();
+    for (const envelope of CORPUS) renderCeelineCompact(envelope, density);
+    renderTimes.push(performance.now() - start);
+  }
+
+  // Pre-render for parse benchmark
+  const compactTexts = CORPUS.map(e => {
+    const r = renderCeelineCompact(e, density);
+    return r.ok ? r.value : "";
+  });
+
+  // Warm up parse
+  for (let i = 0; i < 50; i++) {
+    for (const text of compactTexts) parseCeelineCompact(text);
+  }
+
+  // Measure parse latencies
+  const parseTimes: number[] = [];
+  for (let i = 0; i < iterations; i++) {
+    const start = performance.now();
+    for (const text of compactTexts) parseCeelineCompact(text);
+    parseTimes.push(performance.now() - start);
+  }
+
+  return [
+    computePercentiles("render", density, renderTimes),
+    computePercentiles("parse", density, parseTimes)
+  ];
+}
+
+function computePercentiles(operation: string, density: CompactDensity, times: number[]): PercentileLatency {
+  times.sort((a, b) => a - b);
+  const n = times.length;
+  const mean = times.reduce((s, t) => s + t, 0) / n;
+  const variance = times.reduce((s, t) => s + (t - mean) ** 2, 0) / n;
+
+  return {
+    operation,
+    density,
+    p50Ms: round(times[Math.floor(n * 0.50)], 4),
+    p95Ms: round(times[Math.floor(n * 0.95)], 4),
+    p99Ms: round(times[Math.floor(n * 0.99)], 4),
+    minMs: round(times[0], 4),
+    maxMs: round(times[n - 1], 4),
+    meanMs: round(mean, 4),
+    stdevMs: round(Math.sqrt(variance), 4)
+  };
+}
+
+// ── Payload scaling measurement ────────────────────────────────────────
+
+function measureScaling(): ScalingResult[] {
+  // Use the handoff envelope as the reference
+  const base = CORPUS[0];
+  const baseFacts = (base.payload as Record<string, unknown>).facts as string[];
+  const scales = [1, 2, 5, 10, 20];
+  const results: ScalingResult[] = [];
+
+  for (const scale of scales) {
+    // Create a scaled envelope by multiplying facts
+    const scaledFacts: string[] = [];
+    for (let i = 0; i < scale; i++) {
+      for (const fact of baseFacts) {
+        scaledFacts.push(i === 0 ? fact : `${fact} (iteration ${i + 1})`);
+      }
+    }
+
+    const scaled = {
+      ...base,
+      constraints: { ...base.constraints, max_render_tokens: 10000 },
+      payload: { ...(base.payload as Record<string, unknown>), facts: scaledFacts }
+    } as CeelineEnvelope;
+
+    const json = JSON.stringify(scaled);
+    const jsonBytes = Buffer.byteLength(json, "utf-8");
+    const renderResult = renderCeelineCompact(scaled, "dense");
+    if (!renderResult.ok) continue;
+
+    const compact = renderResult.value;
+    const compactBytes = Buffer.byteLength(compact, "utf-8");
+
+    const jsonCl = countTokens(json, "cl100k");
+    const compactCl = countTokens(compact, "cl100k");
+    const jsonO2 = countTokens(json, "o200k");
+    const compactO2 = countTokens(compact, "o200k");
+
+    // Throughput at this scale
+    const SCALE_ITERATIONS = 200;
+    // Warm up
+    for (let i = 0; i < 20; i++) renderCeelineCompact(scaled, "dense");
+    const rStart = performance.now();
+    for (let i = 0; i < SCALE_ITERATIONS; i++) renderCeelineCompact(scaled, "dense");
+    const renderMs = round((performance.now() - rStart) / SCALE_ITERATIONS, 4);
+
+    // Warm up parse
+    for (let i = 0; i < 20; i++) parseCeelineCompact(compact);
+    const pStart = performance.now();
+    for (let i = 0; i < SCALE_ITERATIONS; i++) parseCeelineCompact(compact);
+    const parseMs = round((performance.now() - pStart) / SCALE_ITERATIONS, 4);
+
+    results.push({
+      scale: `${scale}x`,
+      factCount: scaledFacts.length,
+      jsonBytes,
+      compactBytes,
+      byteRatio: round(jsonBytes / compactBytes),
+      tokenRatioCl100k: round(jsonCl / compactCl),
+      tokenRatioO200k: round(jsonO2 / compactO2),
+      renderMs,
+      parseMs
+    });
+  }
+
+  return results;
+}
+
+// ── Information density measurement ────────────────────────────────────
+
+function measureInformationDensity(envelope: CeelineEnvelope, density: CompactDensity): InformationDensity | null {
+  const renderResult = renderCeelineCompact(envelope, density);
+  if (!renderResult.ok) return null;
+
+  const compact = renderResult.value;
+  const compactBytes = Buffer.byteLength(compact, "utf-8");
+  const cl100kTokens = countTokens(compact, "cl100k");
+  const o200kTokens = countTokens(compact, "o200k");
+
+  const facts = (envelope.payload as Record<string, unknown>).facts as string[] | undefined;
+  const factCount = facts?.length ?? 0;
+
+  // Count clauses in compact text
+  const sep = density === "lite" ? "\n" : " ; ";
+  const clauseCount = compact.split(sep).length;
+
+  return {
+    surface: envelope.surface,
+    density,
+    factCount,
+    bytesPerFact: factCount > 0 ? round(compactBytes / factCount) : 0,
+    tokensCl100kPerFact: factCount > 0 ? round(cl100kTokens / factCount) : 0,
+    tokensO200kPerFact: factCount > 0 ? round(o200kTokens / factCount) : 0,
+    clauseCount,
+    bytesPerClause: round(compactBytes / clauseCount)
+  };
+}
+
 // ── Main ────────────────────────────────────────────────────────────────
 
 function run(): BenchmarkReport {
@@ -379,6 +627,31 @@ function run(): BenchmarkReport {
     budgetFailures.push(...detectBudgetFailures(envelope));
   }
 
+  // 9. Format comparison (JSON vs YAML vs MsgPack vs CBOR vs Ceeline)
+  const formatComparison: FormatComparison[] = [];
+  for (const envelope of CORPUS) {
+    formatComparison.push(measureFormatComparison(envelope));
+  }
+
+  // 10. Percentile latencies
+  const LATENCY_ITERATIONS = 1000;
+  const percentileLatencies: PercentileLatency[] = [];
+  for (const density of DENSITIES) {
+    percentileLatencies.push(...measurePercentileLatencies(density, LATENCY_ITERATIONS));
+  }
+
+  // 11. Payload scaling
+  const scaling = measureScaling();
+
+  // 12. Information density
+  const informationDensity: InformationDensity[] = [];
+  for (const envelope of CORPUS) {
+    for (const density of DENSITIES) {
+      const id = measureInformationDensity(envelope, density);
+      if (id) informationDensity.push(id);
+    }
+  }
+
   return {
     generated: new Date().toISOString(),
     envelopes: all,
@@ -388,7 +661,11 @@ function run(): BenchmarkReport {
     throughput: { render: throughputRender, parse: throughputParse },
     trailerOverhead,
     autoDensity,
-    budgetFailures
+    budgetFailures,
+    formatComparison,
+    percentileLatencies,
+    scaling,
+    informationDensity
   };
 }
 
@@ -564,6 +841,105 @@ function formatReport(report: BenchmarkReport): string {
       lines.push(`  ${bf.surface}/${bf.density}: budget=${bf.budget}, estimated=${bf.estimatedTokens}`);
     }
     lines.push("");
+  }
+
+  // Format comparison table
+  if (report.formatComparison.length > 0) {
+    lines.push(formatTable(
+      "FORMAT COMPARISON (JSON vs YAML vs MsgPack vs CBOR vs Ceeline)",
+      ["Surface", "JSON B", "YAML B", "MsgPack B", "CBOR B", "Cee Full B", "Cee Dense B"],
+      report.formatComparison.map(f => [
+        f.surface, `${f.jsonBytes}`, `${f.yamlBytes}`, `${f.msgpackBytes}`,
+        `${f.cborBytes}`, `${f.compactFullBytes}`, `${f.compactDenseBytes}`
+      ]),
+      [false, true, true, true, true, true, true]
+    ));
+
+    lines.push(formatTable(
+      "TOKEN COMPARISON — TEXT FORMATS ONLY (LLM-readable, cl100k)",
+      ["Surface", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
+      report.formatComparison.map(f => [
+        f.surface, `${f.jsonTokensCl100k}`, `${f.yamlTokensCl100k}`,
+        `${f.compactFullTokensCl100k}`, `${f.compactDenseTokensCl100k}`,
+        `${round((f.compactDenseTokensCl100k / f.jsonTokensCl100k) * 100)}%`,
+        `${round((f.compactDenseTokensCl100k / f.yamlTokensCl100k) * 100)}%`
+      ]),
+      [false, true, true, true, true, true, true]
+    ));
+
+    lines.push(formatTable(
+      "TOKEN COMPARISON — TEXT FORMATS ONLY (LLM-readable, o200k)",
+      ["Surface", "JSON tok", "YAML tok", "Cee Full tok", "Cee Dense tok", "Cee/JSON %", "Cee/YAML %"],
+      report.formatComparison.map(f => [
+        f.surface, `${f.jsonTokensO200k}`, `${f.yamlTokensO200k}`,
+        `${f.compactFullTokensO200k}`, `${f.compactDenseTokensO200k}`,
+        `${round((f.compactDenseTokensO200k / f.jsonTokensO200k) * 100)}%`,
+        `${round((f.compactDenseTokensO200k / f.yamlTokensO200k) * 100)}%`
+      ]),
+      [false, true, true, true, true, true, true]
+    ));
+
+    // Summary row
+    const totals = report.formatComparison.reduce((acc, f) => ({
+      json: acc.json + f.jsonBytes,
+      yaml: acc.yaml + f.yamlBytes,
+      msgpack: acc.msgpack + f.msgpackBytes,
+      cbor: acc.cbor + f.cborBytes,
+      ceeFull: acc.ceeFull + f.compactFullBytes,
+      ceeDense: acc.ceeDense + f.compactDenseBytes
+    }), { json: 0, yaml: 0, msgpack: 0, cbor: 0, ceeFull: 0, ceeDense: 0 });
+
+    lines.push("  FORMAT BYTE TOTALS (all surfaces)");
+    lines.push("  ─────────────────────────────────");
+    lines.push(`  JSON:                ${totals.json.toLocaleString()} bytes`);
+    lines.push(`  YAML:                ${totals.yaml.toLocaleString()} bytes  (${round(totals.yaml / totals.json * 100)}% of JSON)`);
+    lines.push(`  MsgPack (binary):    ${totals.msgpack.toLocaleString()} bytes  (${round(totals.msgpack / totals.json * 100)}% of JSON)`);
+    lines.push(`  CBOR (binary):       ${totals.cbor.toLocaleString()} bytes  (${round(totals.cbor / totals.json * 100)}% of JSON)`);
+    lines.push(`  Ceeline full:        ${totals.ceeFull.toLocaleString()} bytes  (${round(totals.ceeFull / totals.json * 100)}% of JSON)`);
+    lines.push(`  Ceeline dense:       ${totals.ceeDense.toLocaleString()} bytes  (${round(totals.ceeDense / totals.json * 100)}% of JSON)`);
+    lines.push("");
+  }
+
+  // Percentile latencies table
+  if (report.percentileLatencies.length > 0) {
+    lines.push(formatTable(
+      "PERCENTILE LATENCIES (ms per iteration of 8 envelopes, N=1000)",
+      ["Operation", "Density", "p50", "p95", "p99", "min", "max", "mean", "stdev"],
+      report.percentileLatencies.map(p => [
+        p.operation, p.density, `${p.p50Ms}`, `${p.p95Ms}`, `${p.p99Ms}`,
+        `${p.minMs}`, `${p.maxMs}`, `${p.meanMs}`, `${p.stdevMs}`
+      ]),
+      [false, false, true, true, true, true, true, true, true]
+    ));
+  }
+
+  // Payload scaling table
+  if (report.scaling.length > 0) {
+    lines.push(formatTable(
+      "PAYLOAD SCALING (handoff surface, dense density, varied fact count)",
+      ["Scale", "Facts", "JSON B", "Compact B", "Byte Ratio", "cl100k Ratio", "o200k Ratio", "Render ms", "Parse ms"],
+      report.scaling.map(s => [
+        s.scale, `${s.factCount}`, `${s.jsonBytes}`, `${s.compactBytes}`,
+        `${s.byteRatio}:1`, `${s.tokenRatioCl100k}:1`, `${s.tokenRatioO200k}:1`,
+        `${s.renderMs}`, `${s.parseMs}`
+      ]),
+      [false, true, true, true, true, true, true, true, true]
+    ));
+  }
+
+  // Information density table (dense density only, as representative)
+  const denseInfo = report.informationDensity.filter(i => i.density === "dense");
+  if (denseInfo.length > 0) {
+    lines.push(formatTable(
+      "INFORMATION DENSITY (dense density)",
+      ["Surface", "Facts", "Clauses", "B/Fact", "cl100k/Fact", "o200k/Fact", "B/Clause"],
+      denseInfo.map(i => [
+        i.surface, `${i.factCount}`, `${i.clauseCount}`,
+        `${i.bytesPerFact}`, `${i.tokensCl100kPerFact}`, `${i.tokensO200kPerFact}`,
+        `${i.bytesPerClause}`
+      ]),
+      [false, true, true, true, true, true, true]
+    ));
   }
 
   lines.push("");

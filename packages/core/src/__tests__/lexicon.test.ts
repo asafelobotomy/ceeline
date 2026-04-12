@@ -519,6 +519,33 @@ describe("serializePersonalLexicon", () => {
     expect(sumClause).toBeDefined();
     expect(sumClause).toBe('sum="A description with spaces"');
   });
+
+  it("serializes bare-atom description without quoting", () => {
+    const lex = definePersonalLexicon({
+      owner: "claude-3",
+      id: "my.bare",
+      name: "Bare",
+      stems: [{ code: "b", meaning: "bare" }],
+      description: "no-spaces-here",
+    });
+
+    const clauses = serializePersonalLexicon(lex);
+    const sumClause = clauses.find(c => c.startsWith("sum="));
+    expect(sumClause).toBe("sum=no-spaces-here");
+  });
+
+  it("serializes name with spaces as JSON-quoted dname=", () => {
+    const lex = definePersonalLexicon({
+      owner: "claude-3",
+      id: "my.quoted",
+      name: "Name With Spaces",
+      stems: [{ code: "n", meaning: "named" }],
+    });
+
+    const clauses = serializePersonalLexicon(lex);
+    const dnameClause = clauses.find(c => c.startsWith("dname="));
+    expect(dnameClause).toBe('dname="Name With Spaces"');
+  });
 });
 
 // ─── Parser: lexicon= header ────────────────────────────────────────

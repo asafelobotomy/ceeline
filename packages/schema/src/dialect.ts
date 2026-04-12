@@ -86,7 +86,10 @@ export interface DialectStemDef {
 const DEFAULT_DIALECT_FLAGS = "NRPTDQOXAMVC";
 
 /** Validate a dialect ID: lowercase alphanumeric + dots + hyphens. */
-const DIALECT_ID_RE = /^[a-z][a-z0-9._-]*$/;
+export const DIALECT_ID_RE = /^[a-z][a-z0-9._-]*$/;
+
+/** Bare atom: values safe to emit without JSON quoting. */
+export const BARE_ATOM_RE = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/;
 
 /**
  * Create a dialect from a plain-object definition.
@@ -197,10 +200,7 @@ export class DialectStore {
       if (chain.length === 0) continue;
       for (const dialect of chain) {
         applyDialect(dialect, morphology);
-        // Track usage
-        for (const code of dialect.stems.keys()) {
-          this.usage.set(code, (this.usage.get(code) ?? 0) + 1);
-        }
+        this.trackUsage(dialect);
       }
       activated.push(id);
     }
@@ -210,6 +210,13 @@ export class DialectStore {
   /** Get usage count for a stem code. */
   getUsage(code: string): number {
     return this.usage.get(code) ?? 0;
+  }
+
+  /** Increment usage counters for all stems in a dialect. */
+  private trackUsage(dialect: CeelineDialect): void {
+    for (const code of dialect.stems.keys()) {
+      this.usage.set(code, (this.usage.get(code) ?? 0) + 1);
+    }
   }
 
   /** Get all usage counts, sorted descending. */
@@ -284,10 +291,7 @@ export class DialectStore {
         // Apply lexicon's own stems on top so they take precedence over the chain
         applyDialect(lex.dialect, morphology);
       }
-      // Track usage
-      for (const code of lex.dialect.stems.keys()) {
-        this.usage.set(code, (this.usage.get(code) ?? 0) + 1);
-      }
+      this.trackUsage(lex.dialect);
       activatedLexicons.push(id);
     }
 
@@ -331,7 +335,7 @@ export class DialectStore {
  */
 export function serializeDialectStem(stem: DialectStem): string {
   const flags = [...stem.flags].sort().join("");
-  const meaning = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/.test(stem.meaning)
+  const meaning = BARE_ATOM_RE.test(stem.meaning)
     ? stem.meaning
     : JSON.stringify(stem.meaning);
   return `stem=${stem.code}:${meaning}/${flags}`;
@@ -397,7 +401,7 @@ export function serializeDialect(dialect: CeelineDialect): string[] {
   clauses.push(`did=${dialect.id}`);
   clauses.push(`dver=${dialect.version}`);
 
-  const name = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/.test(dialect.name)
+  const name = BARE_ATOM_RE.test(dialect.name)
     ? dialect.name
     : JSON.stringify(dialect.name);
   clauses.push(`dname=${name}`);
@@ -411,7 +415,7 @@ export function serializeDialect(dialect: CeelineDialect): string[] {
   }
 
   if (dialect.description) {
-    const desc = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/.test(dialect.description)
+    const desc = BARE_ATOM_RE.test(dialect.description)
       ? dialect.description
       : JSON.stringify(dialect.description);
     clauses.push(`sum=${desc}`);

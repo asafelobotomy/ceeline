@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-12T09:37:12.619Z",
+  "generated": "2026-04-12T18:36:09.200Z",
   "envelopes": [
     {
       "surface": "handoff",
@@ -670,41 +670,41 @@
     "render": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 80.85,
-        "envelopesPerMs": 12.37,
-        "avgMsPerEnvelope": 0.0809
+        "totalMs": 105.82,
+        "envelopesPerMs": 9.45,
+        "avgMsPerEnvelope": 0.1058
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 79.23,
-        "envelopesPerMs": 12.62,
-        "avgMsPerEnvelope": 0.0792
+        "totalMs": 91.14,
+        "envelopesPerMs": 10.97,
+        "avgMsPerEnvelope": 0.0911
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 66.08,
-        "envelopesPerMs": 15.13,
-        "avgMsPerEnvelope": 0.0661
+        "totalMs": 53.25,
+        "envelopesPerMs": 18.78,
+        "avgMsPerEnvelope": 0.0533
       }
     },
     "parse": {
       "lite": {
         "iterations": 1000,
-        "totalMs": 129.58,
-        "envelopesPerMs": 7.72,
-        "avgMsPerEnvelope": 0.1296
+        "totalMs": 171.95,
+        "envelopesPerMs": 5.82,
+        "avgMsPerEnvelope": 0.172
       },
       "full": {
         "iterations": 1000,
-        "totalMs": 60.3,
-        "envelopesPerMs": 16.58,
-        "avgMsPerEnvelope": 0.0603
+        "totalMs": 116.53,
+        "envelopesPerMs": 8.58,
+        "avgMsPerEnvelope": 0.1165
       },
       "dense": {
         "iterations": 1000,
-        "totalMs": 55.24,
-        "envelopesPerMs": 18.1,
-        "avgMsPerEnvelope": 0.0552
+        "totalMs": 103.84,
+        "envelopesPerMs": 9.63,
+        "avgMsPerEnvelope": 0.1038
       }
     }
   },
@@ -1000,5 +1000,510 @@
       "manualDenseBytes": 369
     }
   ],
-  "budgetFailures": []
+  "budgetFailures": [],
+  "formatComparison": [
+    {
+      "surface": "handoff",
+      "jsonBytes": 983,
+      "jsonTokensCl100k": 240,
+      "jsonTokensO200k": 243,
+      "yamlBytes": 994,
+      "yamlTokensCl100k": 281,
+      "yamlTokensO200k": 280,
+      "msgpackBytes": 834,
+      "cborBytes": 849,
+      "compactFullBytes": 463,
+      "compactFullTokensCl100k": 139,
+      "compactFullTokensO200k": 138,
+      "compactDenseBytes": 419,
+      "compactDenseTokensCl100k": 120,
+      "compactDenseTokensO200k": 119
+    },
+    {
+      "surface": "digest",
+      "jsonBytes": 953,
+      "jsonTokensCl100k": 232,
+      "jsonTokensO200k": 238,
+      "yamlBytes": 946,
+      "yamlTokensCl100k": 265,
+      "yamlTokensO200k": 267,
+      "msgpackBytes": 810,
+      "cborBytes": 827,
+      "compactFullBytes": 470,
+      "compactFullTokensCl100k": 136,
+      "compactFullTokensO200k": 136,
+      "compactDenseBytes": 443,
+      "compactDenseTokensCl100k": 125,
+      "compactDenseTokensO200k": 125
+    },
+    {
+      "surface": "memory",
+      "jsonBytes": 948,
+      "jsonTokensCl100k": 222,
+      "jsonTokensO200k": 228,
+      "yamlBytes": 932,
+      "yamlTokensCl100k": 251,
+      "yamlTokensO200k": 252,
+      "msgpackBytes": 817,
+      "cborBytes": 833,
+      "compactFullBytes": 443,
+      "compactFullTokensCl100k": 121,
+      "compactFullTokensO200k": 121,
+      "compactDenseBytes": 426,
+      "compactDenseTokensCl100k": 115,
+      "compactDenseTokensO200k": 115
+    },
+    {
+      "surface": "reflection",
+      "jsonBytes": 949,
+      "jsonTokensCl100k": 217,
+      "jsonTokensO200k": 219,
+      "yamlBytes": 928,
+      "yamlTokensCl100k": 242,
+      "yamlTokensO200k": 243,
+      "msgpackBytes": 830,
+      "cborBytes": 845,
+      "compactFullBytes": 438,
+      "compactFullTokensCl100k": 117,
+      "compactFullTokensO200k": 114,
+      "compactDenseBytes": 422,
+      "compactDenseTokensCl100k": 110,
+      "compactDenseTokensO200k": 107
+    },
+    {
+      "surface": "tool_summary",
+      "jsonBytes": 820,
+      "jsonTokensCl100k": 195,
+      "jsonTokensO200k": 202,
+      "yamlBytes": 804,
+      "yamlTokensCl100k": 231,
+      "yamlTokensO200k": 233,
+      "msgpackBytes": 687,
+      "cborBytes": 702,
+      "compactFullBytes": 313,
+      "compactFullTokensCl100k": 93,
+      "compactFullTokensO200k": 93,
+      "compactDenseBytes": 297,
+      "compactDenseTokensCl100k": 86,
+      "compactDenseTokensO200k": 86
+    },
+    {
+      "surface": "routing",
+      "jsonBytes": 878,
+      "jsonTokensCl100k": 201,
+      "jsonTokensO200k": 207,
+      "yamlBytes": 864,
+      "yamlTokensCl100k": 231,
+      "yamlTokensO200k": 232,
+      "msgpackBytes": 751,
+      "cborBytes": 765,
+      "compactFullBytes": 368,
+      "compactFullTokensCl100k": 96,
+      "compactFullTokensO200k": 96,
+      "compactDenseBytes": 361,
+      "compactDenseTokensCl100k": 93,
+      "compactDenseTokensO200k": 93
+    },
+    {
+      "surface": "prompt_context",
+      "jsonBytes": 967,
+      "jsonTokensCl100k": 226,
+      "jsonTokensO200k": 231,
+      "yamlBytes": 959,
+      "yamlTokensCl100k": 259,
+      "yamlTokensO200k": 262,
+      "msgpackBytes": 832,
+      "cborBytes": 846,
+      "compactFullBytes": 459,
+      "compactFullTokensCl100k": 125,
+      "compactFullTokensO200k": 125,
+      "compactDenseBytes": 434,
+      "compactDenseTokensCl100k": 114,
+      "compactDenseTokensO200k": 114
+    },
+    {
+      "surface": "history",
+      "jsonBytes": 889,
+      "jsonTokensCl100k": 203,
+      "jsonTokensO200k": 205,
+      "yamlBytes": 865,
+      "yamlTokensCl100k": 230,
+      "yamlTokensO200k": 229,
+      "msgpackBytes": 762,
+      "cborBytes": 777,
+      "compactFullBytes": 376,
+      "compactFullTokensCl100k": 97,
+      "compactFullTokensO200k": 95,
+      "compactDenseBytes": 369,
+      "compactDenseTokensCl100k": 94,
+      "compactDenseTokensO200k": 92
+    }
+  ],
+  "percentileLatencies": [
+    {
+      "operation": "render",
+      "density": "lite",
+      "p50Ms": 0.0486,
+      "p95Ms": 0.1115,
+      "p99Ms": 0.1368,
+      "minMs": 0.0449,
+      "maxMs": 1.7204,
+      "meanMs": 0.0672,
+      "stdevMs": 0.0603
+    },
+    {
+      "operation": "parse",
+      "density": "lite",
+      "p50Ms": 0.1192,
+      "p95Ms": 0.2549,
+      "p99Ms": 0.3131,
+      "minMs": 0.0757,
+      "maxMs": 2.7148,
+      "meanMs": 0.1525,
+      "stdevMs": 0.1502
+    },
+    {
+      "operation": "render",
+      "density": "full",
+      "p50Ms": 0.0483,
+      "p95Ms": 0.1284,
+      "p99Ms": 0.21,
+      "minMs": 0.0453,
+      "maxMs": 1.0168,
+      "meanMs": 0.0645,
+      "stdevMs": 0.0442
+    },
+    {
+      "operation": "parse",
+      "density": "full",
+      "p50Ms": 0.1109,
+      "p95Ms": 0.2233,
+      "p99Ms": 0.264,
+      "minMs": 0.0982,
+      "maxMs": 1.9033,
+      "meanMs": 0.1364,
+      "stdevMs": 0.0698
+    },
+    {
+      "operation": "render",
+      "density": "dense",
+      "p50Ms": 0.0444,
+      "p95Ms": 0.0963,
+      "p99Ms": 0.1126,
+      "minMs": 0.0412,
+      "maxMs": 0.17,
+      "meanMs": 0.0536,
+      "stdevMs": 0.0189
+    },
+    {
+      "operation": "parse",
+      "density": "dense",
+      "p50Ms": 0.0967,
+      "p95Ms": 0.204,
+      "p99Ms": 0.2357,
+      "minMs": 0.0861,
+      "maxMs": 0.983,
+      "meanMs": 0.1204,
+      "stdevMs": 0.0586
+    }
+  ],
+  "scaling": [
+    {
+      "scale": "1x",
+      "factCount": 3,
+      "jsonBytes": 985,
+      "compactBytes": 419,
+      "byteRatio": 2.35,
+      "tokenRatioCl100k": 2.01,
+      "tokenRatioO200k": 2.05,
+      "renderMs": 0.0179,
+      "parseMs": 0.0125
+    },
+    {
+      "scale": "2x",
+      "factCount": 6,
+      "jsonBytes": 1158,
+      "compactBytes": 604,
+      "byteRatio": 1.92,
+      "tokenRatioCl100k": 1.65,
+      "tokenRatioO200k": 1.7,
+      "renderMs": 0.0096,
+      "parseMs": 0.0168
+    },
+    {
+      "scale": "5x",
+      "factCount": 15,
+      "jsonBytes": 1677,
+      "compactBytes": 1160,
+      "byteRatio": 1.45,
+      "tokenRatioCl100k": 1.25,
+      "tokenRatioO200k": 1.3,
+      "renderMs": 0.0142,
+      "parseMs": 0.0228
+    },
+    {
+      "scale": "10x",
+      "factCount": 30,
+      "jsonBytes": 2545,
+      "compactBytes": 2088,
+      "byteRatio": 1.22,
+      "tokenRatioCl100k": 1.07,
+      "tokenRatioO200k": 1.12,
+      "renderMs": 0.0593,
+      "parseMs": 0.0308
+    },
+    {
+      "scale": "20x",
+      "factCount": 60,
+      "jsonBytes": 4305,
+      "compactBytes": 3968,
+      "byteRatio": 1.08,
+      "tokenRatioCl100k": 0.95,
+      "tokenRatioO200k": 1.01,
+      "renderMs": 0.0317,
+      "parseMs": 0.0652
+    }
+  ],
+  "informationDensity": [
+    {
+      "surface": "handoff",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 130.67,
+      "tokensCl100kPerFact": 40.33,
+      "tokensO200kPerFact": 40.33,
+      "clauseCount": 14,
+      "bytesPerClause": 28
+    },
+    {
+      "surface": "handoff",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 154.33,
+      "tokensCl100kPerFact": 46.33,
+      "tokensO200kPerFact": 46,
+      "clauseCount": 18,
+      "bytesPerClause": 25.72
+    },
+    {
+      "surface": "handoff",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 139.67,
+      "tokensCl100kPerFact": 40,
+      "tokensO200kPerFact": 39.67,
+      "clauseCount": 14,
+      "bytesPerClause": 29.93
+    },
+    {
+      "surface": "digest",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 143.33,
+      "tokensCl100kPerFact": 41.67,
+      "tokensO200kPerFact": 41.67,
+      "clauseCount": 12,
+      "bytesPerClause": 35.83
+    },
+    {
+      "surface": "digest",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 156.67,
+      "tokensCl100kPerFact": 45.33,
+      "tokensO200kPerFact": 45.33,
+      "clauseCount": 14,
+      "bytesPerClause": 33.57
+    },
+    {
+      "surface": "digest",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 147.67,
+      "tokensCl100kPerFact": 41.67,
+      "tokensO200kPerFact": 41.67,
+      "clauseCount": 12,
+      "bytesPerClause": 36.92
+    },
+    {
+      "surface": "memory",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 138,
+      "tokensCl100kPerFact": 39.33,
+      "tokensO200kPerFact": 39.33,
+      "clauseCount": 11,
+      "bytesPerClause": 37.64
+    },
+    {
+      "surface": "memory",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 147.67,
+      "tokensCl100kPerFact": 40.33,
+      "tokensO200kPerFact": 40.33,
+      "clauseCount": 12,
+      "bytesPerClause": 36.92
+    },
+    {
+      "surface": "memory",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 142,
+      "tokensCl100kPerFact": 38.33,
+      "tokensO200kPerFact": 38.33,
+      "clauseCount": 11,
+      "bytesPerClause": 38.73
+    },
+    {
+      "surface": "reflection",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 142.67,
+      "tokensCl100kPerFact": 40.33,
+      "tokensO200kPerFact": 39.33,
+      "clauseCount": 11,
+      "bytesPerClause": 38.91
+    },
+    {
+      "surface": "reflection",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 146,
+      "tokensCl100kPerFact": 39,
+      "tokensO200kPerFact": 38,
+      "clauseCount": 12,
+      "bytesPerClause": 36.5
+    },
+    {
+      "surface": "reflection",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 140.67,
+      "tokensCl100kPerFact": 36.67,
+      "tokensO200kPerFact": 35.67,
+      "clauseCount": 11,
+      "bytesPerClause": 38.36
+    },
+    {
+      "surface": "tool_summary",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 98.67,
+      "tokensCl100kPerFact": 31.67,
+      "tokensO200kPerFact": 31.67,
+      "clauseCount": 11,
+      "bytesPerClause": 26.91
+    },
+    {
+      "surface": "tool_summary",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 104.33,
+      "tokensCl100kPerFact": 31,
+      "tokensO200kPerFact": 31,
+      "clauseCount": 13,
+      "bytesPerClause": 24.08
+    },
+    {
+      "surface": "tool_summary",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 99,
+      "tokensCl100kPerFact": 28.67,
+      "tokensO200kPerFact": 28.67,
+      "clauseCount": 12,
+      "bytesPerClause": 24.75
+    },
+    {
+      "surface": "routing",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 125.67,
+      "tokensCl100kPerFact": 34.67,
+      "tokensO200kPerFact": 34.33,
+      "clauseCount": 10,
+      "bytesPerClause": 37.7
+    },
+    {
+      "surface": "routing",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 122.67,
+      "tokensCl100kPerFact": 32,
+      "tokensO200kPerFact": 32,
+      "clauseCount": 10,
+      "bytesPerClause": 36.8
+    },
+    {
+      "surface": "routing",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 120.33,
+      "tokensCl100kPerFact": 31,
+      "tokensO200kPerFact": 31,
+      "clauseCount": 10,
+      "bytesPerClause": 36.1
+    },
+    {
+      "surface": "prompt_context",
+      "density": "lite",
+      "factCount": 4,
+      "bytesPerFact": 105.25,
+      "tokensCl100kPerFact": 30.25,
+      "tokensO200kPerFact": 30.25,
+      "clauseCount": 13,
+      "bytesPerClause": 32.38
+    },
+    {
+      "surface": "prompt_context",
+      "density": "full",
+      "factCount": 4,
+      "bytesPerFact": 114.75,
+      "tokensCl100kPerFact": 31.25,
+      "tokensO200kPerFact": 31.25,
+      "clauseCount": 15,
+      "bytesPerClause": 30.6
+    },
+    {
+      "surface": "prompt_context",
+      "density": "dense",
+      "factCount": 4,
+      "bytesPerFact": 108.5,
+      "tokensCl100kPerFact": 28.5,
+      "tokensO200kPerFact": 28.5,
+      "clauseCount": 13,
+      "bytesPerClause": 33.38
+    },
+    {
+      "surface": "history",
+      "density": "lite",
+      "factCount": 3,
+      "bytesPerFact": 128.67,
+      "tokensCl100kPerFact": 35,
+      "tokensO200kPerFact": 34.33,
+      "clauseCount": 10,
+      "bytesPerClause": 38.6
+    },
+    {
+      "surface": "history",
+      "density": "full",
+      "factCount": 3,
+      "bytesPerFact": 125.33,
+      "tokensCl100kPerFact": 32.33,
+      "tokensO200kPerFact": 31.67,
+      "clauseCount": 10,
+      "bytesPerClause": 37.6
+    },
+    {
+      "surface": "history",
+      "density": "dense",
+      "factCount": 3,
+      "bytesPerFact": 123,
+      "tokensCl100kPerFact": 31.33,
+      "tokensO200kPerFact": 30.67,
+      "clauseCount": 10,
+      "bytesPerClause": 36.9
+    }
+  ]
 }

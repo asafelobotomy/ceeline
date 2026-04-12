@@ -56,10 +56,12 @@ import {
   isSymbol,
   type SymbolExpr,
   type DialectStore,
+  type CeelineDialect,
   type DialectStemDef,
-  parseDialectStem,
   parseDialectFromClauses,
   defineDialect,
+  BARE_ATOM_RE,
+  DIALECT_ID_RE,
   type PersonalLexicon,
   type PersonalStemDef,
   definePersonalLexicon,
@@ -71,8 +73,6 @@ import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js"
 // =========================================================================
 // Encoding helpers
 // =========================================================================
-
-const BARE_ATOM_RE = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/;
 
 function encodeAtom(value: string): string {
   return BARE_ATOM_RE.test(value) ? value : JSON.stringify(value);
@@ -127,14 +127,14 @@ function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domain
   }
 
   if (dialects && dialects.length > 0) {
-    const safe = dialects.filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+    const safe = dialects.filter(id => DIALECT_ID_RE.test(id));
     if (safe.length > 0) {
       parts.push(`dialect=${safe.join("+")}`);
     }
   }
 
   if (lexicons && lexicons.length > 0) {
-    const safe = lexicons.filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+    const safe = lexicons.filter(id => DIALECT_ID_RE.test(id));
     if (safe.length > 0) {
       parts.push(`lexicon=${safe.join("+")}`);
     }
@@ -736,14 +736,14 @@ function parseCeelineCompactInner(
         break;
       }
       case "dialect": {
-        const dialectIds = hv.split("+").filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+        const dialectIds = hv.split("+").filter(id => DIALECT_ID_RE.test(id));
         result.dialects = dialectIds;
         // Dialect activation is handled by the caller via DialectStore.
         // The parser records the IDs; it does not store or resolve dialect contents.
         break;
       }
       case "lexicon": {
-        const lexiconIds = hv.split("+").filter(id => /^[a-z][a-z0-9._-]*$/.test(id));
+        const lexiconIds = hv.split("+").filter(id => DIALECT_ID_RE.test(id));
         result.lexicons = lexiconIds;
         // Lexicon activation is handled by the caller via DialectStore.activateWithLexicon().
         break;
@@ -958,7 +958,7 @@ function parseCeelineCompactInner(
 export function extractDialect(
   result: CompactParseResult,
   store?: DialectStore
-): ReturnType<typeof defineDialect> | null {
+): CeelineDialect | null {
   if (!result.dialectMeta["did"] || !result.dialectMeta["dname"]) {
     return null;
   }

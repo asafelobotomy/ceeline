@@ -24,11 +24,10 @@
 
 import {
   defineDialect,
-  serializeDialectStem,
+  serializeDialect,
   parseDialectStem,
   parseDialectFromClauses,
   type CeelineDialect,
-  type DialectStem,
   type DialectStemDef,
 } from "./dialect.js";
 
@@ -139,7 +138,8 @@ export function definePersonalLexicon(
 /**
  * Serialize a personal lexicon to compact text clauses.
  *
- * Extends dialect serialization with `lowner=` and `@relation` suffixes.
+ * Delegates to `serializeDialect()` for the base structure and prepends
+ * `lowner=`, then appends `@relation[:coreRef]` suffixes to stem clauses.
  *
  * Example output:
  *   ["lowner=claude-3", "did=my.sec-terms", "dver=1",
@@ -148,38 +148,21 @@ export function definePersonalLexicon(
  *    "stem=breach:security-breach/NRC@narrows:sc"]
  */
 export function serializePersonalLexicon(lex: PersonalLexicon): string[] {
-  const clauses: string[] = [];
+  const baseClauses = serializeDialect(lex.dialect);
 
-  clauses.push(`lowner=${lex.owner}`);
-  clauses.push(`did=${lex.dialect.id}`);
-  clauses.push(`dver=${lex.dialect.version}`);
+  // Append @relation[:coreRef] suffixes to stem= clauses
+  const clauses = baseClauses.map(clause => {
+    if (!clause.startsWith("stem=")) return clause;
+    const code = clause.slice(5, clause.indexOf(":"));
+    const rel = lex.relations.get(code);
+    /* v8 ignore next -- definePersonalLexicon always sets a relation for every stem */
+    if (!rel) return clause;
+    const ref = lex.coreRefs.get(code);
+    return ref ? `${clause}@${rel}:${ref}` : `${clause}@${rel}`;
+  });
 
-  const name = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/.test(lex.dialect.name)
-    ? lex.dialect.name
-    : JSON.stringify(lex.dialect.name);
-  clauses.push(`dname=${name}`);
-
-  if (lex.dialect.base) {
-    clauses.push(`dbase=${lex.dialect.base}`);
-  }
-
-  for (const stem of lex.dialect.stems.values()) {
-    let clause = serializeDialectStem(stem);
-    const rel = lex.relations.get(stem.code);
-    if (rel) {
-      const ref = lex.coreRefs.get(stem.code);
-      clause += ref ? `@${rel}:${ref}` : `@${rel}`;
-    }
-    clauses.push(clause);
-  }
-
-  if (lex.dialect.description) {
-    const desc = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/.test(lex.dialect.description)
-      ? lex.dialect.description
-      : JSON.stringify(lex.dialect.description);
-    clauses.push(`sum=${desc}`);
-  }
-
+  // Prepend owner
+  clauses.unshift(`lowner=${lex.owner}`);
   return clauses;
 }
 
