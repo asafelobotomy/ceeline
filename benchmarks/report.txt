@@ -1,0 +1,98 @@
+╔══════════════════════════════════════════════════════════════════╗
+║            CEELINE COMPACT DIALECT BENCHMARK REPORT            ║
+║            Generated: 2026-04-12T01:18:58                      ║
+╚══════════════════════════════════════════════════════════════════╝
+
+  OVERALL SUMMARY
+  ───────────────
+  Envelopes measured:      24 (8 surfaces × 3 densities)
+  Round-trip fidelity:     100%
+
+  Byte compression:        2.32:1 ratio  (56.62% saving)
+  Token compression (cl100k GPT-4):    1.95:1 ratio  (48.5% saving)
+  Token compression (o200k GPT-4o/5):  2.01:1 ratio  (49.93% saving)
+
+  Total JSON bytes:        22,161
+  Total Compact bytes:     9,645
+  Total JSON tokens (cl100k):   5,208
+  Total Compact tokens (cl100k): 2,691
+  Total JSON tokens (o200k):    5,319
+  Total Compact tokens (o200k):  2,673
+
+  COMPRESSION BY DENSITY
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+  │ Density │ Byte Ratio │ Byte Save% │ cl100k Ratio │ cl100k Save% │ o200k Ratio │ o200k Save% │ RT Pass% │
+  ├──────────┼────────────┼────────────┼──────────────┼──────────────┼─────────────┼─────────────┼───────────┤
+  │ lite    │     2.37:1 │     57.53% │       1.91:1 │       47.63% │      1.97:1 │      49.08% │     100% │
+  │ full    │     2.24:1 │     55.11% │        1.9:1 │       47.06% │      1.96:1 │      48.51% │     100% │
+  │ dense   │     2.35:1 │     57.22% │       2.04:1 │       50.81% │       2.1:1 │      52.18% │     100% │
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  COMPRESSION BY SURFACE (averaged across densities)
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────
+  │ Surface        │ Byte Ratio │ Byte Save% │ cl100k Ratio │ cl100k Save% │ o200k Ratio │ o200k Save% │
+  ├─────────────────┼────────────┼────────────┼──────────────┼──────────────┼─────────────┼──────────────┤
+  │ handoff        │     2.33:1 │      56.8% │        1.9:1 │       47.22% │      1.94:1 │      48.15% │
+  │ digest         │     2.13:1 │     53.03% │       1.81:1 │       44.54% │      1.85:1 │      45.94% │
+  │ memory         │     2.22:1 │     54.89% │       1.88:1 │       46.85% │      1.93:1 │      48.25% │
+  │ reflection     │     2.21:1 │     54.76% │       1.87:1 │       46.54% │      1.94:1 │       48.4% │
+  │ tool_summary   │     2.72:1 │     63.17% │       2.14:1 │       53.16% │      2.22:1 │      54.79% │
+  │ routing        │     2.38:1 │     58.01% │       2.06:1 │       51.41% │      2.13:1 │      52.98% │
+  │ prompt_context │     2.21:1 │      54.7% │       1.89:1 │        46.9% │      1.93:1 │      48.05% │
+  │ history        │     2.36:1 │     57.59% │       2.06:1 │        51.4% │      2.13:1 │      52.85% │
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  THROUGHPUT (1000 iterations × 8 envelopes per iteration)
+  ───────────────────────────────────────────────────────────────
+  │ Operation │ Density │ Total ms │ Envelopes/ms │ ms/Envelope │
+  ├────────────┼─────────┼──────────┼──────────────┼──────────────┤
+  │ render    │ lite    │    40.78 │        24.52 │      0.0408 │
+  │ render    │ full    │    34.47 │        29.01 │      0.0345 │
+  │ render    │ dense   │    24.89 │        40.18 │      0.0249 │
+  │ parse     │ lite    │    59.01 │        16.95 │       0.059 │
+  │ parse     │ full    │    31.57 │        31.68 │      0.0316 │
+  │ parse     │ dense   │    27.01 │        37.02 │       0.027 │
+  ───────────────────────────────────────────────────────────────
+
+
+  PER-ENVELOPE DETAIL (full density)
+  ──────────────────────────────────────────────────────────────────────────────────
+  │ Surface        │ JSON B │ Compact B │ Byte Ratio │ cl100k J→C │ o200k J→C │ RT │
+  ├─────────────────┼────────┼───────────┼────────────┼────────────┼───────────┼─────┤
+  │ handoff        │    983 │       463 │     2.12:1 │    240→139 │   243→138 │ ✓  │
+  │ digest         │    953 │       470 │     2.03:1 │    232→136 │   238→136 │ ✓  │
+  │ memory         │    948 │       443 │     2.14:1 │    222→121 │   228→121 │ ✓  │
+  │ reflection     │    949 │       438 │     2.17:1 │    217→117 │   219→114 │ ✓  │
+  │ tool_summary   │    820 │       313 │     2.62:1 │     195→93 │    202→93 │ ✓  │
+  │ routing        │    878 │       368 │     2.39:1 │     201→96 │    207→96 │ ✓  │
+  │ prompt_context │    967 │       459 │     2.11:1 │    226→125 │   231→125 │ ✓  │
+  │ history        │    889 │       376 │     2.36:1 │     203→97 │    205→95 │ ✓  │
+  ──────────────────────────────────────────────────────────────────────────────────
+
+  SAMPLE COMPACT OUTPUT (handoff surface)
+  ────────────────────────────────────────
+  [lite]
+  @cl1 s=ho i=review.security ch=i md=ro au=m fb=rj rs=n sz=st mx=500
+  sum="Review src/core/codec.ts for transport safety before release."
+  f="Preserve {{PROJECT_ID}} exactly."
+  f="Preserve GPT-5.4 exactly."
+  f="The module handles all inbound byte streams from external agents."
+  ask="Return severity-ordered findings only."
+  role=rv
+  tgt=fx
+  sc=transport,validation
+  cls=fp
+  cls=ph
+  cls=mo
+  cls=cmd
+  #n=385
+
+  [full]
+  @cl1 s=ho i=review.security mx=500 ; sum="Review src/core/codec.ts for transport safety before release." ; f="Preserve {{PROJECT_ID}} exactly." ; f="Preserve GPT-5.4 exactly." ; f="The module handles all inbound byte streams from external agents." ; ask="Return severity-ordered findings only." ; role=rv ; tgt=fx ; sc=transport,validation ; cls=fp ; cls=ph ; cls=mo ; cls=cmd ; tok=src/core/codec.ts ; tok="{{PROJECT_ID}}" ; tok=GPT-5.4 ; tok="npm test" ; #n=454
+
+  [dense]
+  @cl1 s=ho i=review.security ; sum="Review src/core/codec.ts for transport safety before release." ; f="Preserve {{PROJECT_ID}} exactly." ; f="Preserve GPT-5.4 exactly." ; f="The module handles all inbound byte streams from external agents." ; ask="Return severity-ordered findings only." ; role=rv ; tgt=fx ; sc=transport,validation ; tok=src/core/codec.ts ; tok="{{PROJECT_ID}}" ; tok=GPT-5.4 ; tok="npm test" ; #n=410
+
+  ✓ ALL ROUND-TRIP CHECKS PASSED

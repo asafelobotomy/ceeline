@@ -1,0 +1,19 @@
+{
+  "name": "ceeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schema-first standalone transport layer for compact internal AI communication.",
+  "workspaces": [
+    "packages/*",
+    "adapters/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "clean": "tsc -b --clean"
+  },
+  "devDependencies": {
+    "js-tiktoken": "^1.0.21",
+    "typescript": "^5.8.3"
+  }
+}

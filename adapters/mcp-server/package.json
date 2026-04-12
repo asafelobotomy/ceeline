@@ -1,0 +1,17 @@
+{
+  "name": "@ceeline/mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "ceeline-mcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "start": "node ./dist/index.js"
+  },
+  "dependencies": {
+    "@ceeline/core": "0.1.0",
+    "@ceeline/schema": "0.1.0"
+  }
+}

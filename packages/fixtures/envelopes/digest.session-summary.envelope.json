@@ -1,0 +1,47 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-digest-001",
+  "surface": "digest",
+  "channel": "internal",
+  "intent": "summarize.digest",
+  "source": {
+    "kind": "fixture",
+    "name": "ceeline.fixtures",
+    "instance": "digest.session-summary",
+    "timestamp": "2026-04-11T18:03:12Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "operator",
+    "max_render_tokens": 120,
+    "no_user_visible_output": true,
+    "fallback": "verbose"
+  },
+  "preserve": {
+    "tokens": ["npm test", "$CI"],
+    "classes": ["command", "env_var"]
+  },
+  "payload": {
+    "summary": "Summarize the latest internal session state.",
+    "facts": [
+      "npm test has not run.",
+      "$CI was unset during the last run."
+    ],
+    "ask": "Render a compact operator digest.",
+    "window": "session",
+    "status": "warn",
+    "metrics": {
+      "pendingChecks": 1,
+      "sessionMinutes": 24
+    },
+    "artifacts": [],
+    "metadata": {
+      "sessionLengthMinutes": 24
+    }
+  },
+  "render": {
+    "style": "terse",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}

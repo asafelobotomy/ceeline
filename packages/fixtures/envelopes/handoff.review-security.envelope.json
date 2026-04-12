@@ -1,0 +1,59 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-handoff-001",
+  "surface": "handoff",
+  "channel": "internal",
+  "intent": "review.security",
+  "source": {
+    "kind": "fixture",
+    "name": "ceeline.fixtures",
+    "instance": "handoff.review-security",
+    "timestamp": "2026-04-11T18:03:12Z"
+  },
+  "constraints": {
+    "mode": "read_only",
+    "audience": "machine",
+    "max_render_tokens": 240,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": [
+      "src/core/codec.ts",
+      "{{PROJECT_ID}}",
+      "GPT-5.4",
+      "npm test"
+    ],
+    "classes": [
+      "file_path",
+      "placeholder",
+      "model_name",
+      "command"
+    ]
+  },
+  "payload": {
+    "summary": "Review src/core/codec.ts for transport safety.",
+    "facts": [
+      "Preserve {{PROJECT_ID}} exactly.",
+      "Preserve GPT-5.4 exactly.",
+      "Preserve npm test exactly."
+    ],
+    "ask": "Return severity-ordered findings only.",
+    "role": "reviewer",
+    "target": "fixer",
+    "scope": ["transport", "validation"],
+    "artifacts": [],
+    "metadata": {
+      "owner": "fixtures"
+    }
+  },
+  "render": {
+    "style": "none",
+    "locale": "en",
+    "sanitizer": "strict"
+  },
+  "diagnostics": {
+    "trace": false,
+    "labels": ["fixture", "handoff"]
+  }
+}

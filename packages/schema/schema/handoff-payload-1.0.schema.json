@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceeline.dev/schema/handoff-payload-1.0.schema.json",
+  "title": "Ceeline Handoff Payload v1",
+  "type": "object",
+  "required": [
+    "summary",
+    "facts",
+    "ask",
+    "artifacts",
+    "metadata",
+    "role",
+    "target",
+    "scope"
+  ],
+  "properties": {
+    "summary": { "type": "string" },
+    "facts": { "type": "array", "items": { "type": "string" } },
+    "ask": { "type": "string" },
+    "artifacts": { "type": "array", "items": true },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "role": {
+      "enum": ["planner", "reviewer", "coordinator", "parent_agent"]
+    },
+    "target": {
+      "enum": ["implementer", "fixer", "subagent", "reviewer"]
+    },
+    "scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": true
+}

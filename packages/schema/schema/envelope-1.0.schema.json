@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceeline.dev/schema/envelope-1.0.schema.json",
+  "title": "Ceeline Envelope v1",
+  "type": "object",
+  "required": [
+    "ceeline_version",
+    "envelope_id",
+    "surface",
+    "channel",
+    "intent",
+    "source",
+    "constraints",
+    "preserve",
+    "payload",
+    "render"
+  ],
+  "properties": {
+    "ceeline_version": {
+      "const": "1.0"
+    },
+    "envelope_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "enum": [
+        "handoff",
+        "digest",
+        "memory",
+        "reflection",
+        "tool_summary",
+        "routing",
+        "prompt_context",
+        "history"
+      ]
+    },
+    "channel": {
+      "enum": ["internal", "controlled_ui"]
+    },
+    "intent": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "source": {
+      "type": "object",
+      "required": ["kind", "name", "instance", "timestamp"],
+      "properties": {
+        "kind": {
+          "enum": ["host", "adapter", "agent", "test", "fixture"]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "object",
+      "required": [
+        "mode",
+        "audience",
+        "max_render_tokens",
+        "no_user_visible_output",
+        "fallback"
+      ],
+      "properties": {
+        "mode": {
+          "enum": ["read_only", "advisory", "mutating"]
+        },
+        "audience": {
+          "enum": ["machine", "operator", "user"]
+        },
+        "max_render_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "no_user_visible_output": {
+          "type": "boolean"
+        },
+        "fallback": {
+          "enum": ["reject", "verbose", "pass_through"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "preserve": {
+      "type": "object",
+      "required": ["tokens", "classes"],
+      "properties": {
+        "tokens": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "file_path",
+              "tool_identifier",
+              "agent_name",
+              "model_name",
+              "command",
+              "env_var",
+              "version",
+              "schema_key",
+              "placeholder",
+              "section_label",
+              "url",
+              "code_span",
+              "code_fence"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "payload": {
+      "type": "object",
+      "required": ["summary", "facts", "ask", "artifacts", "metadata"],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ask": {
+          "type": "string"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": true
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "render": {
+      "type": "object",
+      "required": ["style", "locale", "sanitizer"],
+      "properties": {
+        "style": {
+          "enum": ["none", "terse", "normal", "user_facing"]
+        },
+        "locale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sanitizer": {
+          "enum": ["strict", "standard"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "diagnostics": {
+      "type": "object",
+      "properties": {
+        "trace": {
+          "type": "boolean"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "patternProperties": {
+    "^x_": true
+  },
+  "additionalProperties": false
+}

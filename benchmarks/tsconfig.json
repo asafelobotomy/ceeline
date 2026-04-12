@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "paths": {
+      "@ceeline/schema": ["../packages/schema/src/index.ts"],
+      "@ceeline/core": ["../packages/core/src/index.ts"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

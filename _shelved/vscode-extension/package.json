@@ -1,0 +1,36 @@
+{
+  "name": "@ceeline/vscode-extension",
+  "displayName": "Ceeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/extension.js",
+  "types": "./dist/extension.d.ts",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "activationEvents": [
+    "onChatParticipant:ceeline.chat"
+  ],
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "ceeline.chat",
+        "name": "ceeline",
+        "fullName": "Ceeline",
+        "description": "Translate controlled prompts through the Ceeline transport layer",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "explainTransport",
+            "description": "Explain how the current request was normalized"
+          }
+        ]
+      }
+    ]
+  },
+  "dependencies": {
+    "@ceeline/core": "0.1.0",
+    "@ceeline/schema": "0.1.0"
+  }
+}

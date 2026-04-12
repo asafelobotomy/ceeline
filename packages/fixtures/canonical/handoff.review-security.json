@@ -1,0 +1,21 @@
+{
+  "surface": "handoff",
+  "intent": "review.security",
+  "text": "Review src/core/codec.ts for transport safety. Preserve {{PROJECT_ID}}, GPT-5.4, and npm test. Return findings only.",
+  "payload": {
+    "summary": "Review src/core/codec.ts for transport safety.",
+    "facts": [
+      "Preserve {{PROJECT_ID}} exactly.",
+      "Preserve GPT-5.4 exactly.",
+      "Preserve npm test exactly."
+    ],
+    "ask": "Return severity-ordered findings only.",
+    "role": "reviewer",
+    "target": "fixer",
+    "scope": ["transport", "validation"],
+    "artifacts": [],
+    "metadata": {
+      "owner": "fixtures"
+    }
+  }
+}

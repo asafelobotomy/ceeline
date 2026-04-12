@@ -1,0 +1,46 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-memory-001",
+  "surface": "memory",
+  "channel": "internal",
+  "intent": "memory.capture",
+  "source": {
+    "kind": "fixture",
+    "name": "ceeline.fixtures",
+    "instance": "memory.fact-capture",
+    "timestamp": "2026-04-11T18:03:12Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "machine",
+    "max_render_tokens": 80,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": ["https://ceeline.dev/spec"],
+    "classes": ["url"]
+  },
+  "payload": {
+    "summary": "Capture a stable product fact for future sessions.",
+    "facts": [
+      "Ceeline v1 uses a canonical JSON envelope.",
+      "https://ceeline.dev/spec remains the reference URL."
+    ],
+    "ask": "Store a compact durable fact entry.",
+    "memory_kind": "fact",
+    "durability": "persistent",
+    "citations": [
+      "https://ceeline.dev/spec"
+    ],
+    "artifacts": [],
+    "metadata": {
+      "category": "product"
+    }
+  },
+  "render": {
+    "style": "normal",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}
