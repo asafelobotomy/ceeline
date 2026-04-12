@@ -268,6 +268,11 @@ Surface-specific payload schemas currently live at:
 - [../packages/schema/schema/handoff-payload-1.0.schema.json](../packages/schema/schema/handoff-payload-1.0.schema.json)
 - [../packages/schema/schema/digest-payload-1.0.schema.json](../packages/schema/schema/digest-payload-1.0.schema.json)
 - [../packages/schema/schema/memory-payload-1.0.schema.json](../packages/schema/schema/memory-payload-1.0.schema.json)
+- [../packages/schema/schema/reflection-payload-1.0.schema.json](../packages/schema/schema/reflection-payload-1.0.schema.json)
+- [../packages/schema/schema/tool-summary-payload-1.0.schema.json](../packages/schema/schema/tool-summary-payload-1.0.schema.json)
+- [../packages/schema/schema/routing-payload-1.0.schema.json](../packages/schema/schema/routing-payload-1.0.schema.json)
+- [../packages/schema/schema/prompt-context-payload-1.0.schema.json](../packages/schema/schema/prompt-context-payload-1.0.schema.json)
+- [../packages/schema/schema/history-payload-1.0.schema.json](../packages/schema/schema/history-payload-1.0.schema.json)
 
 ### Design rules
 
@@ -825,15 +830,18 @@ with the main safety requirement: compact internal wire, clean external output.
 
 ## List Open Questions
 
-1. Which surface should be the first production pilot: `handoff`, `memory`, or
-   `digest`?
-2. Should `payload` remain minimally common across all surfaces, or should each
-   surface move immediately to a stricter schema?
-3. Should the first implementation use JSON Schema, Zod, or both?
+1. ~~Which surface should be the first production pilot: `handoff`, `memory`, or
+   `digest`?~~ **Resolved:** all 8 surfaces are implemented and validated.
+2. ~~Should `payload` remain minimally common across all surfaces, or should each
+   surface move immediately to a stricter schema?~~ **Resolved:** all 8 surfaces
+   have dedicated payload schemas.
+3. ~~Should the first implementation use JSON Schema, Zod, or both?~~
+   **Resolved:** JSON Schema files + TypeScript runtime validation.
 4. Should shorthand internal renderings receive their own versioned spec in v2,
    or remain non-canonical views?
-5. Which hosts need the first adapters: VS Code extension, MCP server, or a
-   standalone service?
+5. ~~Which hosts need the first adapters: VS Code extension, MCP server, or a
+   standalone service?~~ **Resolved:** MCP server adapter implemented;
+   VS Code extension preserved in `_shelved/`.
 
 ---
 
@@ -847,6 +855,16 @@ with the main safety requirement: compact internal wire, clean external output.
   [../packages/schema/schema/digest-payload-1.0.schema.json](../packages/schema/schema/digest-payload-1.0.schema.json)
 - Memory payload schema:
   [../packages/schema/schema/memory-payload-1.0.schema.json](../packages/schema/schema/memory-payload-1.0.schema.json)
+- Reflection payload schema:
+  [../packages/schema/schema/reflection-payload-1.0.schema.json](../packages/schema/schema/reflection-payload-1.0.schema.json)
+- Tool summary payload schema:
+  [../packages/schema/schema/tool-summary-payload-1.0.schema.json](../packages/schema/schema/tool-summary-payload-1.0.schema.json)
+- Routing payload schema:
+  [../packages/schema/schema/routing-payload-1.0.schema.json](../packages/schema/schema/routing-payload-1.0.schema.json)
+- Prompt context payload schema:
+  [../packages/schema/schema/prompt-context-payload-1.0.schema.json](../packages/schema/schema/prompt-context-payload-1.0.schema.json)
+- History payload schema:
+  [../packages/schema/schema/history-payload-1.0.schema.json](../packages/schema/schema/history-payload-1.0.schema.json)
 - Trust model ADR:
   [adr/0001-trust-model.md](adr/0001-trust-model.md)
 - Render policy ADR:
