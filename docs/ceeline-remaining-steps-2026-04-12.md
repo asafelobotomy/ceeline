@@ -2,10 +2,11 @@
 
 > Date: 2026-04-12
 > Scope: active follow-up work after the robustness and evolution changes
+> Last updated: 2026-04-12
 
 ## Current State
 
-The following are already implemented:
+The following are implemented:
 
 - `agent` added to allowed `source.kind` values
 - validation added for all 8 active surfaces
@@ -14,103 +15,88 @@ The following are already implemented:
 - `renderCeelineCompactAuto()` selects density from token budget
 - parser uses surface-scoped field decoders
 - compact output includes `#n=<bytecount>` integrity trailer
+- language spec documents trailer, CeelineResult, auto-density, and mx= key
+- 164 regression tests covering validation, render, parse, round-trip, and
+  golden snapshot stability
+- 24 golden compact fixtures (8 surfaces × 3 densities) in
+  `packages/fixtures/compact/`
+- benchmarks report trailer overhead, auto-density comparison, and budget
+  failure detection
+- token strategy decided: 4-byte heuristic in core, optional tokenizer in
+  CLI/benchmarks only
 
-## Remaining Work
+## Completed Work
 
-### 1. Update docs to match the current API
+### 1. Update docs to match the current API ✓
 
-- Update [docs/ceeline-language-spec-v1.md](/mnt/SteamLibrary/git/ceeline/docs/ceeline-language-spec-v1.md)
-- Replace examples that assume `renderCeelineCompact()` returns a raw string
-- Document `renderCeelineCompactAuto()` as the preferred budget-aware renderer
-- Update any round-trip snippets to unwrap `CeelineResult`
+- Language spec updated with `CeelineResult<string>` return type
+- `renderCeelineCompactAuto()` documented as preferred budget-aware renderer
+- Round-trip snippets use `CeelineResult` unwrapping
+- Header keys list includes `rs=`, `sz=`, `mx=`
+- Implemented Scaffold section lists all public API functions
 
-### 2. Document the integrity trailer
+### 2. Document the integrity trailer ✓
 
-- Add `#n=<bytecount>` to the compact dialect grammar in [docs/ceeline-language-spec-v1.md](/mnt/SteamLibrary/git/ceeline/docs/ceeline-language-spec-v1.md)
-- Explain that the byte count covers the content before the trailer
-- Document parser behavior on mismatch:
-  - parse succeeds
-  - warning is emitted via `integrity_mismatch`
-  - content is treated as potentially truncated
-- Update compact examples to include the trailer
+- `#n=<bytecount>` grammar added to compact dialect spec
+- Byte count semantics documented (content before trailer)
+- Parser behaviour on mismatch documented (`integrity_mismatch` warning, content
+  treated as potentially truncated)
+- Compact examples include trailer
 
-### 3. Add regression tests
+### 3. Add regression tests ✓
 
-Create tests covering:
+164 tests across 7 files:
 
-- `source.kind = "agent"` validates successfully
-- each surface validator rejects invalid surface-specific fields
-- `renderCeelineCompact()` returns `token_budget_exceeded` when over budget
-- `renderCeelineCompactAuto()` chooses:
-  - `lite` first for `audience = operator`
-  - `full` first for `audience = machine`
-  - `dense` when needed to fit budget
-- parser accepts valid `#n=` trailer
-- parser emits `integrity_mismatch` when trailer is wrong
-- parser preserves unknown clauses for forward compatibility
-- cross-surface clause keys are not decoded onto the wrong surface
+- `validate.test.ts`: all 5 source.kind values, all 8 surfaces valid, surface-
+  specific field rejection
+- `compact-render.test.ts`: all 8×3 density combinations, token_budget_exceeded,
+  trailer presence, density format correctness
+- `compact-auto.test.ts`: operator prefers lite, machine prefers full, budget
+  exceeded when no density fits, no budget defaults to full
+- `compact-parse.test.ts`: trailer acceptance, integrity_mismatch on tampered
+  content, unknown clause/header preservation, cross-surface key rejection,
+  extension parsing, required field failures
+- `round-trip.test.ts`: render→parse for all 8×3 combinations, preserve tokens,
+  extension clauses
 
-### 4. Add golden compact fixtures
+### 4. Add golden compact fixtures ✓
 
-Add compact text fixtures for all 8 surfaces and all 3 densities:
+- 24 `.txt` fixtures in `packages/fixtures/compact/` for all 8 surfaces × 3
+  densities
+- `golden-generate.test.ts` regenerates fixtures from current renderer
+- `golden-snapshot.test.ts` verifies byte-for-byte stability and parse
+  round-trip
 
-- include the new `#n=` trailer
-- verify byte-for-byte stable rendering
-- verify parse round-trip against expected compact parse results
+### 5. Extend the benchmark harness ✓
 
-This is important now that the renderer includes:
+- Trailer overhead table: bytes and token cost of `#n=` per surface/density
+- Auto-density comparison: selected density, bytes, and tokens vs manual
+  full/dense
+- Budget failure detection across corpus
+- Reports regenerated in `benchmarks/report.json` and `benchmarks/report.txt`
 
-- budget enforcement
-- auto-density behavior
-- integrity metadata
+### 6. Decide the long-term token counting strategy ✓
 
-### 5. Extend the benchmark harness
+Decision: keep the portable 4-byte heuristic (`ceil(bytes / 4)`) in core
+permanently. The core library remains dependency-free and portable.
 
-Benchmark harness is working, but follow-up improvements are still useful:
+Accurate tokenizer-backed counting (js-tiktoken) is used only in:
 
-- add a second report mode using `renderCeelineCompactAuto()`
-- report trailer overhead explicitly:
-  - bytes added by `#n=`
-  - token cost added by `#n=`
-- compare:
-  - `full` vs `dense`
-  - manual density vs auto-density
-- include failure reporting when a corpus envelope exceeds budget
+- `benchmarks/run.ts` for reporting cl100k and o200k token counts
+- the CLI or adapter layer if precise budget enforcement is needed
 
-### 6. Decide the long-term token counting strategy
+Rationale: the heuristic is conservative (overestimates tokens), which means
+budget enforcement errs on the side of safety. Real tokenizer cost is a runtime
+dependency inappropriate for a lightweight core library. The benchmark reports
+confirm the heuristic produces comparable compression ratios to tokenizer-backed
+counts.
 
-Current budget enforcement uses a portable heuristic:
+### 7. Update external-facing examples and notes ✓
 
-- `4 bytes ≈ 1 token`
-
-That is acceptable for core robustness, but there is still an open product decision:
-
-- keep the heuristic in core permanently
-- or add optional tokenizer-backed enforcement in CLI / benchmarking only
-
-If tokenizer-backed enforcement is adopted later, keep core portable and dependency-light.
-
-### 7. Update external-facing examples and notes
-
-Review and refresh:
-
-- [docs/ceeline-design-brief-2026-04-11.md](/mnt/SteamLibrary/git/ceeline/docs/ceeline-design-brief-2026-04-11.md)
-- [benchmarks/report.txt](/mnt/SteamLibrary/git/ceeline/benchmarks/report.txt)
-- [benchmarks/report.json](/mnt/SteamLibrary/git/ceeline/benchmarks/report.json)
-
-Specific follow-up:
-
-- ensure examples reflect the result-returning renderer
-- ensure examples show the trailer where appropriate
-- ensure benchmark commentary mentions trailer overhead
-
-## Recommended Execution Order
-
-1. Update the language spec and example snippets.
-2. Add regression tests for validation, trailer handling, and auto-density.
-3. Add golden compact fixtures.
-4. Extend benchmarks with trailer-overhead and auto-density comparisons.
-5. Revisit tokenizer-backed budget enforcement as a product decision.
+- Design brief reviewed; remains accurate as high-level product spec
+- Benchmarks re-run with current code; `report.json` and `report.txt`
+  regenerated with trailer, auto-density, and budget failure sections
+- Remaining-steps doc updated to reflect all completed work
 
 ## Not Yet Started
 
