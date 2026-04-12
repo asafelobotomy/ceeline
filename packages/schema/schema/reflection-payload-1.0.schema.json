@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceeline.dev/schema/reflection-payload-1.0.schema.json",
+  "title": "Ceeline Reflection Payload v1",
+  "type": "object",
+  "required": [
+    "summary",
+    "facts",
+    "ask",
+    "artifacts",
+    "metadata",
+    "reflection_type",
+    "confidence",
+    "revision"
+  ],
+  "properties": {
+    "summary": { "type": "string" },
+    "facts": { "type": "array", "items": { "type": "string" } },
+    "ask": { "type": "string" },
+    "artifacts": { "type": "array", "items": true },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "reflection_type": {
+      "enum": ["self_critique", "hypothesis", "plan_revision", "confidence_check"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "revision": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

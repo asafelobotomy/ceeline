@@ -1,0 +1,382 @@
+323
+# =========================================================================
+# Ceeline Compact Dialect — Root Dictionary
+# =========================================================================
+# Format: Hunspell-compatible .dic
+# First line: approximate stem count
+#
+# Each line: <stem>/<flags>
+#   N = can take neg. prefix
+#   R = can take re. prefix
+#   P = can take prev. prefix
+#   T = can take tent. prefix
+#   D = can take del. prefix
+#   Q = can take .seq suffix
+#   O = can take .opt suffix
+#   X = can take .ref suffix
+#   A = can take .as alias suffix
+#   M = can take .multi suffix
+#   V = can take .v version suffix
+#   C = can participate in compounds
+#
+# ---------------------------------------------------------------------------
+# HEADER — structural markers
+# ---------------------------------------------------------------------------
+@cl1
+@cl2/V
+
+# ---------------------------------------------------------------------------
+# SURFACES — primary routing dimensions
+# ---------------------------------------------------------------------------
+ho/NRPDQXMVC
+dg/NRPQXVC
+me/NRPDQXVC
+rf/NRPQXVC
+ts/NRPQXVC
+rt/NRPDQXMVC
+pc/NRPDQXVC
+hs/NRPQXVC
+
+# ---------------------------------------------------------------------------
+# CHANNELS
+# ---------------------------------------------------------------------------
+i/NTC
+cu/NTC
+
+# ---------------------------------------------------------------------------
+# CONSTRAINT MODES
+# ---------------------------------------------------------------------------
+ro/NTDC
+ad/NTDC
+mu/NTDC
+
+# ---------------------------------------------------------------------------
+# AUDIENCES
+# ---------------------------------------------------------------------------
+m/C
+o/C
+u/C
+
+# ---------------------------------------------------------------------------
+# FALLBACKS
+# ---------------------------------------------------------------------------
+rj/NC
+vb/NC
+pt/NC
+
+# ---------------------------------------------------------------------------
+# RENDER STYLES
+# ---------------------------------------------------------------------------
+n/C
+te/C
+nr/C
+uf/C
+
+# ---------------------------------------------------------------------------
+# SANITIZERS
+# ---------------------------------------------------------------------------
+st/C
+sd/C
+
+# ---------------------------------------------------------------------------
+# PRESERVE CLASSES
+# ---------------------------------------------------------------------------
+fp/QC
+ti/QC
+ag/QC
+mo/QC
+cmd/QC
+env/QC
+ver/QC
+key/QC
+ph/QC
+sec/QC
+url/QC
+cs/QC
+cf/QC
+
+# ---------------------------------------------------------------------------
+# COMMON PAYLOAD KEYS
+# ---------------------------------------------------------------------------
+sum/ROQC
+f/QC
+ask/ROQC
+art/QOXC
+tok/QC
+cls/QC
+
+# ---------------------------------------------------------------------------
+# HANDOFF fields
+# ---------------------------------------------------------------------------
+role/OC
+tgt/OXC
+sc/NRQOC
+pl/NRC
+rv/NRC
+co/NRC
+pa/NRC
+im/NRC
+fx/NRC
+sa/NRC
+
+# ---------------------------------------------------------------------------
+# DIGEST fields
+# ---------------------------------------------------------------------------
+win/PC
+met/QC
+ok/NC
+wr/NC
+er/NC
+tr/PQC
+ss/PQC
+rn/PQC
+
+# ---------------------------------------------------------------------------
+# MEMORY fields
+# ---------------------------------------------------------------------------
+mk/C
+dur/C
+cit/QC
+fa/NRC
+de/NRC
+rs/NRC
+sn/C
+pj/C
+ps/C
+
+# ---------------------------------------------------------------------------
+# REFLECTION fields
+# ---------------------------------------------------------------------------
+rty/C
+cnf/OC
+rev/ROQC
+# sc already listed under Handoff with merged flags NRQOC
+hy/NRC
+pr/NRC
+cc/NRC
+
+# ---------------------------------------------------------------------------
+# TOOL SUMMARY fields
+# ---------------------------------------------------------------------------
+tn/OXC
+out/C
+ela/OC
+fl/NRC
+sk/NRC
+
+# ---------------------------------------------------------------------------
+# ROUTING fields
+# ---------------------------------------------------------------------------
+str/C
+cand/QXC
+sel/OXC
+dr/NTC
+bc/NTC
+cn/NTC
+fb/NTC
+
+# ---------------------------------------------------------------------------
+# PROMPT CONTEXT fields
+# ---------------------------------------------------------------------------
+pri/OC
+src/OXC
+sy/NC
+ij/NC
+gr/NC
+
+# ---------------------------------------------------------------------------
+# HISTORY fields
+# ---------------------------------------------------------------------------
+spn/C
+tc/OC
+anc/OXC
+ex/PQC
+
+# ---------------------------------------------------------------------------
+# DIAGNOSTICS
+# ---------------------------------------------------------------------------
+diag/C
+trace/C
+labels/QC
+
+# ---------------------------------------------------------------------------
+# STRUCTURAL — integrity, extensions, provenance
+# ---------------------------------------------------------------------------
+pid/XC
+x/C
+vocab/C
+
+# ---------------------------------------------------------------------------
+# DENSITY modifiers — meta about rendering
+# ---------------------------------------------------------------------------
+lite/C
+full/C
+dense/C
+auto/C
+
+# ---------------------------------------------------------------------------
+# SESSION VOCAB — placeholder for runtime additions
+# ---------------------------------------------------------------------------
+# Agents add stems here at runtime via vocab= clauses.
+# All affix rules (N,R,P,T,D,Q,O,X,A,M,V) apply to vocab stems.
+# Example: vocab=chk:checkpoint → chk/NRPQOXMVC
+
+# ---------------------------------------------------------------------------
+# SYMBOL STEMS — Tier 1 single-token Unicode atoms (flag U)
+# ---------------------------------------------------------------------------
+# Greek semantic operators
+α/UC
+β/UC
+γ/UC
+δ/UC
+ε/UC
+ζ/UC
+η/UC
+θ/UC
+λ/UC
+μ/UC
+π/UC
+σ/UC
+φ/UC
+ψ/UC
+ω/UC
+Σ/UC
+# Arrows
+→/UC
+←/UC
+↑/UC
+↓/UC
+⇒/UC
+# Geometric shapes
+●/UC
+○/UC
+■/UC
+□/UC
+▲/UC
+▼/UC
+▶/UC
+◆/UC
+◇/UC
+# Block elements
+█/UC
+▓/UC
+▒/UC
+░/UC
+# Math operators
+∀/UC
+≈/UC
+≤/UC
+≥/UC
+√/UC
+∞/UC
+−/UC
+# Dingbats
+✓/UC
+✔/UC
+
+# ---------------------------------------------------------------------------
+# DOMAIN: SECURITY (dom=sec)
+# ---------------------------------------------------------------------------
+vul/NRQC
+ath/NRC
+azn/NRC
+byp/NRC
+ij2/NRQC
+xss/QC
+crf/QC
+prv/NRQC
+esc/NRC
+acl/NRC
+tkv/NRC
+snt/NRC
+enc/NRC
+tls/NC
+crt/NQXC
+sqi/QC
+bof/QC
+dos/NC
+rlm/NRC
+owp/XC
+pen/QC
+exf/NRC
+hsh/NRC
+rbac/NC
+
+# ---------------------------------------------------------------------------
+# DOMAIN: PERFORMANCE (dom=perf)
+# ---------------------------------------------------------------------------
+lat/NRQOC
+thr/NRQC
+cch/NRQC
+gcl/NQC
+mmu/NRQC
+cpu/NQC
+prf/RC
+btl/NRQC
+p50/OC
+p95/OC
+p99/OC
+cld/NRC
+wrm/RC
+pol/NRQC
+bat/NRC
+ccr/NQC
+idx/NRQC
+qop/RQC
+iop/NQC
+alc/NRQC
+ttl/NOC
+rps/QC
+sat2/NQC
+
+# ---------------------------------------------------------------------------
+# DOMAIN: ARCHITECTURE (dom=arch)
+# ---------------------------------------------------------------------------
+lay/NQC
+bnd/NRQC
+cpl/NRQC
+coh/NRC
+mdl/NRQXC
+svc/NRQXC
+gwy/NQXC
+fcd/NXC
+adp/NQXC
+pxy/NXC
+obs2/QXC
+evt/NRQC
+msg2/NRQC
+que/NRQC
+pip/NRQC
+mdw/NQXC
+sch2/NRQVC
+mig/NRQC
+dep2/NRQXC
+api/NRQXVC
+ctr2/NRQC
+ddd/NQXC
+agg/NQXC
+
+# ---------------------------------------------------------------------------
+# DOMAIN: TESTING (dom=test)
+# ---------------------------------------------------------------------------
+cov/NRQC
+ast2/NRQC
+mck/NRQC
+stb/NRQC
+fxt/NRQXC
+reg2/NRQC
+flk/NRQC
+ste/NRQXC
+scn/NRQC
+exp2/NRC
+act2/NRC
+e2e/NQC
+unt/NRQC
+itg/NRQC
+snp2/NRQC
+pas/NQC
+skp/NQC
+tmo/NRQC
+rty2/NRQC
+hns/NQXC
+bln/NRQVC

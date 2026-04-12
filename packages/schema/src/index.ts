@@ -1,14 +1,21 @@
-import envelopeV1Schema from "../schema/envelope-1.0.schema.json";
-import digestPayloadV1Schema from "../schema/digest-payload-1.0.schema.json";
-import handoffPayloadV1Schema from "../schema/handoff-payload-1.0.schema.json";
-import memoryPayloadV1Schema from "../schema/memory-payload-1.0.schema.json";
-export * from "./language";
+import envelopeV1Schema from "../schema/envelope-1.0.schema.json" with { type: "json" };
+import digestPayloadV1Schema from "../schema/digest-payload-1.0.schema.json" with { type: "json" };
+import handoffPayloadV1Schema from "../schema/handoff-payload-1.0.schema.json" with { type: "json" };
+import historyPayloadV1Schema from "../schema/history-payload-1.0.schema.json" with { type: "json" };
+import memoryPayloadV1Schema from "../schema/memory-payload-1.0.schema.json" with { type: "json" };
+import promptContextPayloadV1Schema from "../schema/prompt-context-payload-1.0.schema.json" with { type: "json" };
+import reflectionPayloadV1Schema from "../schema/reflection-payload-1.0.schema.json" with { type: "json" };
+import routingPayloadV1Schema from "../schema/routing-payload-1.0.schema.json" with { type: "json" };
+import toolSummaryPayloadV1Schema from "../schema/tool-summary-payload-1.0.schema.json" with { type: "json" };
+export * from "./language.js";
+export * from "./dict-parser.js";
 
 export const CEELINE_VERSION = "1.0" as const;
 
 export const TOP_LEVEL_FIELD_ORDER = [
   "ceeline_version",
   "envelope_id",
+  "parent_envelope_id",
   "surface",
   "channel",
   "intent",
@@ -111,15 +118,45 @@ export interface MemoryPayload extends CommonPayload {
   citations: string[];
 }
 
+export interface ReflectionPayload extends CommonPayload {
+  reflection_type: "self_critique" | "hypothesis" | "plan_revision" | "confidence_check";
+  confidence: number;
+  revision: string;
+}
+
+export interface ToolSummaryPayload extends CommonPayload {
+  tool_name: string;
+  outcome: "success" | "failure" | "partial" | "skipped";
+  elapsed_ms: number;
+}
+
+export interface RoutingPayload extends CommonPayload {
+  strategy: "direct" | "broadcast" | "conditional" | "fallback";
+  candidates: string[];
+  selected: string;
+}
+
+export interface PromptContextPayload extends CommonPayload {
+  phase: "system" | "injection" | "retrieval" | "grounding";
+  priority: number;
+  source_ref: string;
+}
+
+export interface HistoryPayload extends CommonPayload {
+  span: "turn" | "exchange" | "session" | "project";
+  turn_count: number;
+  anchor: string;
+}
+
 export interface SurfacePayloadMap {
   handoff: HandoffPayload;
   digest: DigestPayload;
   memory: MemoryPayload;
-  reflection: CommonPayload;
-  tool_summary: CommonPayload;
-  routing: CommonPayload;
-  prompt_context: CommonPayload;
-  history: CommonPayload;
+  reflection: ReflectionPayload;
+  tool_summary: ToolSummaryPayload;
+  routing: RoutingPayload;
+  prompt_context: PromptContextPayload;
+  history: HistoryPayload;
 }
 
 export type PayloadForSurface<S extends CeelineSurface> = SurfacePayloadMap[S];
@@ -142,6 +179,7 @@ export interface CeelineEnvelope<
 > {
   ceeline_version: typeof CEELINE_VERSION;
   envelope_id: string;
+  parent_envelope_id?: string;
   surface: S;
   channel: CeelineChannel;
   intent: string;
@@ -157,12 +195,22 @@ export interface CeelineEnvelope<
 export const ceelineEnvelopeSchema = envelopeV1Schema;
 export const handoffPayloadSchema = handoffPayloadV1Schema;
 export const digestPayloadSchema = digestPayloadV1Schema;
+export const historyPayloadSchema = historyPayloadV1Schema;
 export const memoryPayloadSchema = memoryPayloadV1Schema;
+export const promptContextPayloadSchema = promptContextPayloadV1Schema;
+export const reflectionPayloadSchema = reflectionPayloadV1Schema;
+export const routingPayloadSchema = routingPayloadV1Schema;
+export const toolSummaryPayloadSchema = toolSummaryPayloadV1Schema;
 
 export const SURFACE_PAYLOAD_SCHEMA_IDS = {
   handoff: handoffPayloadV1Schema.$id,
   digest: digestPayloadV1Schema.$id,
-  memory: memoryPayloadV1Schema.$id
+  memory: memoryPayloadV1Schema.$id,
+  reflection: reflectionPayloadV1Schema.$id,
+  tool_summary: toolSummaryPayloadV1Schema.$id,
+  routing: routingPayloadV1Schema.$id,
+  prompt_context: promptContextPayloadV1Schema.$id,
+  history: historyPayloadV1Schema.$id
 } as const;
 
 export function isRecord(value: unknown): value is Record<string, unknown> {

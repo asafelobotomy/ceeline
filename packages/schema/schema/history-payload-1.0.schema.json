@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceeline.dev/schema/history-payload-1.0.schema.json",
+  "title": "Ceeline History Payload v1",
+  "type": "object",
+  "required": [
+    "summary",
+    "facts",
+    "ask",
+    "artifacts",
+    "metadata",
+    "span",
+    "turn_count",
+    "anchor"
+  ],
+  "properties": {
+    "summary": { "type": "string" },
+    "facts": { "type": "array", "items": { "type": "string" } },
+    "ask": { "type": "string" },
+    "artifacts": { "type": "array", "items": true },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "span": {
+      "enum": ["turn", "exchange", "session", "project"]
+    },
+    "turn_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "anchor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

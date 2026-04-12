@@ -1,0 +1,174 @@
+# Ceeline Compact Dialect — Affix Rules
+# Format: Hunspell-compatible .aff
+# Purpose: morphological grammar for the Ceeline compact language
+#
+# This file defines prefix and suffix rules that modify root stems
+# (defined in ceeline.dic) to produce derived compact codes.
+#
+# The Ceeline runtime reads this at registry-init time and uses
+# the affix rules to resolve morphological compounds without
+# requiring every combination to be registered individually.
+#
+# DESIGN PRINCIPLE: A small set of roots + affix rules = infinite vocabulary.
+# Agents can coin new stems via session vocab; the affixes still apply.
+
+SET UTF-8
+LANG cel
+
+# =========================================================================
+#  PREFIX CLASSES
+# =========================================================================
+#
+# Prefixes modify the semantics of any root code.
+# Syntax: PFX <flag> <cross> <count>
+#         PFX <flag> <strip> <add> <condition>
+#
+# Flags are single uppercase letters.
+
+# ---------------------------------------------------------------------------
+# N — Negation / absence
+# ---------------------------------------------------------------------------
+# Produces: neg.<root>  →  "not <meaning>"
+# Example:  neg.ok  →  "not success"  |  neg.dr  →  "not direct routing"
+PFX N Y 1
+PFX N 0 neg. .
+
+# ---------------------------------------------------------------------------
+# R — Re- / again / retry
+# ---------------------------------------------------------------------------
+# Produces: re.<root>  →  "repeat/retry <meaning>"
+# Example:  re.ho  →  "re-handoff"  |  re.rv  →  "re-review"
+PFX R Y 1
+PFX R 0 re. .
+
+# ---------------------------------------------------------------------------
+# P — Prior / previous   
+# ---------------------------------------------------------------------------
+# Produces: prev.<root>  →  "previous <meaning>"
+# Example:  prev.ss  →  "previous session"  |  prev.dg  →  "prior digest"
+PFX P Y 1
+PFX P 0 prev. .
+
+# ---------------------------------------------------------------------------
+# T — Tentative / proposed
+# ---------------------------------------------------------------------------
+# Produces: tent.<root>  →  "tentative/proposed <meaning>"
+# Example:  tent.dr  →  "tentative direct routing"  |  tent.mu  →  "proposed mutating"
+PFX T Y 1
+PFX T 0 tent. .
+
+# ---------------------------------------------------------------------------
+# D — Delegated / inherited
+# ---------------------------------------------------------------------------
+# Produces: del.<root>  →  "delegated/inherited from parent"
+# Example:  del.ho  →  "delegated handoff"  |  del.ro  →  "inherited read_only"
+PFX D Y 1
+PFX D 0 del. .
+
+# =========================================================================
+#  SYMBOL FLAG CLASS
+# =========================================================================
+#
+# U — Unicode symbol stem
+# ---------------------------------------------------------------------------
+# Marks a stem as a Tier 1 single-token Unicode symbol (Greek, arrow, shape,
+# block, math, or dingbat).  Symbol stems participate in compound expressions
+# (Layer 2) and surface-dependent polysemy (Layer 3).
+#
+# Symbol stems do NOT take morphological prefixes/suffixes (no neg.● or ●.seq).
+# The U flag is used only for registry membership and dict-sync validation.
+
+# =========================================================================
+#  SUFFIX CLASSES
+# =========================================================================
+#
+# Suffixes modify the structural role of a root code.
+# Syntax: SFX <flag> <cross> <count>
+#         SFX <flag> <strip> <add> <condition>
+
+# ---------------------------------------------------------------------------
+# Q — Sequence / plural / list-of
+# ---------------------------------------------------------------------------
+# Produces: <root>.seq  →  "sequence of <meaning>"
+# Example:  ho.seq  →  "handoff sequence"  |  fa.seq  →  "fact sequence"
+SFX Q Y 1
+SFX Q 0 .seq .
+
+# ---------------------------------------------------------------------------
+# O — Optional / nullable
+# ---------------------------------------------------------------------------
+# Produces: <root>.opt  →  "optional <meaning>"
+# Example:  cit.opt  →  "optional citations"  |  tgt.opt  →  "optional target"
+SFX O Y 1
+SFX O 0 .opt .
+
+# ---------------------------------------------------------------------------
+# X — Reference / pointer-to
+# ---------------------------------------------------------------------------
+# Produces: <root>.ref  →  "reference to <meaning>"
+# Example:  ho.ref  →  "reference to handoff envelope"  |  me.ref  →  "memory reference"
+SFX X Y 1
+SFX X 0 .ref .
+
+# ---------------------------------------------------------------------------
+# A — Alias / shorthand binding
+# ---------------------------------------------------------------------------
+# Produces: <root>.as  →  "aliased as / shorthand for"
+# Example:  review.security.as  →  binds the alias to an intent pattern
+# Used in session vocab definitions.
+SFX A Y 1
+SFX A 0 .as .
+
+# ---------------------------------------------------------------------------
+# M — Multi / compound
+# ---------------------------------------------------------------------------
+# Produces: <root>.multi  →  "multiple/compound <meaning>"
+# Example:  rt.multi  →  "multi-routing (fan-out)"  |  src.multi  →  "multiple source refs"
+SFX M Y 1
+SFX M 0 .multi .
+
+# ---------------------------------------------------------------------------
+# V — Version / snapshot
+# ---------------------------------------------------------------------------
+# Produces: <root>.v<n>  — handled by the runtime, not affix rule
+# This flag marks stems that can accept version suffixes.
+# Example:  ho.v2  →  "handoff schema version 2"
+# Runtime resolves .v\d+ on any stem with flag V.
+SFX V Y 1
+SFX V 0 .v .
+
+# =========================================================================
+#  CROSS-PRODUCT
+# =========================================================================
+#
+# Prefixes and suffixes can combine (cross-product = Y on both).
+# Example:  re.ho.seq  →  "retry handoff sequence"
+#           neg.ok.ref  →  "reference to a non-success"
+#           prev.dg.v   →  "prior digest version"
+#
+# The runtime resolves left-to-right: prefix → stem → suffix.
+# At most one prefix and one suffix per token.
+
+# =========================================================================
+#  COMPOUND RULES
+# =========================================================================
+#
+# Ceeline allows compound stems joined by `.` (dot).
+# This is used for scoped codes like surface.field compounds:
+#   ho.role  →  handoff's role field
+#   rt.str   →  routing's strategy field
+#
+# Compounds are resolved by the registry, not affix rules.
+# The .aff file documents them here for completeness.
+COMPOUNDFLAG C
+COMPOUNDMIN 1
+
+# =========================================================================
+#  SESSION VOCAB
+# =========================================================================
+#
+# Agents can define session-scoped stems using the `vocab=` clause:
+#   vocab=myterm:definition
+#
+# Session stems inherit all affix rules. They are ephemeral.
+# See ceeline-language-spec-v1.md §Session Vocabulary.

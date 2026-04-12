@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ceeline.dev/schema/routing-payload-1.0.schema.json",
+  "title": "Ceeline Routing Payload v1",
+  "type": "object",
+  "required": [
+    "summary",
+    "facts",
+    "ask",
+    "artifacts",
+    "metadata",
+    "strategy",
+    "candidates",
+    "selected"
+  ],
+  "properties": {
+    "summary": { "type": "string" },
+    "facts": { "type": "array", "items": { "type": "string" } },
+    "ask": { "type": "string" },
+    "artifacts": { "type": "array", "items": true },
+    "metadata": { "type": "object", "additionalProperties": true },
+    "strategy": {
+      "enum": ["direct", "broadcast", "conditional", "fallback"]
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "selected": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

@@ -23,6 +23,10 @@
       "type": "string",
       "minLength": 1
     },
+    "parent_envelope_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "surface": {
       "enum": [
         "handoff",
