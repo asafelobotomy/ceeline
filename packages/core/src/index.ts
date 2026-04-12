@@ -14,13 +14,13 @@ import {
   type RenderConfig,
   type SourceInfo
 } from "@ceeline/schema";
-import { extractPreserveTokens, validatePreservation } from "./preserve";
-import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact, type CompactParseResult } from "./compact";
-import { decodeCanonical, detectLeaks, renderInternal, renderUserFacing, sanitizeUserFacing, type DecodedEnvelope, type LeakFinding } from "./render";
-import { fail, ok, type CeelineResult, type ValidationIssue } from "./result";
-import { validateEnvelope } from "./validate";
+import { extractPreserveTokens, validatePreservation } from "./preserve.js";
+import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact, type CompactParseResult, type CompactRenderOptions } from "./compact.js";
+import { decodeCanonical, detectLeaks, renderInternal, renderUserFacing, sanitizeUserFacing, type DecodedEnvelope, type LeakFinding } from "./render.js";
+import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
+import { validateEnvelope } from "./validate.js";
 
-export type { CeelineResult, ValidationIssue, DecodedEnvelope, LeakFinding, CompactParseResult };
+export type { CeelineResult, ValidationIssue, DecodedEnvelope, LeakFinding, CompactParseResult, CompactRenderOptions };
 
 type OptionalCommonPayloadFields = "facts" | "ask" | "artifacts" | "metadata";
 
@@ -96,7 +96,18 @@ export function encodeCanonical<S extends CeelineSurface>(
   input: CanonicalInputForSurface<S>,
   surface: S
 ): CeelineResult<CeelineEnvelope<S>> {
-  const sourceText = input.text ?? [input.payload.summary, ...(input.payload.facts ?? []), input.payload.ask ?? ""].join("\n");
+  const parts = [input.payload.summary, ...(input.payload.facts ?? []), input.payload.ask ?? ""];
+  // Extract preserve tokens from artifacts and metadata too
+  for (const artifact of input.payload.artifacts ?? []) {
+    if (typeof artifact === "string") parts.push(artifact);
+    else parts.push(JSON.stringify(artifact));
+  }
+  if (input.payload.metadata) {
+    for (const val of Object.values(input.payload.metadata)) {
+      if (typeof val === "string") parts.push(val);
+    }
+  }
+  const sourceText = input.text ?? parts.join("\n");
   const extracted = extractPreserveTokens(sourceText, input.preserve?.classes ?? ([] as PreserveClass[]));
   const preserveTokens = Array.from(new Set([...(input.preserve?.tokens ?? []), ...extracted.tokens]));
   const preserveClasses = Array.from(new Set([...(input.preserve?.classes ?? []), ...extracted.classes]));

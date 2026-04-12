@@ -1,5 +1,5 @@
 import type { CeelineEnvelope, RenderStyle } from "@ceeline/schema";
-import { fail, ok, type CeelineResult, type ValidationIssue } from "./result";
+import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
 export interface LeakFinding {
   code: string;

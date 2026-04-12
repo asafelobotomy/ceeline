@@ -19,12 +19,17 @@ import {
   type DigestPayload,
   type Diagnostics,
   type HandoffPayload,
+  type HistoryPayload,
   type MemoryPayload,
   type PreserveSet,
+  type PromptContextPayload,
+  type ReflectionPayload,
   type RenderConfig,
-  type SourceInfo
+  type RoutingPayload,
+  type SourceInfo,
+  type ToolSummaryPayload
 } from "@ceeline/schema";
-import { fail, ok, type CeelineResult, type ValidationIssue } from "./result";
+import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
 function issue(code: string, message: string, path: string): ValidationIssue {
   return { code, message, path };
@@ -215,10 +220,10 @@ function validateMemoryPayload(payload: CommonPayload): ValidationIssue[] {
 }
 
 function validateReflectionPayload(payload: CommonPayload): ValidationIssue[] {
-  const r = payload as Record<string, unknown>;
+  const r = payload as Partial<ReflectionPayload>;
   const issues: ValidationIssue[] = [];
 
-  if (!r.reflection_type || !["self_critique", "hypothesis", "plan_revision", "confidence_check"].includes(r.reflection_type as string)) {
+  if (!r.reflection_type || !["self_critique", "hypothesis", "plan_revision", "confidence_check"].includes(r.reflection_type)) {
     issues.push(issue("invalid_reflection_type", "reflection payload requires a valid reflection_type.", "payload.reflection_type"));
   }
   if (typeof r.confidence !== "number" || r.confidence < 0 || r.confidence > 1) {
@@ -232,13 +237,13 @@ function validateReflectionPayload(payload: CommonPayload): ValidationIssue[] {
 }
 
 function validateToolSummaryPayload(payload: CommonPayload): ValidationIssue[] {
-  const r = payload as Record<string, unknown>;
+  const r = payload as Partial<ToolSummaryPayload>;
   const issues: ValidationIssue[] = [];
 
   if (typeof r.tool_name !== "string" || r.tool_name.length === 0) {
     issues.push(issue("invalid_tool_name", "tool_summary payload requires a non-empty tool_name.", "payload.tool_name"));
   }
-  if (!r.outcome || !["success", "failure", "partial", "skipped"].includes(r.outcome as string)) {
+  if (!r.outcome || !["success", "failure", "partial", "skipped"].includes(r.outcome)) {
     issues.push(issue("invalid_tool_outcome", "tool_summary payload requires a valid outcome.", "payload.outcome"));
   }
   if (typeof r.elapsed_ms !== "number" || !Number.isInteger(r.elapsed_ms) || r.elapsed_ms < 0) {
@@ -249,10 +254,10 @@ function validateToolSummaryPayload(payload: CommonPayload): ValidationIssue[] {
 }
 
 function validateRoutingPayload(payload: CommonPayload): ValidationIssue[] {
-  const r = payload as Record<string, unknown>;
+  const r = payload as Partial<RoutingPayload>;
   const issues: ValidationIssue[] = [];
 
-  if (!r.strategy || !["direct", "broadcast", "conditional", "fallback"].includes(r.strategy as string)) {
+  if (!r.strategy || !["direct", "broadcast", "conditional", "fallback"].includes(r.strategy)) {
     issues.push(issue("invalid_routing_strategy", "routing payload requires a valid strategy.", "payload.strategy"));
   }
   issues.push(...validateStringArray(r.candidates, "payload.candidates", "routing payload requires a candidates string array."));
@@ -264,10 +269,10 @@ function validateRoutingPayload(payload: CommonPayload): ValidationIssue[] {
 }
 
 function validatePromptContextPayload(payload: CommonPayload): ValidationIssue[] {
-  const r = payload as Record<string, unknown>;
+  const r = payload as Partial<PromptContextPayload>;
   const issues: ValidationIssue[] = [];
 
-  if (!r.phase || !["system", "injection", "retrieval", "grounding"].includes(r.phase as string)) {
+  if (!r.phase || !["system", "injection", "retrieval", "grounding"].includes(r.phase)) {
     issues.push(issue("invalid_prompt_context_phase", "prompt_context payload requires a valid phase.", "payload.phase"));
   }
   if (typeof r.priority !== "number" || !Number.isFinite(r.priority)) {
@@ -281,10 +286,10 @@ function validatePromptContextPayload(payload: CommonPayload): ValidationIssue[]
 }
 
 function validateHistoryPayload(payload: CommonPayload): ValidationIssue[] {
-  const r = payload as Record<string, unknown>;
+  const r = payload as Partial<HistoryPayload>;
   const issues: ValidationIssue[] = [];
 
-  if (!r.span || !["turn", "exchange", "session", "project"].includes(r.span as string)) {
+  if (!r.span || !["turn", "exchange", "session", "project"].includes(r.span)) {
     issues.push(issue("invalid_history_span", "history payload requires a valid span.", "payload.span"));
   }
   if (typeof r.turn_count !== "number" || !Number.isInteger(r.turn_count) || r.turn_count < 0) {
@@ -394,6 +399,9 @@ export function validateEnvelope(envelope: unknown): CeelineResult<CeelineEnvelo
   }
   if (typeof record.envelope_id !== "string" || record.envelope_id.length === 0) {
     issues.push(issue("invalid_envelope_id", "envelope_id must be a non-empty string.", "envelope_id"));
+  }
+  if (record.parent_envelope_id !== undefined && (typeof record.parent_envelope_id !== "string" || record.parent_envelope_id.length === 0)) {
+    issues.push(issue("invalid_parent_envelope_id", "parent_envelope_id must be a non-empty string if present.", "parent_envelope_id"));
   }
   if (!surface) {
     issues.push(issue("invalid_surface", "surface contains an unsupported value.", "surface"));

@@ -44,17 +44,25 @@ import {
   type CeelineEnvelope,
   type CommonPayload,
   type CompactDensity,
+  type CeelineMorphology,
   type DigestPayload,
   type HandoffPayload,
-  type MemoryPayload
+  type MemoryPayload,
+  resolveAffix,
+  activateDomains,
+  DOMAIN_TABLES,
+  registerSessionStem,
+  resolveSymbolExpr,
+  isSymbol,
+  type SymbolExpr,
 } from "@ceeline/schema";
-import { fail, ok, type CeelineResult, type ValidationIssue } from "./result";
+import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
 // =========================================================================
 // Encoding helpers
 // =========================================================================
 
-const BARE_ATOM_RE = /^[A-Za-z0-9._:/@-]+$/;
+const BARE_ATOM_RE = /^[A-Za-z0-9._:/@\u0080-\uFFFF-]+$/;
 
 function encodeAtom(value: string): string {
   return BARE_ATOM_RE.test(value) ? value : JSON.stringify(value);
@@ -90,12 +98,23 @@ function shouldEmitTokens(density: CompactDensity): boolean {
 // Renderer
 // =========================================================================
 
-function renderHeader(envelope: CeelineEnvelope, density: CompactDensity): string {
+function renderHeader(envelope: CeelineEnvelope, density: CompactDensity, domains?: readonly string[]): string {
   const parts = [
     "@cl1",
     `s=${COMPACT_SURFACE_CODES[envelope.surface]}`,
     `i=${encodeAtom(envelope.intent)}`
   ];
+
+  if (envelope.parent_envelope_id) {
+    parts.push(`pid=${encodeAtom(envelope.parent_envelope_id)}`);
+  }
+
+  if (domains && domains.length > 0) {
+    const safe = domains.filter(id => /^[a-z0-9]+$/.test(id));
+    if (safe.length > 0) {
+      parts.push(`dom=${safe.join("+")}`);
+    }
+  }
 
   if (shouldIncludeDefaults(density) || envelope.channel !== COMPACT_DEFAULTS.channel) {
     parts.push(`ch=${COMPACT_CHANNEL_CODES[envelope.channel]}`);
@@ -264,9 +283,29 @@ function renderExtensions(envelope: CeelineEnvelope): string[] {
   return lines;
 }
 
+function renderDiagnostics(envelope: CeelineEnvelope): string[] {
+  const diag = envelope.diagnostics;
+  if (!diag) return [];
+  const lines: string[] = [];
+  if (diag.trace === true) {
+    lines.push("diag.trace=1");
+  }
+  if (diag.labels && diag.labels.length > 0) {
+    lines.push(`diag.labels=${diag.labels.map(l => encodeAtom(l)).join(",")}`);
+  }
+  return lines;
+}
+
+/** Options for compact rendering. */
+export interface CompactRenderOptions {
+  /** Domain IDs to activate in the header (e.g. ["sec", "perf"]). */
+  domains?: readonly string[];
+}
+
 export function renderCeelineCompact(
   envelope: CeelineEnvelope,
-  density: CompactDensity = COMPACT_DENSITIES[1]
+  density: CompactDensity = COMPACT_DENSITIES[1],
+  options?: CompactRenderOptions
 ): CeelineResult<string> {
   const surfaceCode = COMPACT_SURFACE_CODES[envelope.surface];
   if (!surfaceCode) {
@@ -274,10 +313,11 @@ export function renderCeelineCompact(
   }
 
   const segments = [
-    renderHeader(envelope, density),
+    renderHeader(envelope, density, options?.domains),
     ...renderCommonPayload(envelope.payload, density),
     ...renderSurfacePayload(envelope),
     ...renderPreserve(envelope, density),
+    ...renderDiagnostics(envelope),
     ...renderExtensions(envelope)
   ];
 
@@ -316,13 +356,14 @@ export function renderCeelineCompact(
  * If no density fits, returns the densest result with a token_budget_exceeded failure.
  */
 export function renderCeelineCompactAuto(
-  envelope: CeelineEnvelope
+  envelope: CeelineEnvelope,
+  options?: CompactRenderOptions
 ): CeelineResult<string> {
   const budget = envelope.constraints.max_render_tokens;
 
   // No budget constraint — use full as default
   if (budget <= 0) {
-    return renderCeelineCompact(envelope, "full");
+    return renderCeelineCompact(envelope, "full", options);
   }
 
   const order: CompactDensity[] =
@@ -331,7 +372,7 @@ export function renderCeelineCompactAuto(
       : ["full", "dense"];
 
   for (const density of order) {
-    const result = renderCeelineCompact(envelope, density);
+    const result = renderCeelineCompact(envelope, density, options);
     if (result.ok) return result;
     // If failure is not token-related, bail immediately
     if (!result.ok && result.issues.some(i => i.code !== "token_budget_exceeded")) {
@@ -340,7 +381,7 @@ export function renderCeelineCompactAuto(
   }
 
   // All densities exceeded budget — return the densest attempt (which carries the error)
-  return renderCeelineCompact(envelope, "dense");
+  return renderCeelineCompact(envelope, "dense", options);
 }
 
 // =========================================================================
@@ -359,6 +400,7 @@ export interface CompactParseResult {
   dialectVersion: number;
   surface: string;
   intent: string;
+  parentEnvelopeId?: string;
   channel: string;
   mode: string;
   audience: string;
@@ -376,6 +418,16 @@ export interface CompactParseResult {
   surfaceFields: Record<string, string | number | string[]>;
   /** Extension clauses keyed without the `x.` prefix. */
   extensions: Record<string, string>;
+  /** Diagnostics trace flag, if present. */
+  diagnosticsTrace?: boolean;
+  /** Diagnostics labels, if present. */
+  diagnosticsLabels?: string[];
+  /** Session vocabulary defined via vocab= clauses: stem → definition. */
+  sessionVocab: Record<string, string>;
+  /** Active domain IDs from dom= header. */
+  domains: string[];
+  /** Resolved symbol expressions found in clause values, keyed by clause key. */
+  symbolExprs: Record<string, SymbolExpr>;
   /** Any clause keys the parser did not recognize (preserved, not dropped). */
   unknown: Record<string, string>;
 }
@@ -440,6 +492,33 @@ function splitKV(clause: string): [string, string] {
   return [clause.slice(0, eq), clause.slice(eq + 1)];
 }
 
+/**
+ * Quote-aware split on ` ; ` — skips occurrences inside "..." strings.
+ * Handles escaped quotes inside JSON strings.
+ */
+function splitSemicolon(text: string): string[] {
+  const segments: string[] = [];
+  let start = 0;
+  let inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "\\" && inQuote) {
+      i++; // skip escaped char
+      continue;
+    }
+    if (text[i] === '"') {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (!inQuote && i + 3 <= text.length && text.slice(i, i + 3) === " ; ") {
+      segments.push(text.slice(start, i));
+      start = i + 3;
+      i += 2; // skip past ` ; `
+    }
+  }
+  segments.push(text.slice(start));
+  return segments;
+}
+
 /** Split compact text into clauses, auto-detecting lite vs single-line format. */
 function splitClauses(text: string): { headerParts: string[]; bodyClauses: string[] } {
   const trimmed = text.trim();
@@ -456,8 +535,8 @@ function splitClauses(text: string): { headerParts: string[]; bodyClauses: strin
     headerLine = lines[0];
     bodyClauses = lines.slice(1);
   } else if (firstSemicolon > 0) {
-    // Single-line: split on ` ; `
-    const segments = trimmed.split(" ; ");
+    // Single-line: quote-aware split on ` ; `
+    const segments = splitSemicolon(trimmed);
     headerLine = segments[0];
     bodyClauses = segments.slice(1);
   } else {
@@ -523,7 +602,28 @@ const SURFACE_FIELD_DECODERS: Record<string, Record<string, FieldDecoder>> = {
  * in the `unknown` field rather than causing a parse failure.  This is the
  * core forward-compatibility rule: preserve what you don't understand.
  */
-export function parseCeelineCompact(text: string): CeelineResult<CompactParseResult> {
+export function parseCeelineCompact(
+  text: string,
+  morphology?: CeelineMorphology
+): CeelineResult<CompactParseResult> {
+  // Snapshot caller's domainStems so dom= activation doesn't leak across parses
+  const priorDomainStems = morphology
+    ? new Map([...morphology.domainStems].map(([k, v]) => [k, new Set(v)]))
+    : undefined;
+
+  try {
+    return parseCeelineCompactInner(text, morphology);
+  } finally {
+    if (morphology && priorDomainStems) {
+      morphology.domainStems = priorDomainStems;
+    }
+  }
+}
+
+function parseCeelineCompactInner(
+  text: string,
+  morphology?: CeelineMorphology
+): CeelineResult<CompactParseResult> {
   const issues: ValidationIssue[] = [];
   const { headerParts, bodyClauses } = splitClauses(text);
 
@@ -533,7 +633,7 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
   }
   const versionStr = headerParts[0].slice(3);
   const dialectVersion = parseInt(versionStr, 10);
-  if (isNaN(dialectVersion)) {
+  if (isNaN(dialectVersion) || dialectVersion < 1) {
     return fail([{ path: "header", code: "invalid_version", message: `Invalid dialect version: ${headerParts[0]}` }]);
   }
 
@@ -557,6 +657,9 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
     preserveClasses: [],
     surfaceFields: {},
     extensions: {},
+    sessionVocab: {},
+    domains: [],
+    symbolExprs: {},
     unknown: {}
   };
 
@@ -565,6 +668,7 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
     switch (hk) {
       case "s": result.surface = REVERSE_SURFACE_CODES[hv] ?? hv; break;
       case "i": result.intent = decodeAtom(hv); break;
+      case "pid": result.parentEnvelopeId = decodeAtom(hv); break;
       case "ch": result.channel = REVERSE_CHANNEL_CODES[hv] ?? hv; break;
       case "md": result.mode = REVERSE_MODE_CODES[hv] ?? hv; break;
       case "au": result.audience = REVERSE_AUDIENCE_CODES[hv] ?? hv; break;
@@ -572,6 +676,19 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
       case "rs": result.renderStyle = REVERSE_RENDER_STYLE_CODES[hv] ?? hv; break;
       case "sz": result.sanitizer = REVERSE_SANITIZER_CODES[hv] ?? hv; break;
       case "mx": result.maxRenderTokens = parseInt(hv, 10) || 0; break;
+      case "dom": {
+        const ids = hv.split("+").filter(id => /^[a-z0-9]+$/.test(id));
+        result.domains = ids;
+        for (const id of ids) {
+          if (!DOMAIN_TABLES.has(id)) {
+            issues.push({ path: "header.dom", code: "unknown_domain", message: `Unknown domain: ${id}` });
+          }
+        }
+        if (morphology) {
+          activateDomains(ids, morphology);
+        }
+        break;
+      }
       default:
         // Unknown header key — preserve for forward compatibility
         result.unknown[hk] = hv;
@@ -591,9 +708,36 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
   for (const clause of bodyClauses) {
     const [ck, cv] = splitKV(clause.trim());
 
+    // Session vocabulary: vocab=stem:definition
+    if (ck === "vocab") {
+      const colonIdx = cv.indexOf(":");
+      if (colonIdx > 0) {
+        const stem = cv.slice(0, colonIdx);
+        const def = decodeAtom(cv.slice(colonIdx + 1));
+        result.sessionVocab[stem] = def;
+        // Register into live morphology so subsequent affixed codes resolve
+        if (morphology) {
+          registerSessionStem(stem, "NRPTDQOXAMVC", morphology);
+        }
+      } else {
+        issues.push({ path: "body.vocab", code: "invalid_vocab", message: `vocab clause must be stem:definition, got: ${cv}` });
+      }
+      continue;
+    }
+
     // Extension namespace
     if (ck.startsWith(EXTENSION_PREFIX)) {
       result.extensions[ck.slice(EXTENSION_PREFIX.length)] = decodeAtom(cv);
+      continue;
+    }
+
+    // Diagnostics clauses
+    if (ck === "diag.trace") {
+      result.diagnosticsTrace = cv === "1";
+      continue;
+    }
+    if (ck === "diag.labels") {
+      result.diagnosticsLabels = decodeList(cv);
       continue;
     }
 
@@ -642,9 +786,51 @@ export function parseCeelineCompact(text: string): CeelineResult<CompactParseRes
       continue;
     }
 
+    // Morphology-aware resolution: if a clause key looks affixed, resolve it
+    if (morphology) {
+      const resolved = resolveAffix(ck, morphology);
+      if (resolved && resolved.valid) {
+        // Store the affixed code as a surface field with its resolved parts
+        result.surfaceFields[ck] = cv;
+        continue;
+      }
+    }
+
+    // Symbol expression resolution: key or value starts with a symbol char
+    // Key-as-symbol: the clause key itself is a symbol expression (e.g. ○→●=1)
+    if (isSymbol([...ck][0] ?? "")) {
+      const expr = resolveSymbolExpr(ck, result.surface);
+      if (expr) {
+        result.symbolExprs[ck] = expr;
+        result.surfaceFields[ck] = cv;
+        continue;
+      }
+    }
+    // Value-as-symbol: the value is a symbol expression (e.g. st=○→●)
+    if (cv.length > 0 && isSymbol([...cv][0] ?? "")) {
+      const expr = resolveSymbolExpr(cv, result.surface);
+      if (expr) {
+        result.symbolExprs[ck] = expr;
+        result.surfaceFields[ck] = cv;
+        continue;
+      }
+    }
+
     // Unknown clause — preserve for forward compatibility
     result.unknown[ck] = cv;
     issues.push({ path: `body.${ck}`, code: "unknown_clause_key", message: `Unknown clause key: ${ck}` });
+  }
+
+  // Post-processing: scan surfaceFields values for symbol expressions.
+  // This catches symbols in values even when the key was consumed by
+  // surface-specific decoders or morphology-aware resolution.
+  for (const [key, val] of Object.entries(result.surfaceFields)) {
+    if (result.symbolExprs[key]) continue; // already resolved
+    const sv = typeof val === "string" ? val : "";
+    if (sv.length > 0 && isSymbol([...sv][0] ?? "")) {
+      const expr = resolveSymbolExpr(sv, result.surface);
+      if (expr) result.symbolExprs[key] = expr;
+    }
   }
 
   // Issues are informational (warnings), not failures.  The parse succeeds
