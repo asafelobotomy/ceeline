@@ -12,6 +12,8 @@
     "./envelope-1.0.schema.json": "./dist/schema/envelope-1.0.schema.json",
     "./handoff-payload-1.0.schema.json": "./dist/schema/handoff-payload-1.0.schema.json",
     "./digest-payload-1.0.schema.json": "./dist/schema/digest-payload-1.0.schema.json",
-    "./memory-payload-1.0.schema.json": "./dist/schema/memory-payload-1.0.schema.json"
+    "./memory-payload-1.0.schema.json": "./dist/schema/memory-payload-1.0.schema.json",
+    "./dict/ceeline.aff": "./dict/ceeline.aff",
+    "./dict/ceeline.dic": "./dict/ceeline.dic"
   }
 }

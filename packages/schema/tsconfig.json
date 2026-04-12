@@ -5,5 +5,5 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts", "schema/**/*.json"]
+  "include": ["src/**/*.ts", "schema/**/*.json", "dict/**/*"]
 }
