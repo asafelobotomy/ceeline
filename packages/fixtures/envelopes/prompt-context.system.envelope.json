@@ -1,0 +1,44 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-prompt-context-001",
+  "surface": "prompt_context",
+  "channel": "internal",
+  "intent": "prompt.inject",
+  "source": {
+    "kind": "host",
+    "name": "ceeline.fixtures",
+    "instance": "prompt-context.system",
+    "timestamp": "2026-04-11T18:08:00Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "machine",
+    "max_render_tokens": 80,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": ["workspace://config"],
+    "classes": ["path"]
+  },
+  "payload": {
+    "summary": "Inject workspace configuration context into the system prompt.",
+    "facts": [
+      "Project uses TypeScript 5.8 with ESM modules.",
+      "Build tool is tsc with composite project references."
+    ],
+    "ask": "Ground the model in project conventions.",
+    "phase": "system",
+    "priority": 10,
+    "source_ref": "workspace://config",
+    "artifacts": [],
+    "metadata": {
+      "ts_version": "5.8.3"
+    }
+  },
+  "render": {
+    "style": "none",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}

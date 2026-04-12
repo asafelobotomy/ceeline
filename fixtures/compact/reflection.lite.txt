@@ -1,0 +1,8 @@
+@cl1 s=rf i=test.reflection ch=i md=ro au=m fb=rj rs=n sz=st
+sum="Test reflection summary."
+f="Fact one."
+ask="Test ask."
+rty=sc
+cnf=0.8
+rev="Fix edge case."
+#n=157

@@ -1,0 +1,8 @@
+@cl1 s=ts i=test.tool_summary ch=i md=ro au=m fb=rj rs=n sz=st
+sum="Test tool_summary summary."
+f="Fact one."
+ask="Test ask."
+tn=eslint
+out=ok
+ela=120
+#n=150

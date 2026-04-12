@@ -1,0 +1,44 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-routing-001",
+  "surface": "routing",
+  "channel": "internal",
+  "intent": "routing.select",
+  "source": {
+    "kind": "agent",
+    "name": "ceeline.fixtures",
+    "instance": "routing.direct",
+    "timestamp": "2026-04-11T18:07:00Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "machine",
+    "max_render_tokens": 60,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": [],
+    "classes": []
+  },
+  "payload": {
+    "summary": "Route task to the specialist code-review agent.",
+    "facts": [
+      "Three candidate agents are available.",
+      "Code-review agent has the highest relevance score."
+    ],
+    "ask": "Confirm routing selection.",
+    "strategy": "direct",
+    "candidates": ["code-review", "security-scan", "general-assist"],
+    "selected": "code-review",
+    "artifacts": [],
+    "metadata": {
+      "relevance_score": 0.92
+    }
+  },
+  "render": {
+    "style": "none",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}

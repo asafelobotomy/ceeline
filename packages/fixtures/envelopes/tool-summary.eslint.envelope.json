@@ -1,0 +1,44 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-tool-summary-001",
+  "surface": "tool_summary",
+  "channel": "internal",
+  "intent": "tool.report",
+  "source": {
+    "kind": "agent",
+    "name": "ceeline.fixtures",
+    "instance": "tool-summary.eslint",
+    "timestamp": "2026-04-11T18:06:00Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "machine",
+    "max_render_tokens": 60,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": [],
+    "classes": []
+  },
+  "payload": {
+    "summary": "ESLint completed with no violations.",
+    "facts": [
+      "Checked 42 files across 3 packages.",
+      "Zero warnings, zero errors."
+    ],
+    "ask": "Proceed with build step.",
+    "tool_name": "eslint",
+    "outcome": "success",
+    "elapsed_ms": 340,
+    "artifacts": [],
+    "metadata": {
+      "files_checked": 42
+    }
+  },
+  "render": {
+    "style": "none",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}

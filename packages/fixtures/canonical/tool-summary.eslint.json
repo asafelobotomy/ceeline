@@ -1,0 +1,20 @@
+{
+  "surface": "tool_summary",
+  "intent": "tool.report",
+  "text": "ESLint completed with no violations. Checked 42 files across 3 packages. Zero warnings, zero errors.",
+  "payload": {
+    "summary": "ESLint completed with no violations.",
+    "facts": [
+      "Checked 42 files across 3 packages.",
+      "Zero warnings, zero errors."
+    ],
+    "ask": "Proceed with build step.",
+    "tool_name": "eslint",
+    "outcome": "success",
+    "elapsed_ms": 340,
+    "artifacts": [],
+    "metadata": {
+      "files_checked": 42
+    }
+  }
+}

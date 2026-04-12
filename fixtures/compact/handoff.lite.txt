@@ -1,0 +1,8 @@
+@cl1 s=ho i=test.handoff ch=i md=ro au=m fb=rj rs=n sz=st
+sum="Test handoff summary."
+f="Fact one."
+ask="Test ask."
+role=rv
+tgt=fx
+sc=transport
+#n=143

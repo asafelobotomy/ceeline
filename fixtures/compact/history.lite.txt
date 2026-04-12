@@ -1,0 +1,8 @@
+@cl1 s=hs i=test.history ch=cu md=ro au=m fb=rj rs=n sz=st
+sum="Test history summary."
+f="Fact one."
+ask="Test ask."
+spn=ex
+tc=3
+anc=start
+#n=138

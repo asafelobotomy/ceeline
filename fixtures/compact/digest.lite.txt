@@ -1,0 +1,8 @@
+@cl1 s=dg i=test.digest ch=i md=ro au=m fb=rj rs=n sz=st
+sum="Test digest summary."
+f="Fact one."
+ask="Test ask."
+win=ss
+st=ok
+met=items:3
+#n=138

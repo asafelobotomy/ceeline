@@ -1,0 +1,21 @@
+{
+  "surface": "history",
+  "intent": "history.summarize",
+  "text": "User asked to fix a failing test. Agent identified a missing import and applied the fix. Tests passed after the change.",
+  "payload": {
+    "summary": "Summarize the recent exchange between user and agent.",
+    "facts": [
+      "User asked to fix a failing test.",
+      "Agent identified a missing import and applied the fix.",
+      "Tests passed after the change."
+    ],
+    "ask": "Archive exchange summary for future context.",
+    "span": "exchange",
+    "turn_count": 6,
+    "anchor": "test-fix-session-start",
+    "artifacts": [],
+    "metadata": {
+      "resolution": "success"
+    }
+  }
+}

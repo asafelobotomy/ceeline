@@ -1,0 +1,20 @@
+{
+  "surface": "routing",
+  "intent": "routing.select",
+  "text": "Route task to the specialist code-review agent. Three candidates available, code-review has highest relevance.",
+  "payload": {
+    "summary": "Route task to the specialist code-review agent.",
+    "facts": [
+      "Three candidate agents are available.",
+      "Code-review agent has the highest relevance score."
+    ],
+    "ask": "Confirm routing selection.",
+    "strategy": "direct",
+    "candidates": ["code-review", "security-scan", "general-assist"],
+    "selected": "code-review",
+    "artifacts": [],
+    "metadata": {
+      "relevance_score": 0.92
+    }
+  }
+}

@@ -1,0 +1,8 @@
+@cl1 s=me i=test.memory ch=i md=ro au=m fb=rj rs=n sz=st
+sum="Test memory summary."
+f="Fact one."
+ask="Test ask."
+mk=fa
+dur=ps
+cit=ref.md
+#n=137

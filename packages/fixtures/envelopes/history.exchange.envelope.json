@@ -1,0 +1,45 @@
+{
+  "ceeline_version": "1.0",
+  "envelope_id": "cel:fixture-history-001",
+  "surface": "history",
+  "channel": "controlled_ui",
+  "intent": "history.summarize",
+  "source": {
+    "kind": "agent",
+    "name": "ceeline.fixtures",
+    "instance": "history.exchange",
+    "timestamp": "2026-04-11T18:09:00Z"
+  },
+  "constraints": {
+    "mode": "advisory",
+    "audience": "machine",
+    "max_render_tokens": 80,
+    "no_user_visible_output": true,
+    "fallback": "reject"
+  },
+  "preserve": {
+    "tokens": [],
+    "classes": []
+  },
+  "payload": {
+    "summary": "Summarize the recent exchange between user and agent.",
+    "facts": [
+      "User asked to fix a failing test.",
+      "Agent identified a missing import and applied the fix.",
+      "Tests passed after the change."
+    ],
+    "ask": "Archive exchange summary for future context.",
+    "span": "exchange",
+    "turn_count": 6,
+    "anchor": "test-fix-session-start",
+    "artifacts": [],
+    "metadata": {
+      "resolution": "success"
+    }
+  },
+  "render": {
+    "style": "none",
+    "locale": "en",
+    "sanitizer": "strict"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "surface": "reflection",
+  "intent": "reflection.self-critique",
+  "text": "Agent critiques its previous response. Confidence was overestimated. Add file existence check before proceeding.",
+  "payload": {
+    "summary": "Agent critiques its previous response for logical consistency.",
+    "facts": [
+      "Prior response assumed file existed without verification.",
+      "Confidence was overestimated given missing context."
+    ],
+    "ask": "Revise approach to verify assumptions first.",
+    "reflection_type": "self_critique",
+    "confidence": 0.65,
+    "revision": "Add file existence check before proceeding with edit.",
+    "artifacts": [],
+    "metadata": {
+      "prior_action": "edit_file"
+    }
+  }
+}
