@@ -125,8 +125,8 @@ As usage patterns stabilize, surface-specific codes go through three stages:
    `COMPACT_LINE_KEYS` entry. May still be optional.
 3. **Core** -- required field for that surface, documented in this spec.
 
-The 10 built-in surfaces are at varying stages. Handoff, digest, and memory
-are at stage 3. The remaining seven are at stage 2 with stub codes defined.
+The 8 built-in surfaces are at varying stages. Handoff, digest, and memory
+are at stage 3. The remaining five are at stage 2 with stub codes defined.
 
 ---
 
@@ -229,6 +229,68 @@ canonical envelope -- it exists only in the compact dialect.
 
 The parser stores session vocab in `sessionVocab` on `CompactParseResult`.
 The `registerSessionStem()` function adds stems to a live `CeelineMorphology`.
+
+### Domain Stem Tables
+
+Ceeline ships four built-in domain stem tables that extend the vocabulary with
+specialised terms for common audit and review domains. Domain stems are
+activated via the `dom=` header key:
+
+```text
+@cl1 s=ho i=review.security dom=sec
+sum="Review auth module for injection and escalation."
+vul=found ; ath=strong ; xss=neg.xss
+#n=112
+```
+
+#### Available domains
+
+| Domain | ID | Stems | Example stems |
+|---|---|---|---|
+| Security | `sec` | 24 | `vul`, `xss`, `ath`, `esc`, `rbac`, `sqi` |
+| Performance | `perf` | 23 | `lat`, `thr`, `cch`, `p95`, `rps`, `ccr` |
+| Architecture | `arch` | 23 | `lay`, `bnd`, `cpl`, `svc`, `api`, `mdl` |
+| Testing | `test` | 21 | `cov`, `mck`, `flk`, `e2e`, `unt`, `snp2` |
+
+Multiple domains can be activated simultaneously:
+
+```text
+@cl1 s=ho i=review.perf-test dom=perf+test
+```
+
+#### Resolution precedence
+
+When resolving an affixed code, the lookup chain is:
+
+1. **Built-in stems** (`morphology.stems`) — always checked first
+2. **Domain stems** (`morphology.domainStems`) — checked second
+3. **Session stems** (`morphology.sessionStems`) — checked last
+
+Built-in stems always win. Domain stems cannot shadow built-in stems, and
+cross-domain collision is prevented by uniqueness constraints on stem codes.
+
+#### Affix compatibility
+
+Domain stems participate fully in the morphological affix system. Each domain
+stem declares a flag set exactly like built-in stems:
+
+```text
+vul/NRQC    → neg.vul (no vulnerability), vul.seq (vulnerability list)
+xss/QC      → xss.seq (XSS finding sequence)
+lat/NRQOC   → neg.lat (no latency issue), re.lat (re-measure latency)
+```
+
+#### Domain ID validation
+
+Domain IDs in `dom=` headers are validated with `/^[a-z0-9]+$/` to prevent
+header injection. Invalid IDs are silently filtered on render and emit an
+`unknown_domain` informational warning on parse.
+
+#### Morphology isolation
+
+The parser snapshots `morphology.domainStems` before activation and restores
+it in a `try/finally` block. This prevents domain state from leaking across
+independent `parseCeelineCompact()` calls.
 
 ### Language definition files
 
@@ -398,6 +460,8 @@ Meaning:
 - `rs`: render style
 - `sz`: sanitizer
 - `mx`: max render tokens (omitted when 0; omitted in dense)
+- `dom`: domain stem tables to activate (e.g. `dom=sec`, `dom=sec+perf`;
+  multiple domains separated by `+`; omitted when none)
 
 ### Clauses
 
@@ -815,12 +879,26 @@ The compact lexicon, registry, renderer, and parser live in:
 
 Key API functions:
 
-- `renderCeelineCompact(envelope, density)` -- render at a specific density,
-  returns `CeelineResult<string>`
-- `renderCeelineCompactAuto(envelope)` -- budget-aware auto-density selection,
-  returns `CeelineResult<string>`
+- `renderCeelineCompact(envelope, density, options?)` -- render at a specific
+  density, returns `CeelineResult<string>`. Optional `CompactRenderOptions`
+  accepts `domains?: readonly string[]` for domain stem activation.
+- `renderCeelineCompactAuto(envelope, options?)` -- budget-aware auto-density
+  selection, returns `CeelineResult<string>`
 - `parseCeelineCompact(text)` -- parse compact text back to structured data,
-  returns `CeelineResult<CompactParseResult>`
+  returns `CeelineResult<CompactParseResult>`. Parses `dom=` from the header
+  and activates domain stems automatically.
+- `activateDomains(ids, morphology)` -- activate domain stem tables for
+  resolution. Called automatically by the parser.
+- `resolveAffix(code, morphology)` -- resolve an affixed code through the
+  3-tier lookup chain (builtin → domain → session).
+- `expandStem(code, morphology)` -- expand a stem code to its canonical name
+  through the same 3-tier lookup chain.
+
+Domain stem tables are exported from `@ceeline/schema`:
+
+- `DOMAIN_TABLES` -- `ReadonlyMap<string, DomainStemTable>` with keys
+  `sec`, `perf`, `arch`, `test`
+- `DomainStemTable` -- interface: `{ id, name, stems }`
 
 Golden fixtures for all 8 surfaces × 3 densities live in:
 

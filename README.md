@@ -83,10 +83,26 @@ The compact dialect has three density levels:
 Every compact output ends with a `#n=<bytecount>` integrity trailer that the
 parser verifies on read.
 
-Example (lite density, handoff surface):
+### Domain stem tables
+
+Ceeline ships four built-in domain stem tables that add specialised
+vocabulary for common review and audit contexts. A single header token
+activates one or more domains:
+
+| Domain | ID | Stems | Example |
+|---|---|---|---|
+| Security | `sec` | 24 | `vul`, `xss`, `ath`, `esc`, `sqi` |
+| Performance | `perf` | 23 | `lat`, `thr`, `cch`, `p95`, `rps` |
+| Architecture | `arch` | 23 | `lay`, `bnd`, `cpl`, `svc`, `api` |
+| Testing | `test` | 21 | `cov`, `mck`, `flk`, `e2e`, `snp2` |
+
+Domain stems participate fully in the morphological affix system
+(`neg.vul`, `xss.seq`, `re.cch`, etc.).
+
+Example (lite density, handoff surface with security domain):
 
 ```
-@cl1 s=ho i=review.security ch=i md=ro au=m fb=rj rs=n sz=st mx=500
+@cl1 s=ho i=review.security ch=i md=ro au=m fb=rj rs=n sz=st mx=500 dom=sec
 sum="Review src/core/codec.ts for transport safety before release."
 f="Preserve {{PROJECT_ID}} exactly."
 ask="Return severity-ordered findings only."
@@ -94,7 +110,7 @@ role=rv
 tgt=fx
 sc=transport,validation
 cls=fp
-#n=287
+#n=305
 ```
 
 Full language grammar in [docs/ceeline-language-spec-v1.md](docs/ceeline-language-spec-v1.md).
@@ -158,11 +174,13 @@ if (compact.ok) console.log(compact.value);
 | `validateEnvelope(obj)` | `CeelineResult<CeelineEnvelope>` | Schema-validate an envelope object |
 | `parseEnvelope(json)` | `CeelineResult<CeelineEnvelope>` | Parse and validate JSON text |
 | `decodeEnvelope(envelope)` | `DecodedEnvelope` | Decode envelope to structured canonical meaning |
-| `renderCeelineCompact(envelope, density)` | `CeelineResult<string>` | Render to compact format at specified density |
-| `renderCeelineCompactAuto(envelope)` | `CeelineResult<string>` | Auto-select density from token budget |
+| `renderCeelineCompact(envelope, density, options?)` | `CeelineResult<string>` | Render to compact format at specified density |
+| `renderCeelineCompactAuto(envelope, options?)` | `CeelineResult<string>` | Auto-select density from token budget |
 | `parseCeelineCompact(text)` | `CompactParseResult` | Parse compact text back to structured data |
 | `detectLeaks(text)` | `LeakFinding[]` | Scan text for leaked Ceeline artifacts |
 | `renderUserFacing(decoded)` | `string` | Clean user-facing rendering after leak checks |
+| `activateDomains(ids, morphology)` | `void` | Activate domain stem tables for resolution |
+| `resolveAffix(code, morphology)` | `AffixResolution \| null` | Resolve affixed code via morphology engine |
 | `extractPreserveTokens(text, classes)` | `string[]` | Extract tokens that must survive transforms |
 | `validatePreservation(before, after, set)` | `CeelineResult<true>` | Verify all preserve tokens survived |
 
@@ -175,14 +193,17 @@ type CeelineResult<T> = { ok: true; value: T } | { ok: false; issues: Validation
 ## Testing
 
 ```bash
-npm run test          # 164 tests via vitest
+npm run test          # 341 tests via vitest
 npm run test:watch    # watch mode
 npm run typecheck     # tsc project references
 ```
 
-Test coverage includes validation (all surfaces and source kinds), compact
-render/parse for all 8×3 combinations, auto-density selection, round-trip
-fidelity, and byte-for-byte golden snapshot stability against 24 fixture files.
+341 tests across 11 files covering: validation (all surfaces and source kinds),
+compact render/parse for all 8×3 combinations, auto-density selection,
+round-trip fidelity, byte-for-byte golden snapshot stability against 24 fixture
+files, morphological affix resolution, domain stem table activation and
+isolation, symbol expression parsing, dict↔TS sync, and robustness probes for
+forward compatibility.
 
 ## Benchmarks
 

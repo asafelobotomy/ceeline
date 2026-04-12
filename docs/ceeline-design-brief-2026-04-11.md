@@ -166,6 +166,7 @@ these product-level surface classes.
 - `routing`: intent classification, scope hints, constraint bundles
 - `prompt_context`: extension-owned or host-owned prompt fragments that remain
   machine-private
+- `history`: participant-local conversation state stored in compact form
 
 ### Future controlled surfaces (deferred)
 
@@ -175,8 +176,6 @@ these product-level surface classes.
 
 > **Note:** ui_request and ui_response are shelved to focus on AI-to-AI
 > communication. Their codes (`ur`, `us`) and line keys are reserved.
-
-- `history`: participant-local conversation state stored in compact form
 
 ### Unsafe v1 surfaces
 
@@ -408,7 +407,7 @@ Surface-specific payload schemas currently live at:
 
 - type: object
 - required fields:
-  - `kind`: enum `host | adapter | test | fixture`
+  - `kind`: enum `host | adapter | test | fixture | agent`
   - `name`: string
   - `instance`: string
   - `timestamp`: RFC 3339 timestamp string
@@ -749,34 +748,34 @@ The initial scaffold now exists in:
 - [../adapters/mcp-server](../adapters/mcp-server)
 - [../adapters/vscode-extension](../adapters/vscode-extension)
 
-### Phase 0: Product spec
+### Phase 0: Product spec ✓
 
 - finalize the v1 envelope
 - finalize surface enums
 - finalize preserve classes
 - finalize trust and fallback policy
 
-### Phase 1: Core packages
+### Phase 1: Core packages ✓
 
 - create schema package
 - create core library
 - create CLI
 - add typed validation errors
 
-### Phase 2: Corpus and fixtures
+### Phase 2: Corpus and fixtures ✓
 
 - collect representative internal payload examples from target hosts
 - classify them by surface
 - build golden fixtures with preserve expectations
 
-### Phase 3: Validation first
+### Phase 3: Validation first ✓
 
 - implement preserve extraction
 - implement leak detection
 - implement roundtrip validation
 - implement strict sanitizer
 
-### Phase 4: Host adapters
+### Phase 4: Host adapters ✓
 
 - add MCP wrapper as an explicit tool surface
 - add hook helper scripts for host-controlled lifecycle points
