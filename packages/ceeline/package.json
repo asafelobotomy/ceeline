@@ -1,0 +1,52 @@
+{
+  "name": "@asafelobotomy/ceeline",
+  "version": "0.2.0",
+  "description": "Full Ceeline suite — schema, core, CLI, and MCP server in one install",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asafelobotomy/ceeline.git",
+    "directory": "packages/ceeline"
+  },
+  "homepage": "https://github.com/asafelobotomy/ceeline#readme",
+  "bugs": "https://github.com/asafelobotomy/ceeline/issues",
+  "keywords": [
+    "ceeline",
+    "ai",
+    "compact",
+    "transport",
+    "token-efficient",
+    "llm",
+    "agent",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "@asafelobotomy/ceeline-schema",
+      "default": "@asafelobotomy/ceeline-schema"
+    },
+    "./core": {
+      "types": "@asafelobotomy/ceeline-core",
+      "default": "@asafelobotomy/ceeline-core"
+    }
+  },
+  "dependencies": {
+    "@asafelobotomy/ceeline-schema": "0.2.0",
+    "@asafelobotomy/ceeline-core": "0.2.0",
+    "@asafelobotomy/ceeline-cli": "0.2.0",
+    "@asafelobotomy/ceeline-mcp-server": "0.2.0"
+  }
+}

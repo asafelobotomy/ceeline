@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/schema" },
     { "path": "./packages/core" },
+    { "path": "./packages/ceeline" },
     { "path": "./packages/cli" },
     { "path": "./adapters/mcp-server" }
   ]

@@ -26,6 +26,6 @@
     }
   },
   "dependencies": {
-    "@asafelobotomy/ceeline-schema": "0.1.0"
+    "@asafelobotomy/ceeline-schema": "0.2.0"
   }
 }

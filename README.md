@@ -52,8 +52,17 @@ Measured across 8 surfaces × 3 densities. Full report in
 
 ## Packages
 
+Install everything with a single command:
+
+```sh
+npm install @asafelobotomy/ceeline
+```
+
+Or install individual packages:
+
 | Package | Description |
 |---|---|
+| `@asafelobotomy/ceeline` | **Meta-package** — installs schema, core, CLI, and MCP server |
 | `@asafelobotomy/ceeline-schema` | TypeScript types, enums, code maps, JSON schemas |
 | `@asafelobotomy/ceeline-core` | Validation, compact render/parse, preserve, encode/decode, leak detection |
 | `@asafelobotomy/ceeline-cli` | CLI for `encode`, `decode`, `render`, `validate`, `detect-leak` |

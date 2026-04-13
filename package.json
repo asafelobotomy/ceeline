@@ -21,7 +21,7 @@
     "clean": "tsc -b --clean",
     "test": "vitest run",
     "test:watch": "vitest",
-    "publish:all": "npm run build && npm publish --workspace=packages/schema --workspace=packages/core --workspace=packages/cli --workspace=adapters/mcp-server --access public --tag latest"
+    "publish:all": "npm run build && npm publish --workspace=packages/schema --workspace=packages/core --workspace=packages/cli --workspace=adapters/mcp-server --workspace=packages/ceeline --access public --tag latest"
   },
   "devDependencies": {
     "@jtml/core": "^0.1.2",

@@ -33,7 +33,7 @@
     "ceeline": "dist/index.js"
   },
   "dependencies": {
-    "@asafelobotomy/ceeline-core": "0.1.0",
-    "@asafelobotomy/ceeline-schema": "0.1.0"
+    "@asafelobotomy/ceeline-core": "0.2.0",
+    "@asafelobotomy/ceeline-schema": "0.2.0"
   }
 }
