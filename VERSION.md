@@ -57,8 +57,8 @@ First public release. Published to npm under the `@asafelobotomy` scope.
 - 631 tests across 16 files (vitest)
 - 24 golden compact fixtures: all 8 surfaces × 3 densities, byte-for-byte stability
 - Benchmark harness: byte/token compression, render/parse throughput, trailer overhead, auto-density comparison
-- Compression: 2.32:1 bytes, 1.95:1 tokens (cl100k), 2.01:1 tokens (o200k)
+- Compression: 2.4:1 bytes, 1.97:1 tokens (cl100k), 2.02:1 tokens (o200k)
 
 **Distribution**
-- npm workspaces monorepo; `"type": "module"` throughout; Node ≥ 18
+- npm workspaces monorepo; published workspace packages use `"type": "module"`; Node ≥ 18
 - Agent plugin drop-in in `plugin/`: agents, skill, hooks, MCP config

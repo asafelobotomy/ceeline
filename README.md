@@ -382,6 +382,11 @@ forward compatibility.
 npx tsx benchmarks/run.ts
 ```
 
+For ad hoc `npx tsx -e` benchmark probes, prefer static imports such as
+`import { getEncoding } from "js-tiktoken";`. In this repo, top-level
+`await import(...)` fails under `tsx -e` because the eval path is emitted as
+CommonJS at the repo root.
+
 Generates `benchmarks/report.json` and `benchmarks/report.txt` with:
 
 - Byte and token compression ratios per surface and density
