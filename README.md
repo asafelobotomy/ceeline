@@ -22,11 +22,11 @@ application owns end-to-end.
 
 | Metric | Value |
 |---|---|
-| Byte compression | 2.32:1 (56.6% saving) |
-| Token compression (cl100k) | 1.95:1 (48.5% saving) |
-| Token compression (o200k) | 2.01:1 (49.9% saving) |
+| Byte compression | 2.4:1 (58.04% saving) |
+| Token compression (cl100k) | 1.97:1 (48.86% saving) |
+| Token compression (o200k) | 2.02:1 (50.26% saving) |
 | Round-trip fidelity | 100% |
-| Integrity trailer overhead | 1.6–3.0% |
+| Integrity trailer overhead | 1.6–3.1% |
 
 Measured across 8 surfaces × 3 densities. Full report in
 [benchmarks/report.txt](benchmarks/report.txt).
