@@ -101,7 +101,7 @@ stored in a `CompactCodeRegistry` data structure.
 Hosts and adapters can extend the registry at runtime:
 
 ```typescript
-import { createDefaultRegistry, extendRegistry } from "@ceeline/schema";
+import { createDefaultRegistry, extendRegistry } from "@asafelobotomy/ceeline-schema";
 
 const registry = extendRegistry(createDefaultRegistry(), {
   surfaces: { planning: "pn" },
@@ -190,7 +190,7 @@ The runtime resolves an affixed code left-to-right:
 4. Check whether the stem's flag set permits the stripped prefix and suffix.
 5. If all checks pass, the code is valid.
 
-The `resolveAffix()` function in `@ceeline/schema` implements this.
+The `resolveAffix()` function in `@asafelobotomy/ceeline-schema` implements this.
 
 ### Stem flags
 
@@ -894,7 +894,7 @@ Key API functions:
 - `expandStem(code, morphology)` -- expand a stem code to its canonical name
   through the same 3-tier lookup chain.
 
-Domain stem tables are exported from `@ceeline/schema`:
+Domain stem tables are exported from `@asafelobotomy/ceeline-schema`:
 
 - `DOMAIN_TABLES` -- `ReadonlyMap<string, DomainStemTable>` with keys
   `sec`, `perf`, `arch`, `test`

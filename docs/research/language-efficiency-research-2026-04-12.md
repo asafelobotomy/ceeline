@@ -219,7 +219,7 @@ envelopes could be served as MCP resources. The compact text format fits MCP's
 | `fast-check` | Testing | devDep (root) | 1 (pure-rand) | Property-based roundtrip testing. |
 | `gpt-tokenizer` | Token counting | devDep or optional | 0 | Pure JS, all OpenAI encodings. Token-count benchmarks. |
 | `tinybench` | Benchmarking | devDep (root) | 0 | Measure compaction performance in CI. |
-| `commander` | CLI | @ceeline/cli dep | 0 | Replace hand-rolled argv parser. |
+| `commander` | CLI | @asafelobotomy/ceeline-cli dep | 0 | Replace hand-rolled argv parser. |
 | `fflate` | Compression bench | devDep | 0 | Measure `JSON → compact → gzip` pipeline. |
 
 ### Evaluate Further
@@ -241,7 +241,7 @@ envelopes could be served as MCP resources. The compact text format fits MCP's
 | `zod` (for core) | Ceeline uses JSON Schema as source of truth; zod is parallel |
 | `clipanion` | Over-engineered for 4-5 CLI subcommands |
 
-### Dependency Impact on `@ceeline/core`
+### Dependency Impact on `@asafelobotomy/ceeline-core`
 
 The only potential runtime dependency for core is `@sinclair/typebox` (zero
 transitive deps, 43kB minified). Everything else is a devDep or scoped to CLI

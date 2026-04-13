@@ -34,17 +34,17 @@ Measured across 8 surfaces × 3 densities. Full report in
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Canonical source (human-readable)                          │
-├────────────────────────┬────────────────────────────────────┤
-│  @asafelobotomy/ceeline-schema       │  Envelope + payload JSON schemas   │
-│  @asafelobotomy/ceeline-core         │  Encode, validate, render, parse   │
-│  @asafelobotomy/ceeline-cli          │  CLI: encode, decode, validate     │
-├────────────────────────┼────────────────────────────────────┤
-│  adapters/mcp-server   │  MCP tool surface                  │
-├────────────────────────┴────────────────────────────────────┤
-│  Compact transport (#n= integrity trailer)                  │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Canonical source (human-readable)                                       │
+├──────────────────────────────────┬───────────────────────────────────────┤
+│  @asafelobotomy/ceeline-schema   │  Envelope + payload JSON schemas      │
+│  @asafelobotomy/ceeline-core     │  Encode, validate, render, parse      │
+│  @asafelobotomy/ceeline-cli      │  CLI: encode, decode, validate        │
+├──────────────────────────────────┼───────────────────────────────────────┤
+│  adapters/mcp-server             │  MCP tool surface                     │
+├──────────────────────────────────┴───────────────────────────────────────┤
+│  Compact transport (#n= integrity trailer)                               │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Packages

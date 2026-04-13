@@ -139,7 +139,7 @@ counts.
 - Designed 4 domain stem tables: security (24 stems), performance (23),
   architecture (23), testing (21) — 91 total domain stems
 - Added `DomainStemTable` interface and `DOMAIN_TABLES` map to
-  `@ceeline/schema`
+  `@asafelobotomy/ceeline-schema`
 - Implemented `activateDomains()` for runtime domain activation
 - Extended `resolveAffix()` and `expandStem()` with 3-tier lookup chain
   (builtin → domain → session)
@@ -168,7 +168,7 @@ counts.
 
 ### 10. Explicit render policy modes ✓
 
-- `CEELINE_POLICIES = ["internal", "final_response"]` enum in `@ceeline/schema`
+- `CEELINE_POLICIES = ["internal", "final_response"]` enum in `@asafelobotomy/ceeline-schema`
 - `createPolicyDefaults(surface, policy)` as single source of truth for
   channel / constraints / render defaults per policy
 - `encodeCanonical(input, surface, options?)` third overload accepting
