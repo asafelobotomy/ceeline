@@ -4,7 +4,7 @@ import { compressObject, createCompressionTable, decompressObject, type Compress
 import { jsonToTonl } from "tonl-mcp-bridge/dist/core/json-to-tonl.js";
 import { tonlToJson } from "tonl-mcp-bridge/dist/core/tonl-to-json.js";
 import { parse as zipsonParse, stringify as zipsonStringify } from "zipson";
-import { parseCeelineCompact, renderCeelineCompact } from "@ceeline/core";
+import { parseCeelineCompact, renderCeelineCompact } from "@asafelobotomy/ceeline-core";
 import {
   ceelineEnvelopeSchema,
   digestPayloadSchema,
@@ -17,7 +17,7 @@ import {
   toolSummaryPayloadSchema,
   type CeelineEnvelope,
   type CeelineSurface,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { isDeepStrictEqual } from "node:util";
 
 export interface ComparableFormatMetrics {

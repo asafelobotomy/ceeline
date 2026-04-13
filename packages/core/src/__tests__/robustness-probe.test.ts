@@ -22,7 +22,7 @@ import {
   loadMorphology,
   parseAffFile,
   parseDicFile,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { parseCeelineCompact, renderCeelineCompact, type CompactParseResult } from "../compact.js";
 import { makeHandoff, makeDigest, makeMemory, makeReflection, SURFACE_FACTORIES } from "./helpers.js";
 import { readFileSync } from "node:fs";

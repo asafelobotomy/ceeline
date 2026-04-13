@@ -9,8 +9,8 @@ import {
   renderCeelineCompactAuto,
   renderUserFacing,
   validateEnvelope
-} from "@ceeline/core";
-import { CEELINE_POLICIES, SURFACES, type CeelinePolicy, type CeelineSurface } from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-core";
+import { CEELINE_POLICIES, SURFACES, type CeelinePolicy, type CeelineSurface } from "@asafelobotomy/ceeline-schema";
 
 export interface McpToolDescriptor {
   name: string;

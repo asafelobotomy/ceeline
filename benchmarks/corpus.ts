@@ -7,7 +7,7 @@
  * Each envelope is a valid CeelineEnvelope that exercises the surface-specific
  * payload fields documented in the v1 language spec.
  */
-import type { CeelineEnvelope } from "@ceeline/schema";
+import type { CeelineEnvelope } from "@asafelobotomy/ceeline-schema";
 
 export const CORPUS: readonly CeelineEnvelope[] = [
   // ── handoff ──────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 {
-  "name": "@ceeline/mcp-server",
+  "name": "@asafelobotomy/ceeline-mcp-server",
   "version": "0.1.0",
   "description": "MCP JSON-RPC server for Ceeline compact transport tools",
   "license": "MIT",
@@ -19,16 +19,28 @@
   },
   "homepage": "https://github.com/asafelobotomy/ceeline#readme",
   "bugs": "https://github.com/asafelobotomy/ceeline/issues",
-  "keywords": ["ceeline", "ai", "compact", "transport", "mcp", "mcp-server", "json-rpc", "llm", "agent"],
-  "engines": { "node": ">=18.0.0" },
+  "keywords": [
+    "ceeline",
+    "ai",
+    "compact",
+    "transport",
+    "mcp",
+    "mcp-server",
+    "json-rpc",
+    "llm",
+    "agent"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "bin": {
-    "ceeline-mcp-server": "./dist/index.js"
+    "ceeline-mcp-server": "dist/index.js"
   },
   "scripts": {
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "@ceeline/core": "0.1.0",
-    "@ceeline/schema": "0.1.0"
+    "@asafelobotomy/ceeline-core": "0.1.0",
+    "@asafelobotomy/ceeline-schema": "0.1.0"
   }
 }

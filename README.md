@@ -37,9 +37,9 @@ Measured across 8 surfaces × 3 densities. Full report in
 ┌─────────────────────────────────────────────────────────────┐
 │  Canonical source (human-readable)                          │
 ├────────────────────────┬────────────────────────────────────┤
-│  @ceeline/schema       │  Envelope + payload JSON schemas   │
-│  @ceeline/core         │  Encode, validate, render, parse   │
-│  @ceeline/cli          │  CLI: encode, decode, validate     │
+│  @asafelobotomy/ceeline-schema       │  Envelope + payload JSON schemas   │
+│  @asafelobotomy/ceeline-core         │  Encode, validate, render, parse   │
+│  @asafelobotomy/ceeline-cli          │  CLI: encode, decode, validate     │
 ├────────────────────────┼────────────────────────────────────┤
 │  adapters/mcp-server   │  MCP tool surface                  │
 ├────────────────────────┴────────────────────────────────────┤
@@ -51,10 +51,10 @@ Measured across 8 surfaces × 3 densities. Full report in
 
 | Package | Description |
 |---|---|
-| `@ceeline/schema` | TypeScript types, enums, code maps, JSON schemas |
-| `@ceeline/core` | Validation, compact render/parse, preserve, encode/decode, leak detection |
-| `@ceeline/cli` | CLI for `encode`, `decode`, `render`, `validate`, `detect-leak` |
-| `@ceeline/fixtures` | Golden fixtures for all 8 surfaces × 3 compact densities |
+| `@asafelobotomy/ceeline-schema` | TypeScript types, enums, code maps, JSON schemas |
+| `@asafelobotomy/ceeline-core` | Validation, compact render/parse, preserve, encode/decode, leak detection |
+| `@asafelobotomy/ceeline-cli` | CLI for `encode`, `decode`, `render`, `validate`, `detect-leak` |
+| `@asafelobotomy/ceeline-fixtures` | Golden fixtures for all 8 surfaces × 3 compact densities |
 | `adapters/mcp-server` | MCP JSON-RPC tool adapter |
 
 ## Surfaces
@@ -121,16 +121,16 @@ Install from npm — packages are independent; install only what you need.
 
 ```bash
 # TypeScript / Node.js API
-npm install @ceeline/core
+npm install @asafelobotomy/ceeline-core
 
 # Schemas and types only (no encode/decode logic)
-npm install @ceeline/schema
+npm install @asafelobotomy/ceeline-schema
 
 # CLI (adds `ceeline` binary)
-npm install --save-dev @ceeline/cli
+npm install --save-dev @asafelobotomy/ceeline-cli
 
 # MCP server (run as a stdio MCP tool server)
-npm install --save-dev @ceeline/mcp-server
+npm install --save-dev @asafelobotomy/ceeline-mcp-server
 ```
 
 ### MCP server setup
@@ -143,7 +143,7 @@ Add to your `.mcp.json` (or equivalent agent config):
     "ceeline": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@ceeline/mcp-server"]
+      "args": ["-y", "@asafelobotomy/ceeline-mcp-server"]
     }
   }
 }
@@ -160,7 +160,7 @@ Copy the `plugin/` directory into your repo root. It ships:
 - **Agent definitions** — `ceeline-handoff` and `ceeline-review` ready-to-use agents
 - **Skill** — `plugin/skills/ceeline/SKILL.md` loaded by any agent encoding/decoding Ceeline
 - **Hooks** — session-start context injection, post-tool auto-validation, pre-render leak guard
-- **MCP config** — `plugin/.mcp.json` pre-configured to use `@ceeline/mcp-server` via npx
+- **MCP config** — `plugin/.mcp.json` pre-configured to use `@asafelobotomy/ceeline-mcp-server` via npx
 
 ---
 
@@ -196,7 +196,7 @@ echo "some output text" | npx ceeline detect-leak
 ### Programmatic usage
 
 ```typescript
-import { encodeCanonical, validateEnvelope, renderCeelineCompact } from "@ceeline/core";
+import { encodeCanonical, validateEnvelope, renderCeelineCompact } from "@asafelobotomy/ceeline-core";
 
 // Encode a handoff envelope
 const result = encodeCanonical({
@@ -230,7 +230,7 @@ const finalResponse = encodeCanonical({
 Budget-aware rendering:
 
 ```typescript
-import { renderCeelineCompactAuto } from "@ceeline/core";
+import { renderCeelineCompactAuto } from "@asafelobotomy/ceeline-core";
 
 // Auto-selects density to fit within token budget
 const compact = renderCeelineCompactAuto(envelope);

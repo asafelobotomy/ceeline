@@ -1,7 +1,7 @@
 /**
  * Shared test helpers — envelope factories for all 8 surfaces.
  */
-import { createPolicyDefaults, type CeelineEnvelope, type CeelineSurface } from "@ceeline/schema";
+import { createPolicyDefaults, type CeelineEnvelope, type CeelineSurface } from "@asafelobotomy/ceeline-schema";
 
 const TS = "2026-04-12T10:00:00Z";
 

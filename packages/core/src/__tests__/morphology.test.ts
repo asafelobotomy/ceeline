@@ -9,7 +9,7 @@ import {
   expandStem,
   activateDomains,
   DOMAIN_TABLES,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 
 describe("Morphological affix system", () => {
   const morphology = createDefaultMorphology();

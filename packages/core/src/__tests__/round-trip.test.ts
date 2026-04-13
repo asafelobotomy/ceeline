@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderCeelineCompact, parseCeelineCompact } from "../compact";
 import { SURFACE_FACTORIES } from "./helpers.js";
-import type { CompactDensity } from "@ceeline/schema";
+import type { CompactDensity } from "@asafelobotomy/ceeline-schema";
 
 const DENSITIES: CompactDensity[] = ["lite", "full", "dense"];
 

@@ -7,7 +7,7 @@ import {
   REVERSE_SYMBOL_CODES,
   SYMBOL_SURFACE_MEANINGS,
   type SymbolExpr,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { parseCeelineCompact } from "../compact.js";
 
 // =========================================================================

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderCeelineCompact, parseCeelineCompact } from "../compact";
 import { SURFACE_FACTORIES } from "./helpers.js";
-import type { CompactDensity, CeelineSurface } from "@ceeline/schema";
+import type { CompactDensity, CeelineSurface } from "@asafelobotomy/ceeline-schema";
 
 const DENSITIES: CompactDensity[] = ["lite", "full", "dense"];
 const FIXTURE_DIR = resolve(__dirname, "../../../../fixtures/compact");

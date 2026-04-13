@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
-import type { CeelineSurface } from "@ceeline/schema";
+import type { CeelineSurface } from "@asafelobotomy/ceeline-schema";
 import { decodeEnvelope, encodeCanonical, renderCeelineCompact, renderUserFacing } from "../index.js";
 
 const FLOW_FIXTURE_DIR = resolve(__dirname, "../../../../packages/fixtures/flows");

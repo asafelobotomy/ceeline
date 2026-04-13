@@ -11,7 +11,7 @@ import {
   resolveAffix,
   activateDomains,
   type DialectStemDef,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { parseCeelineCompact, renderCeelineCompact, extractDialect } from "../compact.js";
 import { makeHandoff } from "./helpers.js";
 

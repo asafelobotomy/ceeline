@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseCeelineCompact, renderCeelineCompact } from "../compact";
 import { makeHandoff, makeDigest, makeReflection, makeToolSummary, makeRouting, makePromptContext, makeHistory, SURFACE_FACTORIES, withOverrides } from "./helpers.js";
-import { createDefaultMorphology, activateDomains } from "@ceeline/schema";
+import { createDefaultMorphology, activateDomains } from "@asafelobotomy/ceeline-schema";
 
 describe("parseCeelineCompact", () => {
   // ─── Valid #n= trailer accepted ────────────────────────────────────

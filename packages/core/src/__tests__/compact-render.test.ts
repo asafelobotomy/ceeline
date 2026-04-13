@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderCeelineCompact } from "../compact";
 import { makeHandoff, makeDigest, makeMemory, makeRouting, makePromptContext, makeHistory, makeReflection, makeToolSummary, SURFACE_FACTORIES, withOverrides } from "./helpers.js";
-import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
+import type { CompactDensity, CeelineEnvelope } from "@asafelobotomy/ceeline-schema";
 
 describe("renderCeelineCompact", () => {
   // ─── Basic rendering succeeds for all surfaces × densities ──────────

@@ -1,5 +1,5 @@
 {
-  "name": "@ceeline/fixtures",
+  "name": "@asafelobotomy/ceeline-fixtures",
   "version": "0.1.0",
   "private": true,
   "description": "Golden fixtures for Ceeline v1 envelope tests."

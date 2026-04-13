@@ -1,5 +1,5 @@
 {
-  "name": "@ceeline/schema",
+  "name": "@asafelobotomy/ceeline-schema",
   "version": "0.1.0",
   "description": "TypeScript types, enums, code maps, and JSON schemas for the Ceeline compact transport",
   "license": "MIT",

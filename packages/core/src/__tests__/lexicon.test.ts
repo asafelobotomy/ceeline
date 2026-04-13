@@ -12,7 +12,7 @@ import {
   activateDomains,
   type PersonalStemDef,
   STEM_RELATIONS,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { parseCeelineCompact, renderCeelineCompact, extractPersonalLexicon } from "../compact.js";
 import { makeHandoff, makeMemory } from "./helpers.js";
 

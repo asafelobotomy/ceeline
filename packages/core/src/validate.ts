@@ -28,7 +28,7 @@ import {
   type RoutingPayload,
   type SourceInfo,
   type ToolSummaryPayload
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { fail, ok, type CeelineResult, type ValidationIssue } from "./result.js";
 
 function issue(code: string, message: string, path: string): ValidationIssue {

@@ -18,8 +18,8 @@
  */
 
 import { getEncoding } from "js-tiktoken";
-import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@ceeline/core";
-import type { CompactDensity, CeelineEnvelope } from "@ceeline/schema";
+import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@asafelobotomy/ceeline-core";
+import type { CompactDensity, CeelineEnvelope } from "@asafelobotomy/ceeline-schema";
 import { CORPUS } from "./corpus.js";
 import { measureBatchComparisons, measureExternalComparables, measureMixedBatchComparisons, type BatchComparison, type ComparableFormatMetrics } from "./comparables.js";
 import { stringify as yamlStringify } from "yaml";

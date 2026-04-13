@@ -1,4 +1,4 @@
-import { PRESERVE_CLASSES, type PreserveClass, type PreserveSet } from "@ceeline/schema";
+import { PRESERVE_CLASSES, type PreserveClass, type PreserveSet } from "@asafelobotomy/ceeline-schema";
 
 const EXTRACTORS: Record<PreserveClass, RegExp> = {
   file_path: /(?:\.{0,2}\/)?(?:[A-Za-z0-9_.-]+\/)+[A-Za-z0-9_.-]+/g,

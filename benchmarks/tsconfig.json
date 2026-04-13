@@ -12,8 +12,8 @@
     "outDir": "dist",
     "rootDir": "..",
     "paths": {
-      "@ceeline/schema": ["../packages/schema/src/index.ts"],
-      "@ceeline/core": ["../packages/core/src/index.ts"]
+      "@asafelobotomy/ceeline-schema": ["../packages/schema/src/index.ts"],
+      "@asafelobotomy/ceeline-core": ["../packages/core/src/index.ts"]
     }
   },
   "include": ["./**/*.ts"]

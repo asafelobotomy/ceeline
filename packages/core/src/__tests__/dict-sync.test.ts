@@ -9,7 +9,7 @@ import {
   createDefaultMorphology,
   resolveAffix,
   DOMAIN_TABLES,
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DICT_DIR = resolve(__dirname, "../../../../packages/schema/dict");

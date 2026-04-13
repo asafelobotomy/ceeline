@@ -13,7 +13,7 @@ import {
   renderInternal,
   renderUserFacing,
   validateEnvelope
-} from "@ceeline/core";
+} from "@asafelobotomy/ceeline-core";
 import {
   CEELINE_POLICIES,
   type CeelinePolicy,
@@ -23,7 +23,7 @@ import {
   type HandoffPayload,
   type MemoryPayload,
   type SourceInfo
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 
 export type EncodeRequest =
   | SurfaceEncodeRequest<"handoff", HandoffPayload>

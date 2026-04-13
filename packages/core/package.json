@@ -1,5 +1,5 @@
 {
-  "name": "@ceeline/core",
+  "name": "@asafelobotomy/ceeline-core",
   "version": "0.1.0",
   "description": "Encode, validate, render, and parse Ceeline compact envelopes",
   "license": "MIT",
@@ -26,6 +26,6 @@
     }
   },
   "dependencies": {
-    "@ceeline/schema": "0.1.0"
+    "@asafelobotomy/ceeline-schema": "0.1.0"
   }
 }

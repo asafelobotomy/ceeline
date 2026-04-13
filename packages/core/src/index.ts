@@ -15,7 +15,7 @@ import {
   type PreserveSet,
   type RenderConfig,
   type SourceInfo
-} from "@ceeline/schema";
+} from "@asafelobotomy/ceeline-schema";
 import { extractPreserveTokens, validatePreservation } from "./preserve.js";
 import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact, extractDialect, type CompactParseResult, type CompactRenderOptions } from "./compact.js";
 import { decodeCanonical, detectLeaks, renderInternal, renderUserFacing, sanitizeUserFacing, type DecodedEnvelope, type LeakFinding } from "./render.js";
