@@ -162,6 +162,38 @@ Copy the `plugin/` directory into your repo root. It ships:
 - **Hooks** — session-start context injection, post-tool auto-validation, pre-render leak guard
 - **MCP config** — `plugin/.mcp.json` pre-configured to use `@asafelobotomy/ceeline-mcp-server` via npx
 
+### Host-side compiler prototype
+
+Ceeline can compile host-owned agent/skill/hook files into machine-private
+transport envelopes instead of treating those source files as the transport
+format themselves.
+
+```bash
+npx ceeline compile-host-context plugin
+npx ceeline compile-host-context plugin --task "Review Ceeline handoffs for security issues"
+npx ceeline compile-host-context plugin --task="Review Ceeline handoffs for security issues"
+npx ceeline compile-host-context plugin --compact-only --task "Review Ceeline handoffs for security issues"
+```
+
+The prototype scans `.agent.md`, `SKILL.md`, and `hooks.json` files and emits:
+
+- `documents` — extracted intermediate representation (name, tools, sections, route hints, task-match signals)
+- `promptContext` — validated `prompt_context` envelopes for rules, workflow, and grounding sections
+- `routing` — validated `routing` envelopes for agent/skill selection with stronger task-match signals derived from descriptions, workflow steps, rules, intents, surfaces, and tool lists
+- `routingMatches` — scored routing matches for an optional input task string
+- `digest` — a run-scoped summary of the compiled bundle
+- `history` — a session-scoped compile trace anchor
+- `compactBundles` — ready-to-inject compact text bundles for `prompt_context`, `routing`, `digest`, and `history`
+
+This is intended for host-owned prompt assembly. Human-authored source files
+remain readable at rest; only their machine-private meaning is compiled into
+Ceeline transport.
+
+Use `--json` (default) for structured host integration, including scored
+`routingMatches`. Use `--compact-only` to emit only compact bundle text, with
+routing bundle ordering biased toward the best task match when `--task` is
+provided. The CLI accepts both `--task <text>` and `--task=<text>`.
+
 ---
 
 ## Quick start
