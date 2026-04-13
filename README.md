@@ -396,17 +396,18 @@ Rules in play:
 ## Testing
 
 ```bash
-npm run test          # 631 tests via vitest
+npm run test          # 670 tests via vitest
 npm run test:watch    # watch mode
 npm run typecheck     # tsc project references
 ```
 
-631 tests across 16 files covering: validation (all surfaces and source kinds),
+670 tests across 17 files covering: validation (all surfaces and source kinds),
 compact render/parse for all 8×3 combinations, auto-density selection,
 round-trip fidelity, byte-for-byte golden snapshot stability against 24 fixture
 files, morphological affix resolution, domain stem table activation and
-isolation, symbol expression parsing, dict↔TS sync, and robustness probes for
-forward compatibility.
+isolation, symbol expression parsing, dict↔TS sync, robustness probes for
+forward compatibility, host compiler (diagnostics, confidence bands, reflection,
+tool summary, disk output, learned signal boosts), and CLI integration.
 
 ## Benchmarks
 
@@ -433,12 +434,15 @@ Generates `benchmarks/report.json` and `benchmarks/report.txt` with:
 packages/
   schema/       TypeScript types, enums, JSON schemas
   core/         Encode, validate, render, compact, preserve, leak detection
-  cli/          CLI tool
+  cli/          CLI tool + host compiler
   fixtures/     Golden envelope + compact fixtures
 adapters/
   mcp-server/   MCP JSON-RPC adapter
+plugin/         Reference plugin (agents, skills, hooks) used by host compiler
 benchmarks/     Compression and throughput benchmarks
-docs/           Design brief, language spec, ADRs
+fixtures/       Golden compact text fixtures (8 surfaces × 3 densities)
+docs/           Design brief, language spec, ADRs, expansion plans
+_shelved/       Paused experimental work (VS Code extension)
 ```
 
 ## Documentation
@@ -449,6 +453,7 @@ docs/           Design brief, language spec, ADRs
 - [Render policy ADR](docs/adr/0002-render-policy.md)
 - [Dialect evolution ADR](docs/adr/0003-dialect-evolution.md)
 - [Personal lexicon ADR](docs/adr/0004-personal-lexicon.md)
+- [Host compiler expansion plan](docs/host-compiler-expansion-plan-2026-04-13.md) — P0-P9 implementation plan (complete)
 - [Remaining steps](docs/ceeline-remaining-steps-2026-04-12.md) — implementation status
 
 ## License

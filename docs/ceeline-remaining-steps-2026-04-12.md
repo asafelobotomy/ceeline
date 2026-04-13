@@ -187,6 +187,23 @@ counts.
   describe policy modes and the two new MCP tools (`render_compact`,
   `parse_compact`)
 
+### 11. Host compiler expansion (P0-P9) ✓
+
+See [host-compiler-expansion-plan-2026-04-13.md](host-compiler-expansion-plan-2026-04-13.md) for full details.
+
+- P0: Fixed `packages/cli/package.json` `files` array to include `dist/`
+- P1: Compiler diagnostics (9 rules, `--strict` flag)
+- P2: Confidence bands and ambiguity detection for routing
+- P3: Expanded intake (reference docs, script discovery, link crawl)
+- P4: Negative signals via `exclude_signals` frontmatter
+- P5: Reflection envelope (`confidence_check` type, diagnostic scoring)
+- P6: Tool summary envelope (tool dependency map across documents)
+- P7: Disk output with SHA-256 manifest (`writeHostContextToDisk`)
+- P8: Learned signal boosts (train/apply routing weights)
+- P9: Watch mode (`--watch` with `--output`, fsWatch + debounce)
+- CLI wired with `--output`, `--signal-boosts`, `--learn-signals`, `--watch`
+- 29 host compiler tests + 15 CLI tests (670 total across 17 files)
+
 ## Not Yet Started
 
 These were discussed but intentionally deferred:
