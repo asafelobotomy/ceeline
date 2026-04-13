@@ -20,6 +20,7 @@
 import { getEncoding } from "js-tiktoken";
 import { renderCeelineCompact, renderCeelineCompactAuto, parseCeelineCompact } from "@asafelobotomy/ceeline-core";
 import type { CompactDensity, CeelineEnvelope } from "@asafelobotomy/ceeline-schema";
+import { gzipSync, brotliCompressSync, constants as zlibConstants } from "node:zlib";
 import { CORPUS } from "./corpus.js";
 import { measureBatchComparisons, measureExternalComparables, measureMixedBatchComparisons, type BatchComparison, type ComparableFormatMetrics } from "./comparables.js";
 import { stringify as yamlStringify } from "yaml";
@@ -108,6 +109,9 @@ interface BenchmarkReport {
   percentileLatencies: PercentileLatency[];
   scaling: ScalingResult[];
   informationDensity: InformationDensity[];
+  transportCompression: TransportCompression[];
+  determinism: DeterminismResult[];
+  structuralOverhead: StructuralOverhead[];
 }
 
 interface TrailerOverhead {
@@ -206,6 +210,40 @@ interface InformationDensity {
   tokensO200kPerFact: number;
   clauseCount: number;
   bytesPerClause: number;
+}
+
+interface TransportCompression {
+  surface: string;
+  label: string;
+  jsonBytes: number;
+  jsonGzipBytes: number;
+  jsonBrotliBytes: number;
+  compactFullBytes: number;
+  compactFullGzipBytes: number;
+  compactFullBrotliBytes: number;
+  compactDenseBytes: number;
+  compactDenseGzipBytes: number;
+  compactDenseBrotliBytes: number;
+  gzipWinnerFormat: string;
+  brotliWinnerFormat: string;
+}
+
+interface DeterminismResult {
+  surface: string;
+  label: string;
+  density: CompactDensity;
+  iterations: number;
+  stable: boolean;
+}
+
+interface StructuralOverhead {
+  surface: string;
+  label: string;
+  density: CompactDensity;
+  totalBytes: number;
+  headerBytes: number;
+  payloadBytes: number;
+  headerPercent: number;
 }
 
 // ── Measurement ─────────────────────────────────────────────────────────
@@ -610,6 +648,123 @@ function measureInformationDensity(envelope: CeelineEnvelope, density: CompactDe
   };
 }
 
+// ── Transport compression measurement ──────────────────────────────────
+
+function measureTransportCompression(envelope: CeelineEnvelope): TransportCompression {
+  const json = JSON.stringify(envelope);
+  const fullResult = renderCeelineCompact(envelope, "full");
+  const denseResult = renderCeelineCompact(envelope, "dense");
+  const compactFull = fullResult.ok ? fullResult.value : "";
+  const compactDense = denseResult.ok ? denseResult.value : "";
+
+  const jsonBuf = Buffer.from(json, "utf-8");
+  const fullBuf = Buffer.from(compactFull, "utf-8");
+  const denseBuf = Buffer.from(compactDense, "utf-8");
+
+  const jsonGzip = gzipSync(jsonBuf, { level: 9 });
+  const jsonBrotli = brotliCompressSync(jsonBuf, {
+    params: { [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY },
+  });
+  const fullGzip = gzipSync(fullBuf, { level: 9 });
+  const fullBrotli = brotliCompressSync(fullBuf, {
+    params: { [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY },
+  });
+  const denseGzip = gzipSync(denseBuf, { level: 9 });
+  const denseBrotli = brotliCompressSync(denseBuf, {
+    params: { [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY },
+  });
+
+  return {
+    surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
+    jsonBytes: jsonBuf.byteLength,
+    jsonGzipBytes: jsonGzip.byteLength,
+    jsonBrotliBytes: jsonBrotli.byteLength,
+    compactFullBytes: fullBuf.byteLength,
+    compactFullGzipBytes: fullGzip.byteLength,
+    compactFullBrotliBytes: fullBrotli.byteLength,
+    compactDenseBytes: denseBuf.byteLength,
+    compactDenseGzipBytes: denseGzip.byteLength,
+    compactDenseBrotliBytes: denseBrotli.byteLength,
+    gzipWinnerFormat: denseGzip.byteLength <= Math.min(jsonGzip.byteLength, fullGzip.byteLength)
+      ? "ceeline-dense" : fullGzip.byteLength <= jsonGzip.byteLength ? "ceeline-full" : "json",
+    brotliWinnerFormat: denseBrotli.byteLength <= Math.min(jsonBrotli.byteLength, fullBrotli.byteLength)
+      ? "ceeline-dense" : fullBrotli.byteLength <= jsonBrotli.byteLength ? "ceeline-full" : "json",
+  };
+}
+
+// ── Determinism measurement ────────────────────────────────────────────
+
+function measureDeterminism(envelope: CeelineEnvelope, density: CompactDensity, iterations: number): DeterminismResult {
+  const first = renderCeelineCompact(envelope, density);
+  if (!first.ok) {
+    return { surface: envelope.surface, label: benchmarkCaseLabel(envelope), density, iterations, stable: false };
+  }
+
+  let stable = true;
+  for (let i = 1; i < iterations; i++) {
+    const next = renderCeelineCompact(envelope, density);
+    if (!next.ok || next.value !== first.value) {
+      stable = false;
+      break;
+    }
+  }
+
+  return {
+    surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
+    density,
+    iterations,
+    stable,
+  };
+}
+
+// ── Structural overhead measurement ────────────────────────────────────
+
+function measureStructuralOverhead(envelope: CeelineEnvelope, density: CompactDensity): StructuralOverhead | null {
+  const result = renderCeelineCompact(envelope, density);
+  if (!result.ok) return null;
+
+  const compact = result.value;
+  const totalBytes = Buffer.byteLength(compact, "utf-8");
+
+  // Split into header (everything before first fact/clause) and payload
+  // Header is the leading metadata block up to and including the summary line
+  const sep = density === "lite" ? "\n" : " ; ";
+  const parts = compact.split(sep);
+
+  // The header portion includes: surface marker, metadata fields
+  // Find where payload facts begin — after the summary clause
+  const facts = (envelope.payload as Record<string, unknown>).facts as string[] | undefined;
+  const firstFact = facts?.[0] ?? "";
+
+  let headerEndIndex = -1;
+  if (firstFact) {
+    headerEndIndex = compact.indexOf(firstFact);
+  }
+
+  if (headerEndIndex === -1) {
+    // Fallback: count leading structural clauses (non-fact lines)
+    // For ceeline compact, header is roughly the first few clauses containing metadata
+    const factsStart = Math.max(1, parts.length - (facts?.length ?? 0) - 1); // approximate
+    const headerText = parts.slice(0, factsStart).join(sep);
+    headerEndIndex = Buffer.byteLength(headerText + sep, "utf-8");
+  }
+
+  const headerBytes = headerEndIndex;
+  const payloadBytes = totalBytes - headerBytes;
+
+  return {
+    surface: envelope.surface,
+    label: benchmarkCaseLabel(envelope),
+    density,
+    totalBytes,
+    headerBytes,
+    payloadBytes,
+    headerPercent: round(headerBytes / totalBytes * 100),
+  };
+}
+
 // ── Main ────────────────────────────────────────────────────────────────
 
 function run(): BenchmarkReport {
@@ -709,6 +864,29 @@ function run(): BenchmarkReport {
     }
   }
 
+  // 13. Transport compression (gzip/brotli second-pass)
+  const transportCompression: TransportCompression[] = [];
+  for (const envelope of CORPUS) {
+    transportCompression.push(measureTransportCompression(envelope));
+  }
+
+  // 14. Determinism (render stability)
+  const determinism: DeterminismResult[] = [];
+  for (const envelope of CORPUS) {
+    for (const density of DENSITIES) {
+      determinism.push(measureDeterminism(envelope, density, 100));
+    }
+  }
+
+  // 15. Structural overhead
+  const structuralOverhead: StructuralOverhead[] = [];
+  for (const envelope of CORPUS) {
+    for (const density of DENSITIES) {
+      const so = measureStructuralOverhead(envelope, density);
+      if (so) structuralOverhead.push(so);
+    }
+  }
+
   return {
     generated: new Date().toISOString(),
     envelopes: all,
@@ -725,7 +903,10 @@ function run(): BenchmarkReport {
     reflectionVariants,
     percentileLatencies,
     scaling,
-    informationDensity
+    informationDensity,
+    transportCompression,
+    determinism,
+    structuralOverhead,
   };
 }
 
@@ -1340,6 +1521,65 @@ function formatReport(report: BenchmarkReport): string {
         `${i.bytesPerClause}`
       ]),
       [false, true, true, true, true, true, true]
+    ));
+  }
+
+  // Transport compression table (gzip/brotli second-pass)
+  if (report.transportCompression.length > 0) {
+    lines.push(formatTable(
+      "TRANSPORT COMPRESSION (gzip-9 / brotli-max second-pass)",
+      ["Case", "JSON B", "JSON+gz", "JSON+br", "Dense B", "Dense+gz", "Dense+br", "gz Win", "br Win"],
+      report.transportCompression.map(t => [
+        t.label, `${t.jsonBytes}`, `${t.jsonGzipBytes}`, `${t.jsonBrotliBytes}`,
+        `${t.compactDenseBytes}`, `${t.compactDenseGzipBytes}`, `${t.compactDenseBrotliBytes}`,
+        t.gzipWinnerFormat, t.brotliWinnerFormat
+      ]),
+      [false, true, true, true, true, true, true, false, false]
+    ));
+
+    const totalJsonGzip = report.transportCompression.reduce((s, t) => s + t.jsonGzipBytes, 0);
+    const totalJsonBrotli = report.transportCompression.reduce((s, t) => s + t.jsonBrotliBytes, 0);
+    const totalDenseGzip = report.transportCompression.reduce((s, t) => s + t.compactDenseGzipBytes, 0);
+    const totalDenseBrotli = report.transportCompression.reduce((s, t) => s + t.compactDenseBrotliBytes, 0);
+
+    lines.push("  TRANSPORT COMPRESSION TOTALS");
+    lines.push("  ────────────────────────────");
+    lines.push(`  JSON + gzip:          ${totalJsonGzip.toLocaleString()} bytes`);
+    lines.push(`  Ceeline dense + gzip: ${totalDenseGzip.toLocaleString()} bytes  (${round(totalDenseGzip / totalJsonGzip * 100)}% of JSON+gzip)`);
+    lines.push(`  JSON + brotli:        ${totalJsonBrotli.toLocaleString()} bytes`);
+    lines.push(`  Ceeline dense + brotli: ${totalDenseBrotli.toLocaleString()} bytes  (${round(totalDenseBrotli / totalJsonBrotli * 100)}% of JSON+brotli)`);
+    lines.push("");
+  }
+
+  // Determinism check
+  if (report.determinism.length > 0) {
+    const allStable = report.determinism.every(d => d.stable);
+    const totalChecks = report.determinism.length;
+    const stableCount = report.determinism.filter(d => d.stable).length;
+    const iterations = report.determinism[0].iterations;
+
+    if (allStable) {
+      lines.push(`  ✓ DETERMINISM: ${stableCount}/${totalChecks} checks stable (${iterations} iterations each)`);
+    } else {
+      lines.push("  ⚠ DETERMINISM FAILURES");
+      lines.push("  ──────────────────────");
+      for (const d of report.determinism.filter(d => !d.stable)) {
+        lines.push(`  ${d.label}/${d.density}: output not stable across ${d.iterations} iterations`);
+      }
+    }
+    lines.push("");
+  }
+
+  // Structural overhead table (dense density only)
+  const denseStructural = report.structuralOverhead.filter(s => s.density === "dense");
+  if (denseStructural.length > 0) {
+    lines.push(formatTable(
+      "STRUCTURAL OVERHEAD (dense density — header vs payload bytes)",
+      ["Case", "Total B", "Header B", "Payload B", "Header %"],
+      denseStructural.map(s => [
+        s.label, `${s.totalBytes}`, `${s.headerBytes}`, `${s.payloadBytes}`, `${s.headerPercent}%`
+      ]),
+      [false, true, true, true, true]
     ));
   }
 

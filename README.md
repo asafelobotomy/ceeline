@@ -22,11 +22,14 @@ application owns end-to-end.
 
 | Metric | Value |
 |---|---|
-| Byte compression | 2.4:1 (58.04% saving) |
-| Token compression (cl100k) | 1.97:1 (48.86% saving) |
-| Token compression (o200k) | 2.02:1 (50.26% saving) |
+| Byte compression | 2.4:1 (58% saving) |
+| Token compression (cl100k) | 1.97:1 (49% saving) |
+| Token compression (o200k) | 2.02:1 (50% saving) |
 | Round-trip fidelity | 100% |
 | Integrity trailer overhead | 1.6–3.1% |
+| Determinism | 27/27 stable (100 iterations) |
+| Transport: Ceeline+gzip vs JSON+gzip | 47% of JSON+gzip |
+| Transport: Ceeline+brotli vs JSON+brotli | 48% of JSON+brotli |
 
 Measured across 8 surfaces × 3 densities. Full report in
 [benchmarks/report.txt](benchmarks/report.txt).
