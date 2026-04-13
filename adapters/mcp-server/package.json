@@ -1,6 +1,6 @@
 {
   "name": "@asafelobotomy/ceeline-mcp-server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP JSON-RPC server for Ceeline compact transport tools",
   "license": "MIT",
   "type": "module",

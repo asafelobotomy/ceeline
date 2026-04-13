@@ -1,5 +1,22 @@
 # Version History
 
+## 0.2.1 — 2026-04-13
+
+Fix: MCP server stdio transport now auto-detects newline-delimited JSON (ndjson) framing in addition to Content-Length framing. Resolves server hang on `initialize` in VS Code Insiders ≥1.116.0 (#1).
+
+### Packages
+
+| Package | Version |
+|---|---|
+| `@asafelobotomy/ceeline-mcp-server` | 0.2.1 |
+
+### Changes
+
+- `startStdioServer()` auto-detects framing mode on first byte: `{` → ndjson, `C` → Content-Length
+- Responses emitted in the same format as detected input
+- Exported `handleRequest()` and `FramingMode` for direct test coverage
+- Aligned `SERVER_VERSION` constant with package version
+
 ## 0.1.0 — 2026-04-13
 
 First public release. Published to npm under the `@asafelobotomy` scope.

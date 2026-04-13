@@ -43,7 +43,7 @@ interface JsonRpcResponse {
 
 const MCP_PROTOCOL_VERSION = "2025-03-26";
 const SERVER_NAME = "ceeline-mcp-server";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.2.1";
 
 export function createCeelineMcpToolDescriptors(): McpToolDescriptor[] {
   return [
@@ -277,16 +277,21 @@ function makeError(id: string | number | null, code: number, message: string, da
   };
 }
 
-function serializeMessage(message: JsonRpcResponse): string {
+export type FramingMode = "framed" | "ndjson";
+
+function serializeMessage(message: JsonRpcResponse, mode: FramingMode = "framed"): string {
   const body = JSON.stringify(message);
+  if (mode === "ndjson") {
+    return body + "\n";
+  }
   return `Content-Length: ${body.length}\r\n\r\n${body}`;
 }
 
-function writeResponse(message: JsonRpcResponse): void {
-  process.stdout.write(serializeMessage(message));
+function writeResponse(message: JsonRpcResponse, mode: FramingMode = "framed"): void {
+  process.stdout.write(serializeMessage(message, mode));
 }
 
-function handleRequest(request: JsonRpcRequest): JsonRpcResponse | null {
+export function handleRequest(request: JsonRpcRequest): JsonRpcResponse | null {
   switch (request.method) {
     case "initialize":
       return makeResponse(request.id ?? null, {
@@ -362,34 +367,68 @@ function tryReadFrame(buffer: string): { body: string; rest: string } | null {
 
 export function startStdioServer(): void {
   let buffer = "";
+  let detectedMode: FramingMode | null = null;
 
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", (chunk) => {
     buffer += chunk;
 
-    while (true) {
-      const frame = tryReadFrame(buffer);
-      if (!frame) {
-        break;
-      }
+    if (!detectedMode) {
+      const firstChar = buffer.trimStart()[0];
+      if (!firstChar) return;
+      detectedMode = firstChar === "{" ? "ndjson" : "framed";
+    }
 
-      buffer = frame.rest;
-
-      try {
-        const request = JSON.parse(frame.body) as JsonRpcRequest;
-        const response = handleRequest(request);
-        if (response) {
-          writeResponse(response);
+    if (detectedMode === "framed") {
+      while (true) {
+        const frame = tryReadFrame(buffer);
+        if (!frame) {
+          break;
         }
-      } catch (error) {
-        writeResponse(
-          makeError(
-            null,
-            -32700,
-            "Failed to parse JSON-RPC request.",
-            error instanceof Error ? error.message : "unknown error"
-          )
-        );
+
+        buffer = frame.rest;
+
+        try {
+          const request = JSON.parse(frame.body) as JsonRpcRequest;
+          const response = handleRequest(request);
+          if (response) {
+            writeResponse(response, detectedMode);
+          }
+        } catch (error) {
+          writeResponse(
+            makeError(
+              null,
+              -32700,
+              "Failed to parse JSON-RPC request.",
+              error instanceof Error ? error.message : "unknown error"
+            ),
+            detectedMode
+          );
+        }
+      }
+    } else {
+      let newlineIdx: number;
+      while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
+        const line = buffer.slice(0, newlineIdx).trim();
+        buffer = buffer.slice(newlineIdx + 1);
+        if (!line) continue;
+        try {
+          const request = JSON.parse(line) as JsonRpcRequest;
+          const response = handleRequest(request);
+          if (response) {
+            writeResponse(response, detectedMode);
+          }
+        } catch (error) {
+          writeResponse(
+            makeError(
+              null,
+              -32700,
+              "Failed to parse JSON-RPC request.",
+              error instanceof Error ? error.message : "unknown error"
+            ),
+            detectedMode
+          );
+        }
       }
     }
   });
