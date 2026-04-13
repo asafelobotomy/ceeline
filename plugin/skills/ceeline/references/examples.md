@@ -74,3 +74,41 @@ This is the JSON envelope that produces the compact outputs above:
   }
 }
 ```
+
+## final_response policy (history surface)
+
+Use `policy: "final_response"` when the envelope represents the last boundary
+before user-visible output. This switches channel to `controlled_ui`, render
+style to `user_facing`, and sets `no_user_visible_output: false`.
+
+```json
+{
+  "surface": "history",
+  "intent": "ui.final-response",
+  "policy": "final_response",
+  "payload": {
+    "summary": "The security review is complete. No critical issues were found.",
+    "facts": [
+      "The affected transport path is now validated.",
+      "Preserve {{PROJECT_ID}} in all output."
+    ],
+    "ask": "Share only the user-visible outcome.",
+    "span": "exchange",
+    "turn_count": 1,
+    "anchor": "assistant-final",
+    "artifacts": [],
+    "metadata": {}
+  }
+}
+```
+
+Via MCP tool:
+
+```json
+{
+  "surface": "history",
+  "intent": "ui.final-response",
+  "policy": "final_response",
+  "payload": { "summary": "Security review complete. No critical issues." }
+}
+```

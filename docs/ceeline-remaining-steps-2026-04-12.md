@@ -2,7 +2,7 @@
 
 > Date: 2026-04-12
 > Scope: active follow-up work after the robustness and evolution changes
-> Last updated: 2026-04-14
+> Last updated: 2026-04-13
 
 ## Current State
 
@@ -38,6 +38,17 @@ The following are implemented:
   CLI/benchmarks only
 - CLI and MCP adapter updated with expanded surface support
 - plugin scaffolding with agents, hooks, and skill references
+- explicit render policy modes: `internal` and `final_response`
+  (`createPolicyDefaults`, `INTERNAL_CONSTRAINT_DEFAULTS`,
+  `FINAL_RESPONSE_CONSTRAINT_DEFAULTS`, `defaultChannelForSurface`)
+- `encodeCanonical` accepts optional `EncodeCanonicalOptions { policy? }` third
+  argument; policy defaults resolve channel, constraints, and render config
+- CLI `encode` command accepts `policy` field; validated, typed, forwarded
+- MCP `translate_to_ceeline` tool accepts and validates optional `policy`
+  argument; schema advertises `enum: ["internal", "final_response"]`
+- 2 end-to-end flow fixtures: `internal-to-user.boundary.json` and
+  `handoff-repair.boundary.json` in `packages/fixtures/flows/`
+- `policy.test.ts` reads all fixtures in the `flows/` directory via directory scan
 
 ## Completed Work
 
@@ -154,6 +165,27 @@ counts.
 - **L2**: `.dic` not updated — 91 domain stems with section markers added
 - Dict-sync coverage extended with bidirectional domain table verification
 - All 341 tests passing, typecheck clean
+
+### 10. Explicit render policy modes ✓
+
+- `CEELINE_POLICIES = ["internal", "final_response"]` enum in `@ceeline/schema`
+- `createPolicyDefaults(surface, policy)` as single source of truth for
+  channel / constraints / render defaults per policy
+- `encodeCanonical(input, surface, options?)` third overload accepting
+  `EncodeCanonicalOptions { policy?: CeelinePolicy }`
+- CLI `encode` command: `policy` field in `SurfaceEncodeRequest`, validated via
+  `isCeelinePolicy()`, forwarded to `encodeCanonical`; `encodeRequestToEnvelope`
+  exported for testability
+- MCP `translate_to_ceeline`: `policy` added to input schema with enum
+  constraint; `parseRequestedPolicy()` validates before forwarding
+- CLI test file (`packages/cli/src/index.test.ts`): 2 focused tests
+- MCP test file (`adapters/mcp-server/src/index.test.ts`): 3 focused tests
+- 2 end-to-end flow fixtures (`internal-to-user.boundary.json`,
+  `handoff-repair.boundary.json`) in `packages/fixtures/flows/`
+- `policy.test.ts` reads all `.json` files in `flows/` via `readdirSync`
+- All plugin docs (SKILL.md, agent files, references/examples.md) updated to
+  describe policy modes and the two new MCP tools (`render_compact`,
+  `parse_compact`)
 
 ## Not Yet Started
 

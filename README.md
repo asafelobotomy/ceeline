@@ -115,6 +115,55 @@ cls=fp
 
 Full language grammar in [docs/ceeline-language-spec-v1.md](docs/ceeline-language-spec-v1.md).
 
+## Installation
+
+Install from npm — packages are independent; install only what you need.
+
+```bash
+# TypeScript / Node.js API
+npm install @ceeline/core
+
+# Schemas and types only (no encode/decode logic)
+npm install @ceeline/schema
+
+# CLI (adds `ceeline` binary)
+npm install --save-dev @ceeline/cli
+
+# MCP server (run as a stdio MCP tool server)
+npm install --save-dev @ceeline/mcp-server
+```
+
+### MCP server setup
+
+Add to your `.mcp.json` (or equivalent agent config):
+
+```json
+{
+  "servers": {
+    "ceeline": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@ceeline/mcp-server"]
+    }
+  }
+}
+```
+
+This gives your AI agents seven MCP tools: `translate_to_ceeline`,
+`translate_from_ceeline`, `validate_ceeline_payload`, `render_verbose_summary`,
+`detect_ceeline_leak`, `render_compact`, `parse_compact`.
+
+### Agent plugin drop-in
+
+Copy the `plugin/` directory into your repo root. It ships:
+
+- **Agent definitions** — `ceeline-handoff` and `ceeline-review` ready-to-use agents
+- **Skill** — `plugin/skills/ceeline/SKILL.md` loaded by any agent encoding/decoding Ceeline
+- **Hooks** — session-start context injection, post-tool auto-validation, pre-render leak guard
+- **MCP config** — `plugin/.mcp.json` pre-configured to use `@ceeline/mcp-server` via npx
+
+---
+
 ## Quick start
 
 ```bash
@@ -125,12 +174,20 @@ npm run test
 
 ### CLI usage
 
+Ceeline encode surfaces support two policy modes:
+
+- `internal` — default; machine-private transport, compact inside the system
+- `final_response` — controlled UI boundary; user-facing render defaults
+
 ```bash
 # Validate an envelope
 echo '{"ceeline_version":"1.0",...}' | npx ceeline validate
 
 # Encode canonical input
 echo '{"surface":"handoff","intent":"review.security",...}' | npx ceeline encode
+
+# Encode a final user-facing response boundary
+echo '{"surface":"history","intent":"ui.final-response","policy":"final_response",...}' | npx ceeline encode
 
 # Detect leaks in text
 echo "some output text" | npx ceeline detect-leak
@@ -153,6 +210,21 @@ if (result.ok) {
   const compact = renderCeelineCompact(result.value, "full");
   if (compact.ok) console.log(compact.value);
 }
+
+const finalResponse = encodeCanonical({
+  intent: "ui.final-response",
+  source: { kind: "host", name: "myapp", instance: "s1", timestamp: new Date().toISOString() },
+  payload: {
+    summary: "The fix has been applied.",
+    facts: ["The affected user-facing path is now sanitized."],
+    ask: "Share the visible outcome only.",
+    span: "exchange",
+    turn_count: 1,
+    anchor: "assistant-final",
+    artifacts: [],
+    metadata: {}
+  }
+}, "history", { policy: "final_response" });
 ```
 
 Budget-aware rendering:
@@ -170,7 +242,7 @@ if (compact.ok) console.log(compact.value);
 
 | Function | Returns | Purpose |
 |---|---|---|
-| `encodeCanonical(input, surface)` | `CeelineResult<CeelineEnvelope>` | Build a validated envelope from canonical input |
+| `encodeCanonical(input, surface, options?)` | `CeelineResult<CeelineEnvelope>` | Build a validated envelope from canonical input using `internal` or `final_response` defaults |
 | `validateEnvelope(obj)` | `CeelineResult<CeelineEnvelope>` | Schema-validate an envelope object |
 | `parseEnvelope(json)` | `CeelineResult<CeelineEnvelope>` | Parse and validate JSON text |
 | `decodeEnvelope(envelope)` | `DecodedEnvelope` | Decode envelope to structured canonical meaning |
@@ -190,15 +262,114 @@ All mutating operations return `CeelineResult<T>`, a discriminated union:
 type CeelineResult<T> = { ok: true; value: T } | { ok: false; issues: ValidationIssue[] };
 ```
 
+## Usage examples
+
+### Scenario 1 — Agent-to-agent handoff
+
+A planner agent assigns a task to an implementer. The transport is entirely
+machine-private. No compact text or envelope JSON ever appears in user-visible
+output.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant P as Planner Agent
+    participant I as Implementer Agent
+
+    User->>P: "Add rate limiting to the API"
+    P->>P: encodeCanonical(task, 'handoff')
+    Note over P: policy: internal<br>channel: internal<br>audience: machine<br>no_user_visible_output: true
+    P->>I: compact handoff — @cl1 s=ho i=implement.rate-limit…
+    I->>I: parseCeelineCompact(text)
+    I->>I: validateEnvelope(envelope)
+    I->>I: decodeEnvelope → structured task
+    Note over I: Implements rate limiting
+    I-->>P: compact result envelope
+    P->>P: detectLeaks(output) → clean
+    P-->>User: plain prose summary
+```
+
+Rules in play:
+- Default `policy: "internal"` sets `no_user_visible_output: true` and channel `internal`
+- Compact text stays inside the host system at every hop
+- `detectLeaks()` runs before any text reaches the user
+
+---
+
+### Scenario 2 — Multi-hop review chain with final-response boundary
+
+A host application runs a three-agent security pipeline. Every internal hop
+uses `policy: "internal"`. Only the last step — delivery to the user — uses
+`policy: "final_response"`, switching to a `controlled_ui` channel,
+`user_facing` render style, and mandatory sanitization.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant H as Host App
+    participant R as Reviewer Agent
+    participant F as Fixer Agent
+
+    User->>H: "Review codec.ts before release"
+    H->>H: encodeCanonical(task, 'handoff')
+    H->>R: @cl1 s=ho i=review.security ch=i … #n=305
+    R->>R: decode → run security review
+    R->>R: encodeCanonical(findings, 'handoff')
+    R->>F: @cl1 s=ho i=review.security.findings … #n=312
+    F->>F: decode → apply fixes
+    F->>F: encodeCanonical(result, history, policy: final_response)
+    Note over F: channel: controlled_ui<br>audience: user<br>render: user_facing<br>no_user_visible_output: false
+    F->>F: detectLeaks(output) → clean
+    F-->>User: sanitized plain-prose outcome
+```
+
+Rules in play:
+- `H → R` and `R → F` use `policy: "internal"` — machine channel, reject fallback
+- `F → User` uses `policy: "final_response"` — `controlled_ui` channel, verbose fallback, strict sanitizer
+- `pass_through` fallback is forbidden on `controlled_ui` channels; any leak causes a hard reject
+- The user never sees compact text, envelope JSON, or routing metadata
+
+---
+
+### Scenario 3 — Session continuity via digest and memory
+
+A long-running session accumulates state. Before context pressure forces
+truncation, the current agent compresses session state into a `digest` envelope
+and captures key facts in a `memory` envelope. Downstream agents pick up
+exactly where processing left off.
+
+```mermaid
+flowchart TD
+    A[Long session — many turns] --> B[Agent builds digest input]
+    B --> C["encodeCanonical(digest, 'digest')"]
+    C --> D["renderCeelineCompactAuto(envelope)<br/>→ dense compact text<br/>auto-selects density to fit budget"]
+    D --> E["Compact text stored in context window<br/>or passed to next agent"]
+    E --> F[New agent session]
+    F --> G["parseCeelineCompact(text)"]
+    G --> H["validateEnvelope(parsed.envelope)"]
+    H --> I["decodeEnvelope → restored session context"]
+    I --> J[Agent continues with full fidelity]
+
+    A --> K["encodeCanonical(facts, 'memory')"]
+    K --> L[Persist memory envelope to external store]
+    L --> M[Available across future sessions\nvia external retrieval]
+```
+
+Rules in play:
+- `renderCeelineCompactAuto` selects `dense` → `full` → `lite` to stay within `max_render_tokens`; returns `token_budget_exceeded` if none fit
+- Round-trip fidelity is 100% — file paths, env vars, commands, and placeholders survive byte-for-byte
+- `digest` envelope carries window-scoped state; `memory` envelope carries durable facts across session boundaries
+- `detectLeaks()` must still pass before any part of either envelope reaches user-facing output
+
 ## Testing
 
 ```bash
-npm run test          # 341 tests via vitest
+npm run test          # 631 tests via vitest
 npm run test:watch    # watch mode
 npm run typecheck     # tsc project references
 ```
 
-341 tests across 11 files covering: validation (all surfaces and source kinds),
+631 tests across 16 files covering: validation (all surfaces and source kinds),
 compact render/parse for all 8×3 combinations, auto-density selection,
 round-trip fidelity, byte-for-byte golden snapshot stability against 24 fixture
 files, morphological affix resolution, domain stem table activation and
@@ -239,8 +410,10 @@ docs/           Design brief, language spec, ADRs
 - [Compact language spec](docs/ceeline-language-spec-v1.md) — grammar, field codes, trailer, density rules
 - [Trust model ADR](docs/adr/0001-trust-model.md)
 - [Render policy ADR](docs/adr/0002-render-policy.md)
+- [Dialect evolution ADR](docs/adr/0003-dialect-evolution.md)
+- [Personal lexicon ADR](docs/adr/0004-personal-lexicon.md)
 - [Remaining steps](docs/ceeline-remaining-steps-2026-04-12.md) — implementation status
 
 ## License
 
-Private — not yet published.
+[MIT](LICENSE.md) — Copyright © 2026 asafelobotomy

@@ -1,20 +1,20 @@
 /**
  * Shared test helpers — envelope factories for all 8 surfaces.
  */
-import type { CeelineEnvelope, CeelineSurface } from "@ceeline/schema";
+import { createPolicyDefaults, type CeelineEnvelope, type CeelineSurface } from "@ceeline/schema";
 
 const TS = "2026-04-12T10:00:00Z";
 
 function base(surface: CeelineSurface, overrides: Record<string, unknown> = {}): CeelineEnvelope {
-  const channel = surface === "history" ? "controlled_ui" : "internal";
+  const defaults = createPolicyDefaults(surface, "internal");
   return {
     ceeline_version: "1.0",
     envelope_id: `cel:test-${surface}-001`,
     surface,
-    channel,
+    channel: defaults.channel,
     intent: `test.${surface}`,
     source: { kind: "agent", name: "test-agent", instance: "test-inst", timestamp: TS },
-    constraints: { mode: "read_only", audience: "machine", max_render_tokens: 0, no_user_visible_output: true, fallback: "reject" },
+    constraints: { ...defaults.constraints },
     preserve: { tokens: [], classes: [] },
     payload: {
       summary: `Test ${surface} summary.`,
@@ -24,7 +24,7 @@ function base(surface: CeelineSurface, overrides: Record<string, unknown> = {}):
       metadata: {},
       ...overrides
     },
-    render: { style: "none", locale: "en", sanitizer: "strict" }
+    render: { ...defaults.render }
   } as CeelineEnvelope;
 }
 

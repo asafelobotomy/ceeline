@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {
   decodeEnvelope,
   detectLeaks,
@@ -9,7 +10,7 @@ import {
   renderUserFacing,
   validateEnvelope
 } from "@ceeline/core";
-import { SURFACES, type CeelineSurface } from "@ceeline/schema";
+import { CEELINE_POLICIES, SURFACES, type CeelinePolicy, type CeelineSurface } from "@ceeline/schema";
 
 export interface McpToolDescriptor {
   name: string;
@@ -55,6 +56,7 @@ export function createCeelineMcpToolDescriptors(): McpToolDescriptor[] {
         properties: {
           surface: { type: "string" },
           intent: { type: "string" },
+          policy: { type: "string", enum: CEELINE_POLICIES },
           text: { type: "string" },
           payload: { type: "object" }
         }
@@ -130,6 +132,27 @@ export function createCeelineMcpToolDescriptors(): McpToolDescriptor[] {
   ];
 }
 
+function parseRequestedPolicy(value: unknown):
+  | { ok: true; value?: CeelinePolicy }
+  | { ok: false; error: { code: string; message: string; path: string } } {
+  if (typeof value === "undefined") {
+    return { ok: true };
+  }
+
+  if (typeof value === "string" && CEELINE_POLICIES.includes(value as CeelinePolicy)) {
+    return { ok: true, value: value as CeelinePolicy };
+  }
+
+  return {
+    ok: false,
+    error: {
+      code: "invalid_policy",
+      message: `policy must be one of: ${CEELINE_POLICIES.join(", ")}. Received '${String(value)}'.`,
+      path: "policy"
+    }
+  };
+}
+
 export function invokeCeelineMcpTool(call: McpToolCall): unknown {
   switch (call.name) {
     case "translate_to_ceeline": {
@@ -144,6 +167,10 @@ export function invokeCeelineMcpTool(call: McpToolCall): unknown {
       const payloadRecord = payload as Record<string, unknown>;
       if (typeof payloadRecord.summary !== "string") {
         return { errors: [{ code: "missing_summary", message: "payload.summary is required and must be a string.", path: "payload.summary" }] };
+      }
+      const policy = parseRequestedPolicy(call.arguments.policy);
+      if (!policy.ok) {
+        return { errors: [policy.error] };
       }
 
       const result = encodeCanonical(
@@ -164,7 +191,8 @@ export function invokeCeelineMcpTool(call: McpToolCall): unknown {
             metadata?: Record<string, unknown>;
           }
         },
-        surface as CeelineSurface
+        surface as CeelineSurface,
+        policy.value ? { policy: policy.value } : undefined
       );
 
       return result.ok ? result.value : { errors: result.issues };

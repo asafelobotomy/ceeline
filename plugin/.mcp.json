@@ -2,8 +2,8 @@
   "servers": {
     "ceeline": {
       "type": "stdio",
-      "command": "node",
-      "args": ["../adapters/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "@ceeline/mcp-server"],
       "env": {},
       "metadata": {
         "description": "Ceeline compact transport MCP server — encode, decode, validate, render, compact, and leak-detect Ceeline envelopes",

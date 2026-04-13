@@ -1,6 +1,8 @@
 import {
   CEELINE_VERSION,
+  createPolicyDefaults,
   type CeelineEnvelope,
+  type CeelinePolicy,
   type CeelineSurface,
   type CommonPayload,
   type ConstraintSet,
@@ -44,28 +46,14 @@ export type HandoffCanonicalInput = CanonicalInput<HandoffPayload>;
 export type DigestCanonicalInput = CanonicalInput<DigestPayload>;
 export type MemoryCanonicalInput = CanonicalInput<MemoryPayload>;
 
+export interface EncodeCanonicalOptions {
+  policy?: CeelinePolicy;
+}
+
 function createEnvelopeId(): string {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).slice(2, 10);
   return `cel:${timestamp}${random}`;
-}
-
-function defaultConstraints(): ConstraintSet {
-  return {
-    mode: "read_only",
-    audience: "machine",
-    max_render_tokens: 0,
-    no_user_visible_output: true,
-    fallback: "reject"
-  };
-}
-
-function defaultRender(): RenderConfig {
-  return {
-    style: "none",
-    locale: "en",
-    sanitizer: "strict"
-  };
 }
 
 export function parseEnvelope(text: string): CeelineResult<CeelineEnvelope> {
@@ -81,21 +69,25 @@ export function parseEnvelope(text: string): CeelineResult<CeelineEnvelope> {
   }
 }
 
-export function encodeCanonical(input: HandoffCanonicalInput, surface: "handoff"): CeelineResult<CeelineEnvelope<"handoff", HandoffPayload>>;
-export function encodeCanonical(input: DigestCanonicalInput, surface: "digest"): CeelineResult<CeelineEnvelope<"digest", DigestPayload>>;
-export function encodeCanonical(input: MemoryCanonicalInput, surface: "memory"): CeelineResult<CeelineEnvelope<"memory", MemoryPayload>>;
+export function encodeCanonical(input: HandoffCanonicalInput, surface: "handoff", options?: EncodeCanonicalOptions): CeelineResult<CeelineEnvelope<"handoff", HandoffPayload>>;
+export function encodeCanonical(input: DigestCanonicalInput, surface: "digest", options?: EncodeCanonicalOptions): CeelineResult<CeelineEnvelope<"digest", DigestPayload>>;
+export function encodeCanonical(input: MemoryCanonicalInput, surface: "memory", options?: EncodeCanonicalOptions): CeelineResult<CeelineEnvelope<"memory", MemoryPayload>>;
 export function encodeCanonical<S extends Exclude<CeelineSurface, "handoff" | "digest" | "memory">>(
   input: CanonicalInputForSurface<S>,
-  surface: S
+  surface: S,
+  options?: EncodeCanonicalOptions
 ): CeelineResult<CeelineEnvelope<S>>;
 export function encodeCanonical(
   input: CanonicalInput<CommonPayload>,
-  surface: CeelineSurface
+  surface: CeelineSurface,
+  options?: EncodeCanonicalOptions
 ): CeelineResult<CeelineEnvelope>;
 export function encodeCanonical<S extends CeelineSurface>(
   input: CanonicalInputForSurface<S>,
-  surface: S
+  surface: S,
+  options: EncodeCanonicalOptions = {}
 ): CeelineResult<CeelineEnvelope<S>> {
+  const policyDefaults = createPolicyDefaults(surface, options.policy ?? "internal");
   const parts = [input.payload.summary, ...(input.payload.facts ?? []), input.payload.ask ?? ""];
   // Extract preserve tokens from artifacts and metadata too
   for (const artifact of input.payload.artifacts ?? []) {
@@ -124,11 +116,11 @@ export function encodeCanonical<S extends CeelineSurface>(
     ceeline_version: CEELINE_VERSION,
     envelope_id: createEnvelopeId(),
     surface,
-    channel: surface === "history" ? "controlled_ui" : "internal",
+    channel: policyDefaults.channel,
     intent: input.intent,
     source: input.source,
     constraints: {
-      ...defaultConstraints(),
+      ...policyDefaults.constraints,
       ...input.constraints
     },
     preserve: {
@@ -137,7 +129,7 @@ export function encodeCanonical<S extends CeelineSurface>(
     },
     payload,
     render: {
-      ...defaultRender(),
+      ...policyDefaults.render,
       ...input.render
     },
     ...(input.diagnostics ? { diagnostics: input.diagnostics } : {}),
@@ -152,6 +144,7 @@ export function decodeEnvelope(envelope: CeelineEnvelope): DecodedEnvelope {
 }
 
 export {
+  createPolicyDefaults,
   decodeCanonical,
   detectLeaks,
   extractDialect,

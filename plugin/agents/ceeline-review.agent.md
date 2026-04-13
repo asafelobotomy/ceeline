@@ -10,6 +10,8 @@ tools:
   - validate_ceeline_payload
   - render_verbose_summary
   - detect_ceeline_leak
+  - render_compact
+  - parse_compact
 ---
 
 # Ceeline Security Review Agent

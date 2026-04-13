@@ -51,20 +51,44 @@ parser verifies on read.
 See [the language spec reference](references/compact-grammar.md) for the full
 grammar, field codes, and density rules.
 
+## Policy modes
+
+Every encode operation uses one of two policy modes:
+
+| Policy | Channel | Audience | Render style | Use when |
+|---|---|---|---|---|
+| `internal` | `internal` | `machine` | `none` | Default; any AI-to-AI surface |
+| `final_response` | `controlled_ui` | `user` | `user_facing` | Final boundary before user display |
+
+- Omitting `policy` is equivalent to `policy: "internal"`.
+- `final_response` sets `no_user_visible_output: false`, `fallback: "verbose"`, and `sanitizer: "strict"` automatically.
+- `pass_through` fallback is never permitted on `controlled_ui` channels.
+
 ## How to encode a handoff
 
 1. Determine the **surface** (e.g. `handoff`, `digest`, `memory`).
-2. Build the JSON input with at minimum `surface`, `intent`, and `payload.summary`.
-3. Run the encode script:
+2. Choose the **policy**: omit (or pass `"internal"`) for machine-private payloads;
+   pass `"final_response"` when the envelope will be rendered to a user at the final boundary.
+3. Build the JSON input with at minimum `surface`, `intent`, and `payload.summary`.
+4. Run the encode script:
 
 ```bash
 ./scripts/encode.sh '{"surface":"handoff","intent":"review.security","payload":{"summary":"Review codec.ts for safety","facts":["Preserve {{PROJECT_ID}}"],"ask":"Return findings only","role":"reviewer","target":"fixer","scope":["transport"]}}'
 ```
 
-Or use the MCP tool `translate_to_ceeline` if available.
+Or use the MCP tool `translate_to_ceeline` if available:
 
-4. The output is a validated Ceeline JSON envelope.
-5. To get compact text, use `renderCeelineCompact(envelope, "full")` or the
+```json
+{
+  "surface": "history",
+  "intent": "ui.final-response",
+  "policy": "final_response",
+  "payload": { "summary": "The fix is applied.", "span": "exchange", "turn_count": 1, "anchor": "assistant-final" }
+}
+```
+
+5. The output is a validated Ceeline JSON envelope.
+6. To get compact text, use `renderCeelineCompact(envelope, "full")` or the
    auto-density renderer `renderCeelineCompactAuto(envelope)`.
 
 ## How to validate
@@ -132,8 +156,10 @@ sc=transport
 
 If the Ceeline MCP server is active, these tools are available:
 
-- `translate_to_ceeline` — encode canonical input into a Ceeline envelope
+- `translate_to_ceeline` — encode canonical input into a Ceeline envelope; accepts optional `policy` (`"internal"` | `"final_response"`)
 - `translate_from_ceeline` — decode an envelope to canonical meaning
 - `validate_ceeline_payload` — validate an envelope against schemas
 - `render_verbose_summary` — render a user-facing summary from an envelope
 - `detect_ceeline_leak` — scan text for Ceeline artifacts
+- `render_compact` — render a Ceeline envelope into compact text at a specified density (`lite`, `full`, `dense`, or `auto`)
+- `parse_compact` — parse compact Ceeline text back into structured data

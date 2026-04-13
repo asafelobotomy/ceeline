@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from "node:url";
 import {
   type CanonicalPayloadInput,
   decodeEnvelope,
@@ -13,9 +14,18 @@ import {
   renderUserFacing,
   validateEnvelope
 } from "@ceeline/core";
-import type { CeelineSurface, CommonPayload, DigestPayload, HandoffPayload, MemoryPayload, SourceInfo } from "@ceeline/schema";
+import {
+  CEELINE_POLICIES,
+  type CeelinePolicy,
+  type CeelineSurface,
+  type CommonPayload,
+  type DigestPayload,
+  type HandoffPayload,
+  type MemoryPayload,
+  type SourceInfo
+} from "@ceeline/schema";
 
-type EncodeRequest =
+export type EncodeRequest =
   | SurfaceEncodeRequest<"handoff", HandoffPayload>
   | SurfaceEncodeRequest<"digest", DigestPayload>
   | SurfaceEncodeRequest<"memory", MemoryPayload>
@@ -25,8 +35,48 @@ interface SurfaceEncodeRequest<S extends CeelineSurface, P extends CommonPayload
   surface: S;
   text?: string;
   intent: string;
+  policy?: CeelinePolicy;
   source?: SourceInfo;
   payload: CanonicalPayloadInput<P>;
+}
+
+function isCeelinePolicy(value: unknown): value is CeelinePolicy {
+  return typeof value === "string" && CEELINE_POLICIES.includes(value as CeelinePolicy);
+}
+
+function invalidPolicyResult(value: unknown) {
+  return {
+    ok: false as const,
+    issues: [
+      {
+        code: "invalid_policy",
+        message: `policy must be one of: ${CEELINE_POLICIES.join(", ")}. Received '${String(value)}'.`,
+        path: "policy"
+      }
+    ]
+  };
+}
+
+export function encodeRequestToEnvelope(request: EncodeRequest) {
+  if (typeof request.policy !== "undefined" && !isCeelinePolicy(request.policy)) {
+    return invalidPolicyResult(request.policy);
+  }
+
+  return encodeCanonical(
+    {
+      text: request.text,
+      intent: request.intent,
+      source: request.source ?? {
+        kind: "host",
+        name: "ceeline.cli",
+        instance: "manual",
+        timestamp: new Date().toISOString()
+      },
+      payload: request.payload
+    },
+    request.surface,
+    request.policy ? { policy: request.policy } : undefined
+  );
 }
 
 function printUsage(): void {
@@ -78,20 +128,7 @@ function writeError(message: string): void {
 
 async function handleEncode(inputText: string): Promise<void> {
   const request = JSON.parse(inputText) as EncodeRequest;
-  const result = encodeCanonical(
-    {
-      text: request.text,
-      intent: request.intent,
-      source: request.source ?? {
-        kind: "host",
-        name: "ceeline.cli",
-        instance: "manual",
-        timestamp: new Date().toISOString()
-      },
-      payload: request.payload
-    },
-    request.surface
-  );
+  const result = encodeRequestToEnvelope(request);
 
   if (!result.ok) {
     writeJson(result.issues);
@@ -239,4 +276,8 @@ export async function runCli(argv: string[]): Promise<void> {
   }
 }
 
-void runCli(process.argv.slice(2));
+const invokedDirectly = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedDirectly) {
+  void runCli(process.argv.slice(2));
+}

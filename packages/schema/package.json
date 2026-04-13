@@ -1,9 +1,25 @@
 {
   "name": "@ceeline/schema",
   "version": "0.1.0",
+  "description": "TypeScript types, enums, code maps, and JSON schemas for the Ceeline compact transport",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "files": [
+    "dist/",
+    "schema/",
+    "dict/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asafelobotomy/ceeline.git",
+    "directory": "packages/schema"
+  },
+  "homepage": "https://github.com/asafelobotomy/ceeline#readme",
+  "bugs": "https://github.com/asafelobotomy/ceeline/issues",
+  "keywords": ["ceeline", "ai", "compact", "transport", "token-efficient", "schema", "json-schema", "llm", "agent"],
+  "engines": { "node": ">=18.0.0" },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",

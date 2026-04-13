@@ -1,9 +1,26 @@
 {
   "name": "@ceeline/cli",
   "version": "0.1.0",
+  "description": "CLI for encoding, decoding, validating, and leak-checking Ceeline envelopes",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/index.d.ts",
+    "dist/index.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asafelobotomy/ceeline.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/asafelobotomy/ceeline#readme",
+  "bugs": "https://github.com/asafelobotomy/ceeline/issues",
+  "keywords": ["ceeline", "ai", "compact", "transport", "cli", "token-efficient", "llm", "agent"],
+  "engines": { "node": ">=18.0.0" },
   "bin": {
     "ceeline": "./dist/index.js"
   },

@@ -1,0 +1,65 @@
+{
+  "instructions": {
+    "surface": "prompt_context",
+    "intent": "prompt.compile.boundary",
+    "text": "Use Ceeline for internal agent reasoning, instruction compilation, handoffs, and reports. Use clear verbose prose only for the final response to the user.",
+    "source": {
+      "kind": "fixture",
+      "name": "ceeline.fixtures",
+      "instance": "flow.internal-to-user.instructions",
+      "timestamp": "2026-04-13T10:00:00Z"
+    },
+    "payload": {
+      "summary": "Compile the internal communication boundary.",
+      "facts": [
+        "Internal agent reasoning should stay in Ceeline.",
+        "Compiled instructions should stay machine-private.",
+        "Intermediate reports should stay compact.",
+        "Final user responses should be clear prose."
+      ],
+      "ask": "Apply the boundary consistently during prompt assembly.",
+      "phase": "system",
+      "priority": 100,
+      "source_ref": "workspace://policy/internal-boundary",
+      "artifacts": [],
+      "metadata": {
+        "policy": "compact-inside-clear-boundary"
+      }
+    }
+  },
+  "final_response": {
+    "surface": "history",
+    "intent": "ui.final-response",
+    "text": "Summarize the approved boundary for the user in plain language.",
+    "source": {
+      "kind": "fixture",
+      "name": "ceeline.fixtures",
+      "instance": "flow.internal-to-user.final-response",
+      "timestamp": "2026-04-13T10:05:00Z"
+    },
+    "payload": {
+      "summary": "Ceeline will be used for internal agent communication, compiled instructions, and intermediate reports.",
+      "facts": [
+        "Readable instructions can stay readable at rest.",
+        "Only the final response to the user is rendered in full prose."
+      ],
+      "ask": "Confirm the boundary clearly.",
+      "span": "exchange",
+      "turn_count": 1,
+      "anchor": "assistant-final",
+      "artifacts": [],
+      "metadata": {
+        "channel": "final"
+      }
+    }
+  },
+  "expected": {
+    "internal_density": "dense",
+    "internal_compact_markers": [
+      "@cl1",
+      "s=pc",
+      "ph=sy"
+    ],
+    "final_user_facing_text": "Ceeline will be used for internal agent communication, compiled instructions, and intermediate reports.\nFacts:\n- Readable instructions can stay readable at rest.\n- Only the final response to the user is rendered in full prose.\nAsk: Confirm the boundary clearly."
+  }
+}

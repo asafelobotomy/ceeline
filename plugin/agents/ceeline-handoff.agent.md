@@ -9,6 +9,8 @@ tools:
   - validate_ceeline_payload
   - render_verbose_summary
   - detect_ceeline_leak
+  - render_compact
+  - parse_compact
 ---
 
 # Ceeline Handoff Agent
@@ -50,7 +52,9 @@ pass to the target agent.
    ```
 
 3. **Encode** — Use the `translate_to_ceeline` tool to encode the input into a
-   Ceeline envelope.
+   Ceeline envelope. Pass `"policy": "final_response"` when this handoff will
+   be rendered to a user at the final chat boundary; omit it (or pass
+   `"internal"`) for all machine-to-machine hops.
 
 4. **Validate** — Use `validate_ceeline_payload` to confirm the envelope is
    schema-valid.
@@ -68,3 +72,7 @@ pass to the target agent.
 - Never emit raw compact text in user-facing chat.
 - If validation fails, report the issues and ask the user to fix the input.
 - Preserve tokens must be listed in `payload.facts` with "Preserve X exactly."
+- Use `policy: "final_response"` when the envelope represents the last boundary
+  before user-visible output. It sets channel to `controlled_ui`, render style
+  to `user_facing`, and enables sanitization. Never use internal-policy envelopes
+  for user-facing render.

@@ -1,9 +1,24 @@
 {
   "name": "@ceeline/core",
   "version": "0.1.0",
+  "description": "Encode, validate, render, and parse Ceeline compact envelopes",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist/",
+    "!dist/__tests__/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asafelobotomy/ceeline.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/asafelobotomy/ceeline#readme",
+  "bugs": "https://github.com/asafelobotomy/ceeline/issues",
+  "keywords": ["ceeline", "ai", "compact", "transport", "token-efficient", "encode", "decode", "llm", "agent"],
+  "engines": { "node": ">=18.0.0" },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

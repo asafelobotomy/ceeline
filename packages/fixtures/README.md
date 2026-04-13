@@ -23,5 +23,10 @@ v1 tests.
   - `routing.direct.envelope.json`
   - `tool-summary.eslint.envelope.json`
 
+- `flows/`: end-to-end fixtures that model readable source in, Ceeline inside,
+  and verbose user-facing output at the final boundary
+  - `handoff-repair.boundary.json`
+  - `internal-to-user.boundary.json`
+
 Golden compact fixtures (24 files: 8 surfaces × 3 densities) live in the
 top-level `fixtures/compact/` directory, not in this package.

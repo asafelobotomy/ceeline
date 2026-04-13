@@ -1,0 +1,65 @@
+{
+  "instructions": {
+    "surface": "handoff",
+    "intent": "review.fix.transport-boundary",
+    "text": "Repair the user-facing transport boundary. Keep Ceeline for internal handoff and reports, then return a clear final response to the user.",
+    "source": {
+      "kind": "fixture",
+      "name": "ceeline.fixtures",
+      "instance": "flow.handoff-repair.instructions",
+      "timestamp": "2026-04-13T11:15:00Z"
+    },
+    "payload": {
+      "summary": "Fix the user-facing transport boundary without exposing compact artifacts.",
+      "facts": [
+        "Keep the internal handoff in Ceeline.",
+        "Keep intermediate repair notes compact.",
+        "Return only the visible outcome to the user."
+      ],
+      "ask": "Implement the repair and preserve a clear final response.",
+      "role": "reviewer",
+      "target": "fixer",
+      "scope": ["transport", "rendering"],
+      "artifacts": [],
+      "metadata": {
+        "ticket": "boundary-fix-001"
+      }
+    }
+  },
+  "final_response": {
+    "surface": "history",
+    "intent": "ui.final-response",
+    "text": "Summarize the completed repair for the user in plain language.",
+    "source": {
+      "kind": "fixture",
+      "name": "ceeline.fixtures",
+      "instance": "flow.handoff-repair.final-response",
+      "timestamp": "2026-04-13T11:20:00Z"
+    },
+    "payload": {
+      "summary": "The internal transport boundary was tightened and the user-facing path now renders clean prose only.",
+      "facts": [
+        "Internal handoff and repair notes remain in Ceeline.",
+        "The final user-visible message is rendered after sanitization."
+      ],
+      "ask": "Share only the user-visible outcome.",
+      "span": "exchange",
+      "turn_count": 1,
+      "anchor": "assistant-final",
+      "artifacts": [],
+      "metadata": {
+        "channel": "final"
+      }
+    }
+  },
+  "expected": {
+    "internal_density": "dense",
+    "internal_compact_markers": [
+      "@cl1",
+      "s=ho",
+      "role=rv",
+      "tgt=fx"
+    ],
+    "final_user_facing_text": "The internal transport boundary was tightened and the user-facing path now renders clean prose only.\nFacts:\n- Internal handoff and repair notes remain in Ceeline.\n- The final user-visible message is rendered after sanitization.\nAsk: Share only the user-visible outcome."
+  }
+}

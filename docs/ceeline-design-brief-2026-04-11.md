@@ -47,6 +47,10 @@ Ceeline is suitable for:
 - routing metadata
 - extension-owned prompt assembly
 
+Human-authored instruction source may remain readable at rest, but hosts should
+compile machine-private instruction meaning into Ceeline transport before it
+enters agent prompt assembly.
+
 Ceeline is not suitable for:
 
 - default end-user chat text
@@ -97,6 +101,9 @@ Ceeline v1 should:
   the core
 - provide leak detection before user-facing output is emitted
 - support golden fixtures, contract tests, and schema validation
+- let agents think, exchange instructions, communicate, and produce
+  intermediate reports in Ceeline while reserving clear verbose prose for the
+  final user-facing response
 
 ---
 
@@ -146,6 +153,11 @@ Ceeline follows these principles:
 8. Fail closed on ambiguity
    If Ceeline cannot validate or safely render a payload, it must reject or
    fall back rather than guess.
+
+9. Compact inside, clear at the boundary
+  Internal agent communication, compiled prompt-context, machine-private
+  reports, and other non-user-visible artifacts should prefer Ceeline.
+  Verbose prose is reserved for final user-facing rendering.
 
 ---
 
@@ -228,6 +240,10 @@ Implements:
 - preserve token extraction
 - roundtrip validation
 - leak detection
+
+The default host flow should be: readable source in, canonical Ceeline
+transport inside the system, and clear verbose rendering only at the final user
+boundary.
 
 #### 3. CLI
 

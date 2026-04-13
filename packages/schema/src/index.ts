@@ -47,6 +47,7 @@ export const AUDIENCES = ["machine", "operator", "user"] as const;
 export const FALLBACKS = ["reject", "verbose", "pass_through"] as const;
 export const RENDER_STYLES = ["none", "terse", "normal", "user_facing"] as const;
 export const SANITIZERS = ["strict", "standard"] as const;
+export const CEELINE_POLICIES = ["internal", "final_response"] as const;
 export const PRESERVE_CLASSES = [
   "file_path",
   "tool_identifier",
@@ -71,6 +72,7 @@ export type Audience = (typeof AUDIENCES)[number];
 export type FallbackMode = (typeof FALLBACKS)[number];
 export type RenderStyle = (typeof RENDER_STYLES)[number];
 export type SanitizerMode = (typeof SANITIZERS)[number];
+export type CeelinePolicy = (typeof CEELINE_POLICIES)[number];
 export type PreserveClass = (typeof PRESERVE_CLASSES)[number];
 
 export interface SourceInfo {
@@ -169,6 +171,12 @@ export interface RenderConfig {
   sanitizer: SanitizerMode;
 }
 
+export interface CeelinePolicyDefaults {
+  channel: CeelineChannel;
+  constraints: ConstraintSet;
+  render: RenderConfig;
+}
+
 export interface Diagnostics {
   trace?: boolean;
   labels?: string[];
@@ -214,6 +222,64 @@ export const SURFACE_PAYLOAD_SCHEMA_IDS = {
   prompt_context: promptContextPayloadV1Schema.$id,
   history: historyPayloadV1Schema.$id
 } as const;
+
+export const INTERNAL_CONSTRAINT_DEFAULTS: ConstraintSet = {
+  mode: "read_only",
+  audience: "machine",
+  max_render_tokens: 0,
+  no_user_visible_output: true,
+  fallback: "reject"
+};
+
+export const INTERNAL_RENDER_DEFAULTS: RenderConfig = {
+  style: "none",
+  locale: "en",
+  sanitizer: "strict"
+};
+
+export const FINAL_RESPONSE_CONSTRAINT_DEFAULTS: ConstraintSet = {
+  mode: "read_only",
+  audience: "user",
+  max_render_tokens: 0,
+  no_user_visible_output: false,
+  fallback: "verbose"
+};
+
+export const FINAL_RESPONSE_RENDER_DEFAULTS: RenderConfig = {
+  style: "user_facing",
+  locale: "en",
+  sanitizer: "strict"
+};
+
+export function defaultChannelForSurface(
+  surface: CeelineSurface,
+  policy: CeelinePolicy = "internal"
+): CeelineChannel {
+  if (policy === "final_response" || surface === "history") {
+    return "controlled_ui";
+  }
+
+  return "internal";
+}
+
+export function createPolicyDefaults(
+  surface: CeelineSurface,
+  policy: CeelinePolicy = "internal"
+): CeelinePolicyDefaults {
+  if (policy === "final_response") {
+    return {
+      channel: defaultChannelForSurface(surface, policy),
+      constraints: { ...FINAL_RESPONSE_CONSTRAINT_DEFAULTS },
+      render: { ...FINAL_RESPONSE_RENDER_DEFAULTS }
+    };
+  }
+
+  return {
+    channel: defaultChannelForSurface(surface, policy),
+    constraints: { ...INTERNAL_CONSTRAINT_DEFAULTS },
+    render: { ...INTERNAL_RENDER_DEFAULTS }
+  };
+}
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
